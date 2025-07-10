@@ -11,7 +11,6 @@
   CI = "true"
   # Disable npm audit for faster builds
   NPM_CONFIG_AUDIT = "false"
-
 # Build optimization
 [build.processing]
   skip_processing = false
