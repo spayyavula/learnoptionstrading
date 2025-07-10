@@ -55,22 +55,22 @@ export default function Success() {
         <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
           {/* Success Icon */}
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-green-600 animate-bounce" />
           </div>
 
           {/* Success Message */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Welcome to Learn Options Trading Academy!
+          <h1 className="text-4xl font-extrabold text-green-700 mb-4">
+            🎉 Payment Successful! Welcome to Learn Options Trading Academy! 🎉
           </h1>
           
-          <p className="text-xl text-gray-600 mb-2">
-            Your {currentPlan.name} subscription is now active
+          <p className="text-2xl text-gray-700 mb-2">
+            Your {currentPlan.name} subscription is now active.
           </p>
           
           {couponDisplay}
           
           <p className="text-lg text-gray-500 mb-8">
-            Thank you for subscribing to {currentPlan.price}
+            Thank you for subscribing to {currentPlan.price}. We’re excited to have you on board!
           </p>
 
           {/* What's Next */}

@@ -23,6 +23,10 @@ export default function Landing() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleProCheckout = async () => {
+    const termsAccepted = window.confirm(
+      `Terms & Agreement\n\nBy proceeding, you agree to our Terms of Service, Privacy Policy, and Subscription terms. Continue with Pro plan checkout?`
+    );
+    if (!termsAccepted) return;
     setIsLoading(true)
     try {
       await StripeService.redirectToCheckout('pro')

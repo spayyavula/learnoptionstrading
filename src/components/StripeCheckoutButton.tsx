@@ -4,17 +4,25 @@ interface StripeCheckoutButtonProps {
   plan: 'monthly' | 'yearly' | 'pro' | 'enterprise';
   buttonText?: string;
   className?: string;
+  requireTerms?: boolean;
 }
 
 const StripeCheckoutButton: React.FC<StripeCheckoutButtonProps> = ({
   plan,
   buttonText = 'Subscribe Now',
   className = '',
+  requireTerms = false,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleClick = async () => {
+    if (requireTerms) {
+      const termsAccepted = window.confirm(
+        `Terms & Agreement\n\nBy proceeding, you agree to our Terms of Service, Privacy Policy, and Subscription terms. Continue with ${plan} plan checkout?`
+      );
+      if (!termsAccepted) return;
+    }
     setLoading(true);
     setError(null);
     try {
