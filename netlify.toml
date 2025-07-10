@@ -1,16 +1,12 @@
 # Netlify configuration for Learn Options Trading App
 [build]
   # Simple, reliable build command
-  command = "npm run build"
+  command = "npm install && npm run build"
   publish = "dist"
 
 [build.environment]
   # Use Node 20 for best compatibility with Vite 5+
   NODE_VERSION = "20"
-  NPM_VERSION = "10"
-  CI = "true"
-  # Disable npm audit for faster builds
-  NPM_CONFIG_AUDIT = "false"
 # Build optimization
 [build.processing]
   skip_processing = false
@@ -32,13 +28,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = [], Country = []}
-
-# Future API routes (if you add serverless functions)
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
 
 # Security and performance headers
 [[headers]]
@@ -48,7 +37,6 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
     
     # Performance - cache static assets
     Cache-Control = "public, max-age=31536000, immutable"
@@ -76,28 +64,3 @@
   for = "*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Production context
-[context.production]
-  command = "npm ci && npm run build"
-  environment = { NODE_ENV = "production" }
-
-# Deploy previews
-[context.deploy-preview]
-  command = "CI= npm install && npm run build"
-  environment = { NODE_ENV = "development" }
-
-# Branch deploys
-[context.branch-deploy]
-  command = "CI= npm install && npm run build"
-  environment = { NODE_ENV = "development" }
-
-# Functions configuration (for future use)
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  external_node_modules = ["@supabase/supabase-js", "date-fns"]
-
-# Form handling (if you add contact forms later)
-[form]
-  settings = { external = false }
