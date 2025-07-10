@@ -16,12 +16,7 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-
-// Remove this import:
-// import { trackPricingInterest } from '../utils/demandTracking'
-
-// Add real Stripe service:
-import { createCheckoutSession } from '../services/stripeCheckout'
+import { StripeService } from '../services/stripeService'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -30,10 +25,7 @@ export default function Landing() {
   const handleProCheckout = async () => {
     setIsLoading(true)
     try {
-      await createCheckoutSession(
-        'price_1Rdu2JG0usgeCZqlpwN7k1Vr', // Your actual Stripe Price ID
-        'pro'
-      )
+      await StripeService.redirectToCheckout('pro')
     } catch (error) {
       console.error('Checkout failed:', error)
       alert('Sorry, there was an error processing your request. Please try again.')
