@@ -73,6 +73,17 @@ export default function Landing() {
               Learn options trading with our comprehensive educational platform. 
               Practice with virtual money before risking real capital.
             </p>
+            <div className="mb-4">
+              <span className="inline-flex items-center text-yellow-300 bg-yellow-900 bg-opacity-30 rounded px-3 py-2 text-sm">
+                <AlertTriangle className="h-4 w-4 mr-2 text-yellow-400" />
+                <span>
+                  Educational use only. No financial advice. See our
+                  <Link to='/disclaimer' className='underline ml-1 text-yellow-200 hover:text-white'>Disclaimer</Link>,
+                  <Link to='/terms' className='underline ml-1 text-yellow-200 hover:text-white'>Terms</Link>, and
+                  <Link to='/privacy' className='underline ml-1 text-yellow-200 hover:text-white'>Privacy Policy</Link>.
+                </span>
+              </span>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/app"
