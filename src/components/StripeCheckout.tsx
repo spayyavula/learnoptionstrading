@@ -4,7 +4,6 @@ import { StripeService } from '../services/stripeService'
 
 interface StripeCheckoutProps {
   plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'
-  isDeal?: boolean
   onSuccess?: () => void
   onError?: (error: string) => void
   children?: React.ReactNode
@@ -16,7 +15,6 @@ interface StripeCheckoutProps {
 
 export default function StripeCheckout({ 
   plan, 
-  isDeal = false,
   onSuccess, 
   onError, 
   children, 
@@ -67,7 +65,7 @@ export default function StripeCheckout({
       console.log('🚀 Calling StripeService.redirectToCheckout for plan:', plan)
       
       // This should ONLY use Payment Links or Mock - NO API calls
-      await StripeService.redirectToCheckout(plan, isDeal)
+      await StripeService.redirectToCheckout(plan)
       
       console.log('✅ StripeService.redirectToCheckout completed')
       onSuccess?.()

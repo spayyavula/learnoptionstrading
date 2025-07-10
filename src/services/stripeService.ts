@@ -1,41 +1,6 @@
 import { BASE_PRICES } from '../utils/priceSync'
 import { JsonDebugger } from '../utils/jsonDebugger'
 
-import { loadStripe } from '@stripe/stripe-js'
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '')
-
-// Utility functions for safe localStorage operations
-function safeLocalStorageGet(key: string, fallback: any = null) {
-  try {
-    const item = localStorage.getItem(key)
-    if (!item) return fallback
-    return JsonDebugger.safeParse(item, `localStorage.get(${key})`) ?? fallback
-  } catch (error) {
-    console.error(`❌ LocalStorage get failed for key "${key}":`, error)
-    try {
-      localStorage.removeItem(key)
-    } catch (clearError) {
-      console.error('❌ Failed to clear corrupted localStorage:', clearError)
-    }
-    return fallback
-  }
-}
-
-function safeLocalStorageSet(key: string, value: any) {
-  try {
-    const jsonString = JsonDebugger.safeStringify(value, `localStorage.set(${key})`)
-    if (!jsonString) {
-      console.error(`❌ Failed to stringify value for localStorage key "${key}"`)
-      return false
-    }
-    localStorage.setItem(key, jsonString)
-    return true
-  } catch (error) {
-    console.error(`❌ LocalStorage set failed for key "${key}":`, error)
-    return false
-  }
-}
-
 interface StripeProduct {
   id: string
   name: string
@@ -73,19 +38,18 @@ export class StripeService {
    * No backend API calls - purely client-side
    */
   static async redirectToCheckout(
-    plan: 'monthly' | 'yearly' | 'pro' | 'enterprise',
-    isDeal: boolean = false
+    plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'
   ): Promise<void> {
     console.log('🛒 StripeService.redirectToCheckout called with plan:', plan)
     console.log('🔍 Current URL:', window.location.href)
     console.log('🔍 Environment mode:', import.meta.env.MODE)
     
     const { 
+      PUBLISHABLE_KEY,
       MONTHLY_PAYMENT_LINK,
       YEARLY_PAYMENT_LINK,
       PRO_PAYMENT_LINK,
-      ENTERPRISE_PAYMENT_LINK,
-      PUBLISHABLE_KEY 
+      ENTERPRISE_PAYMENT_LINK
     } = this.getEnvVars()
     
     console.log('🔧 Environment check:', {
@@ -95,50 +59,31 @@ export class StripeService {
     })
     
     try {
-      // FORCE DEVELOPMENT MODE FOR NOW - Remove this line when you have Payment Links
-      if (import.meta.env.DEV || !PUBLISHABLE_KEY) {
-        console.log('🧪 Using mock checkout (development mode or no Stripe keys)')
-        await this.mockStripeCheckoutAsync(plan)
-        return
+      // Production: Use Payment Links
+      console.log('💳 Production mode - Using Stripe Payment Links')
+      
+      const paymentLinks = {
+        monthly: MONTHLY_PAYMENT_LINK,
+        yearly: YEARLY_PAYMENT_LINK,
+        pro: PRO_PAYMENT_LINK,
+        enterprise: ENTERPRISE_PAYMENT_LINK
       }
       
-      // Production: Use Stripe Checkout
-      console.log('💳 Production mode - Using Stripe Checkout')
+      const paymentLink = paymentLinks[plan]
       
-      // Get the price ID for the selected plan
-      const priceId = this.getPriceIdForPlan(plan)
-      if (!priceId) {
-        throw new Error(`No price ID configured for plan: ${plan}`)
+      if (!paymentLink) {
+        console.error('❌ No payment link for plan:', plan)
+        console.error('Available payment links:', paymentLinks)
+        throw new Error(`Payment link not configured for plan: ${plan}. Please contact support.`)
       }
       
-      // Initialize Stripe
-      const stripe = await stripePromise
-      if (!stripe) {
-        throw new Error('Failed to initialize Stripe')
-      }
+      console.log('🚀 Redirecting to Stripe Payment Link:', paymentLink)
       
-      // Determine success URL based on whether this is a deal or regular subscription
-      const successUrl = isDeal 
-        ? `${window.location.origin}/subscribe?subscription=success&plan=${plan}&deal=true` 
-        : `${window.location.origin}/success?plan=${plan}`
+      // Direct redirect to Payment Link - NO API CALLS
+      window.location.href = paymentLink
       
-      // Create checkout session
-      const { error } = await stripe.redirectToCheckout({
-        lineItems: [{ price: priceId, quantity: 1 }],
-        mode: 'subscription',
-        successUrl,
-        cancelUrl: `${window.location.origin}/subscribe?subscription=cancelled`
-      })
-      
-      if (error) {
-        throw new Error(error.message)
-      }
     } catch (error) {
       console.error('❌ Checkout error:', error)
-      
-      // Always fallback to mock in case of error
-      console.log('🧪 Falling back to mock checkout due to error')
-      await this.mockStripeCheckoutAsync(plan)
     }
   }
 
@@ -187,128 +132,16 @@ export class StripeService {
   }
 
   /**
-   * Mock checkout for development
-   */
-  private static async mockStripeCheckoutAsync(plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'): Promise<void> {
-    console.log('🧪 Mock checkout initiated:', { plan })
-    
-    return new Promise((resolve, reject) => {
-      try {
-        const products = this.getProducts()
-        const product = products.find(p => p.id === plan)
-        
-        if (!product) {
-          reject(new Error(`Invalid plan: ${plan}`))
-          return
-        }
-        
-        const userConfirmed = confirm(
-          `🧪 MOCK STRIPE CHECKOUT (Development Mode)\n\n` +
-          `Plan: ${product.name}\n` +
-          `Price: $${product.price}/${product.interval}\n\n` +
-          `In production, this will redirect to Stripe.\n\n` +
-          `Proceed with mock subscription?`
-        )
-        
-        if (userConfirmed) {
-          this.completeMockCheckout(plan, product.price)
-          resolve()
-        } else {
-          reject(new Error('User cancelled checkout'))
-        }
-      } catch (error) {
-        reject(new Error(`Mock checkout failed: ${error instanceof Error ? error.message : 'Unknown error'}`))
-      }
-    })
-  }
-
-  /**
-   * Complete mock checkout
-   */
-  private static completeMockCheckout(plan: 'monthly' | 'yearly' | 'pro' | 'enterprise', finalPrice: number): void {
-    console.log('✅ Completing mock checkout:', { plan, finalPrice })
-    
-    const mockSubscription = {
-      id: `sub_mock_${Date.now()}`,
-      plan,
-      status: 'active',
-      created: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + (plan === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000).toISOString(),
-      amount_paid: finalPrice,
-      customer_id: `cus_mock_${Date.now()}`,
-      terms_accepted: true
-    }
-    
-    const success = safeLocalStorageSet('mock_subscription', mockSubscription)
-    if (!success) {
-      throw new Error('Failed to save subscription data')
-    }
-    
-    // Redirect to success page
-    window.location.href = `/success?plan=${plan}`
-  }
-
-  /**
-   * Customer portal for development
+   * Customer portal (requires backend in production)
    */
   static async createCustomerPortalSession(customerId: string): Promise<string> {
-    console.log('🏪 Customer portal request for:', customerId)
-    
-    if (import.meta.env.DEV) {
-      const userChoice = confirm(
-        `🧪 MOCK CUSTOMER PORTAL (Development Mode)\n\n` +
-        `Customer ID: ${customerId}\n\n` +
-        `In production, this opens Stripe's billing portal.\n\n` +
-        `Simulate opening portal?`
-      )
-      
-      if (userChoice) {
-        // Open a mock portal URL
-        return `https://billing.stripe.com/p/session/mock_${customerId}_${Date.now()}`
-      } else {
-        throw new Error('Customer portal access cancelled')
-      }
-    }
-    
-    // In production, this would need a backend API
     throw new Error('Customer portal requires backend integration in production')
   }
 
   /**
-   * Get the Stripe Price ID for a plan
-   */
-  private static getPriceIdForPlan(plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'): string {
-    const priceIds = {
-      monthly: import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID,
-      yearly: import.meta.env.VITE_STRIPE_YEARLY_PRICE_ID,
-      pro: import.meta.env.VITE_STRIPE_PRICE_ID_PRO,
-      enterprise: import.meta.env.VITE_STRIPE_PRICE_ID_ENTERPRISE
-    }
-    
-    return priceIds[plan] || ''
-  }
-
-  /**
-   * Check subscription status
+   * Check subscription status (requires backend in production)
    */
   static getSubscriptionStatus(): { active: boolean; plan?: string; subscription?: any; termsAccepted?: boolean } {
-    try {
-      const subscription = safeLocalStorageGet('mock_subscription')
-      if (subscription && typeof subscription === 'object') {
-        const isActive = subscription.status === 'active' && new Date(subscription.current_period_end) > new Date()
-        
-        return {
-          active: isActive,
-          plan: subscription.plan,
-          subscription,
-          termsAccepted: subscription.terms_accepted || false
-        }
-      }
-      
-      return { active: false, termsAccepted: false }
-    } catch (error) {
-      console.error('❌ Error checking subscription status:', error)
-      return { active: false, termsAccepted: false }
-    }
+    return { active: false, termsAccepted: false }
   }
 }
