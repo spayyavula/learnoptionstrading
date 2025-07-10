@@ -1,8 +1,7 @@
 import { BASE_PRICES } from '../utils/priceSync'
 import { JsonDebugger } from '../utils/jsonDebugger'
 
-// NO STRIPE IMPORTS - We're using Payment Links only
-// Remove any lines like: import { loadStripe } from '@stripe/stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 
 // Utility functions for safe localStorage operations
 function safeLocalStorageGet(key: string, fallback: any = null) {
@@ -73,7 +72,8 @@ export class StripeService {
    * No backend API calls - purely client-side
    */
   static async redirectToCheckout(
-    plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'
+    plan: 'monthly' | 'yearly' | 'pro' | 'enterprise',
+    isDeal: boolean = false
   ): Promise<void> {
     console.log('🛒 StripeService.redirectToCheckout called with plan:', plan)
     console.log('🔍 Current URL:', window.location.href)
@@ -95,35 +95,43 @@ export class StripeService {
     
     try {
       // FORCE DEVELOPMENT MODE FOR NOW - Remove this line when you have Payment Links
-      if (true || import.meta.env.DEV || !PUBLISHABLE_KEY) {
+      if (import.meta.env.DEV || !PUBLISHABLE_KEY) {
         console.log('🧪 Using mock checkout (development mode or no Stripe keys)')
         await this.mockStripeCheckoutAsync(plan)
         return
       }
       
-      // Production: Use Payment Links
-      console.log('💳 Production mode - Using Stripe Payment Links')
+      // Production: Use Stripe Checkout
+      console.log('💳 Production mode - Using Stripe Checkout')
       
-      const paymentLinks = {
-        monthly: MONTHLY_PAYMENT_LINK,
-        yearly: YEARLY_PAYMENT_LINK,
-        pro: PRO_PAYMENT_LINK,
-        enterprise: ENTERPRISE_PAYMENT_LINK
+      // Get the price ID for the selected plan
+      const priceId = this.getPriceIdForPlan(plan)
+      if (!priceId) {
+        throw new Error(`No price ID configured for plan: ${plan}`)
       }
       
-      const paymentLink = paymentLinks[plan]
-      
-      if (!paymentLink) {
-        console.error('❌ No payment link for plan:', plan)
-        console.error('Available payment links:', paymentLinks)
-        throw new Error(`Payment link not configured for plan: ${plan}. Please contact support.`)
+      // Initialize Stripe
+      const stripe = await loadStripe(PUBLISHABLE_KEY)
+      if (!stripe) {
+        throw new Error('Failed to initialize Stripe')
       }
       
-      console.log('🚀 Redirecting to Stripe Payment Link:', paymentLink)
+      // Determine success URL based on whether this is a deal or regular subscription
+      const successUrl = isDeal 
+        ? `${window.location.origin}/subscribe?subscription=success&plan=${plan}&deal=true` 
+        : `${window.location.origin}/success?plan=${plan}`
       
-      // Direct redirect to Payment Link - NO API CALLS
-      window.location.href = paymentLink
+      // Create checkout session
+      const { error } = await stripe.redirectToCheckout({
+        lineItems: [{ price: priceId, quantity: 1 }],
+        mode: 'subscription',
+        successUrl,
+        cancelUrl: `${window.location.origin}/subscribe?subscription=cancelled`
+      })
       
+      if (error) {
+        throw new Error(error.message)
+      }
     } catch (error) {
       console.error('❌ Checkout error:', error)
       
@@ -261,6 +269,20 @@ export class StripeService {
       }
     }
     
+  
+  /**
+   * Get the Stripe Price ID for a plan
+   */
+  private static getPriceIdForPlan(plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'): string {
+    const priceIds = {
+      monthly: import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID,
+      yearly: import.meta.env.VITE_STRIPE_YEARLY_PRICE_ID,
+      pro: import.meta.env.VITE_STRIPE_PRICE_ID_PRO,
+      enterprise: import.meta.env.VITE_STRIPE_PRICE_ID_ENTERPRISE
+    }
+    
+    return priceIds[plan] || ''
+  }
     // In production, this would need a backend API
     throw new Error('Customer portal requires backend integration in production')
   }

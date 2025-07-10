@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { BASE_PRICES, YEARLY_SAVINGS_PERCENT } from '../utils/priceSync'
 import StripeCheckout from '../components/StripeCheckout'
 import TermsAgreement from '../components/TermsAgreement'
+import CouponInput from '../components/CouponInput'
+import DealsSection from '../components/DealsSection'
 
 // Force cache invalidation
 const CACHE_BUST_ID = Date.now()
@@ -12,13 +14,22 @@ console.log('🔧 PricingPage Cache Bust:', CACHE_BUST_ID)
 
 const PricingPage: React.FC = () => {
   const [showTermsModal, setShowTermsModal] = useState(false)
+  const [selectedDeal, setSelectedDeal] = useState<any>(null)
   const [pendingSubscription, setPendingSubscription] = useState<{
     plan: 'monthly' | 'yearly' | 'pro' | 'enterprise'
+    isDeal?: boolean
   } | null>(null)
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
 
   const handleSubscribe = async (plan: 'monthly' | 'yearly' | 'pro' | 'enterprise') => {
     // Show terms agreement before proceeding
     setPendingSubscription({ plan })
+    setShowTermsModal(true)
+  }
+
+  const handleClaimDeal = (deal: any) => {
+    setSelectedDeal(deal)
+    setPendingSubscription({ plan: deal.plan, isDeal: true })
     setShowTermsModal(true)
   }
 
@@ -43,6 +54,14 @@ const PricingPage: React.FC = () => {
     console.error('❌ Checkout error from Pricing page:', error)
     alert(`Checkout Error: ${error}\n\nPlease try again or contact support.`)
   }
+  
+  const handleCouponApplied = (validation: any) => {
+    setAppliedCoupon(validation)
+  }
+  
+  const handleCouponRemoved = () => {
+    setAppliedCoupon(null)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900">
@@ -65,6 +84,13 @@ const PricingPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Special Deals Section */}
+        <DealsSection 
+          onClaimDeal={handleClaimDeal}
+          selectedPlan={pendingSubscription?.plan}
+          className="mb-8"
+        />
+
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {/* Monthly Plan */}
@@ -77,6 +103,15 @@ const PricingPage: React.FC = () => {
               </div>
               <p className="text-gray-400">Perfect for getting started</p>
             </div>
+
+            <CouponInput
+              plan="monthly"
+              originalAmount={BASE_PRICES.monthly}
+              onCouponApplied={handleCouponApplied}
+              onCouponRemoved={handleCouponRemoved}
+              appliedCoupon={appliedCoupon}
+              className="mb-8"
+            />
 
             <ul className="space-y-4 mb-8">
               <li className="flex items-center text-gray-300">
@@ -135,6 +170,15 @@ const PricingPage: React.FC = () => {
               <p className="text-gray-400">Best value for committed learners</p>
             </div>
 
+            <CouponInput
+              plan="yearly"
+              originalAmount={BASE_PRICES.yearly}
+              onCouponApplied={handleCouponApplied}
+              onCouponRemoved={handleCouponRemoved}
+              appliedCoupon={appliedCoupon}
+              className="mb-8"
+            />
+
             <ul className="space-y-4 mb-8">
               <li className="flex items-center text-gray-300">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
@@ -183,6 +227,15 @@ const PricingPage: React.FC = () => {
               <p className="text-gray-400">For serious traders</p>
             </div>
 
+            <CouponInput
+              plan="pro"
+              originalAmount={BASE_PRICES.pro}
+              onCouponApplied={handleCouponApplied}
+              onCouponRemoved={handleCouponRemoved}
+              appliedCoupon={appliedCoupon}
+              className="mb-8"
+            />
+
             <ul className="space-y-4 mb-8">
               <li className="flex items-center text-gray-300">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
@@ -229,6 +282,15 @@ const PricingPage: React.FC = () => {
               <p className="text-gray-400">For institutions</p>
             </div>
 
+            <CouponInput
+              plan="enterprise"
+              originalAmount={BASE_PRICES.enterprise}
+              onCouponApplied={handleCouponApplied}
+              onCouponRemoved={handleCouponRemoved}
+              appliedCoupon={appliedCoupon}
+              className="mb-8"
+            />
+
             <ul className="space-y-4 mb-8">
               <li className="flex items-center text-gray-300">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
@@ -253,6 +315,7 @@ const PricingPage: React.FC = () => {
               onSuccess={handleCheckoutSuccess}
               onError={handleCheckoutError}
               className="w-full"
+              isDeal={pendingSubscription?.isDeal}
               variant="secondary"
               requireTerms={true}
             >
