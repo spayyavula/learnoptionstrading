@@ -269,7 +269,10 @@ export class StripeService {
       }
     }
     
-  
+    // In production, this would need a backend API
+    throw new Error('Customer portal requires backend integration in production')
+  }
+
   /**
    * Get the Stripe Price ID for a plan
    */
@@ -282,9 +285,6 @@ export class StripeService {
     }
     
     return priceIds[plan] || ''
-  }
-    // In production, this would need a backend API
-    throw new Error('Customer portal requires backend integration in production')
   }
 
   /**
