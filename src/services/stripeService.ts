@@ -281,7 +281,7 @@ export class StripeService {
       enterprise: import.meta.env.VITE_STRIPE_PRICE_ID_ENTERPRISE
     }
     
-    return priceIds[plan] || '';
+    return priceIds[plan] || ''
   }
     // In production, this would need a backend API
     throw new Error('Customer portal requires backend integration in production')
