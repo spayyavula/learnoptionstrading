@@ -1,7 +1,7 @@
 # Netlify configuration for Learn Options Trading App
 [build]
   # Simple, reliable build command
-  command = "npm install && npm run build"
+  command = "CI= npm install && npm run build"
   publish = "dist"
 
 [build.environment]
@@ -82,17 +82,17 @@
 
 # Production context
 [context.production]
-  command = "npm ci && npm run build"
+  command = "CI= npm ci && npm run build"
   environment = { NODE_ENV = "production" }
 
 # Deploy previews
 [context.deploy-preview]
-  command = "npm install && npm run build"
+  command = "CI= npm install && npm run build"
   environment = { NODE_ENV = "development" }
 
 # Branch deploys
 [context.branch-deploy]
-  command = "npm install && npm run build"
+  command = "CI= npm install && npm run build"
   environment = { NODE_ENV = "development" }
 
 # Functions configuration (for future use)

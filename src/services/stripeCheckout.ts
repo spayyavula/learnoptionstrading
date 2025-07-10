@@ -1,7 +1,9 @@
 // src/services/stripeCheckout.ts
 import { loadStripe } from '@stripe/stripe-js'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!)
+// Only initialize Stripe if we have a publishable key
+const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || ''
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null
 
 export const createCheckoutSession = async (priceId: string, planName: string) => {
   // In development, just simulate the checkout
@@ -30,18 +32,22 @@ export const createCheckoutSession = async (priceId: string, planName: string) =
     }
 
     const session = await response.json()
-    
-    const stripe = await stripePromise
-    if (!stripe) {
-      throw new Error('Stripe failed to load')
-    }
 
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id,
-    })
+    if (stripePromise) {
+      const stripe = await stripePromise
+      if (!stripe) {
+        throw new Error('Stripe failed to load')
+      }
 
-    if (result.error) {
-      throw new Error(result.error.message)
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+    } else {
+      throw new Error('Stripe not initialized - missing publishable key')
     }
   } catch (error) {
     console.error('Error creating checkout session:', error)
