@@ -11,8 +11,6 @@
   CI = "true"
   # Disable npm audit for faster builds
   NPM_CONFIG_AUDIT = "false"
-  # Disable package-lock generation during build
-  NPM_CONFIG_PACKAGE_LOCK = "false"
 
 # Build optimization
 [build.processing]
@@ -82,7 +80,7 @@
 
 # Production context
 [context.production]
-  command = "CI= npm ci && npm run build"
+  command = "npm ci && npm run build"
   environment = { NODE_ENV = "production" }
 
 # Deploy previews
