@@ -2,6 +2,7 @@ import { BASE_PRICES } from '../utils/priceSync'
 import { JsonDebugger } from '../utils/jsonDebugger'
 
 import { loadStripe } from '@stripe/stripe-js'
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '')
 
 // Utility functions for safe localStorage operations
 function safeLocalStorageGet(key: string, fallback: any = null) {
@@ -111,7 +112,7 @@ export class StripeService {
       }
       
       // Initialize Stripe
-      const stripe = await loadStripe(PUBLISHABLE_KEY)
+      const stripe = await stripePromise
       if (!stripe) {
         throw new Error('Failed to initialize Stripe')
       }
