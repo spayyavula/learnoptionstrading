@@ -1,7 +1,7 @@
 # Netlify configuration for Learn Options Trading App
 [build]
   # Simple, reliable build command
-  command = "CI= npm install && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [build.environment]
