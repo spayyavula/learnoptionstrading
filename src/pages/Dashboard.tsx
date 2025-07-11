@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TrendingUp, TrendingDown, Bot, DollarSign, PieChart, Activity, ArrowUpRight, Users, BookOpen, BookMarked, Lightbulb, Calculator } from 'lucide-react'
 import { CommunityService } from '../services/communityService' 
@@ -27,6 +27,12 @@ export default function Dashboard() {
   const communityStats = CommunityService.getCommunityStats()
   const recentMessages = CommunityService.getRecentMessages().slice(0, 3)
 
+  const [termsAccepted, setTermsAccepted] = useState(false)
+
+  useEffect(() => {
+    setTermsAccepted(localStorage.getItem('termsAccepted') === 'true')
+  }, [])
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -54,6 +60,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {termsAccepted && (
+        <div className="bg-green-100 border border-green-300 text-green-800 rounded-lg px-4 py-3 mb-4 text-center font-semibold">
+          ✅ You have accepted the latest Terms & Conditions.
+        </div>
+      )}
+
       {/* Portfolio Overview Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
