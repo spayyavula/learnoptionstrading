@@ -74,6 +74,12 @@ export class StripeService {
       if (!paymentLink) {
         console.error('❌ No payment link for plan:', plan)
         console.error('Available payment links:', paymentLinks)
+        alert(
+          `Checkout error: Payment link for the selected plan is not configured.\n\n` +
+          `Please contact support or check your environment variables.\n\n` +
+          `Plan: ${plan}\n` +
+          `Available links: ${JSON.stringify(paymentLinks, null, 2)}`
+        )
         throw new Error(`Payment link not configured for plan: ${plan}. Please contact support.`)
       }
       
