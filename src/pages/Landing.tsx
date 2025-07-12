@@ -26,10 +26,10 @@ export default function Landing() {
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleProCheckout = async () => {
-    if (!termsAccepted) {
-      setShowTermsModal(true)
-      return
-    }
+    setShowTermsModal(true)
+  }
+
+  const proceedToStripeCheckout = async () => {
     setIsLoading(true)
     try {
       await StripeService.redirectToCheckout('pro')
@@ -48,7 +48,7 @@ export default function Landing() {
     setTimeout(() => {
       setShowTermsModal(false)
       setShowSuccess(false)
-      handleProCheckout()
+      proceedToStripeCheckout()
     }, 1500)
   }
 
