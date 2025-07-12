@@ -24,6 +24,7 @@ export default function Landing() {
   const [showTermsModal, setShowTermsModal] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   const handleProCheckout = async () => {
     setShowTermsModal(true)
@@ -31,11 +32,13 @@ export default function Landing() {
 
   const proceedToStripeCheckout = async () => {
     setIsLoading(true)
+    setCheckoutError(null)
     try {
       await StripeService.redirectToCheckout('pro')
     } catch (error) {
-      console.error('Checkout failed:', error)
-      alert('Sorry, there was an error processing your request. Please try again.')
+      const msg = error instanceof Error ? error.message : 'Checkout failed'
+      setCheckoutError(msg)
+      alert(msg)
     } finally {
       setIsLoading(false)
     }
@@ -381,6 +384,11 @@ export default function Landing() {
                   'Subscribe Now'
                 )}
               </button>
+              {checkoutError && (
+                <div className="mt-4 text-red-600 text-center font-semibold border border-red-300 bg-red-50 rounded p-3">
+                  {checkoutError}
+                </div>
+              )}
               {showTermsModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                   <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh]">
