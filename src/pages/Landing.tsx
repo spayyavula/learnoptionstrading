@@ -16,44 +16,13 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { StripeService } from '../services/stripeService'
+
 
 export default function Landing() {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
-  const [showTermsModal, setShowTermsModal] = useState(false)
-  const [termsAccepted, setTermsAccepted] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  // Platform is now 100% free! No paid plans, no checkout.
 
-  const handleProCheckout = async () => {
-    setShowTermsModal(true)
-  }
 
-  const proceedToStripeCheckout = async () => {
-    setIsLoading(true)
-    setCheckoutError(null)
-    try {
-      await StripeService.redirectToCheckout('pro')
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Checkout failed'
-      setCheckoutError(msg)
-      alert(msg)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleAcceptTerms = () => {
-    setTermsAccepted(true)
-    setShowSuccess(true)
-    localStorage.setItem('termsAccepted', 'true')
-    setTimeout(() => {
-      setShowTermsModal(false)
-      setShowSuccess(false)
-      proceedToStripeCheckout()
-    }, 1500)
-  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -370,25 +339,9 @@ export default function Landing() {
                   <span>Community access</span>
                 </li>
               </ul>
-              <button
-                onClick={handleProCheckout}
-                disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                    Processing...
-                  </>
-                ) : (
-                  'Subscribe Now'
-                )}
-              </button>
-              {checkoutError && (
-                <div className="mt-4 text-red-600 text-center font-semibold border border-red-300 bg-red-50 rounded p-3">
-                  {checkoutError}
-                </div>
-              )}
+              <div className="w-full bg-green-100 text-green-900 px-6 py-4 rounded-lg font-bold text-center text-lg border-2 border-green-400 mb-4">
+                🎉 This platform is now <span className="text-green-700">100% FREE</span>! Enjoy unlimited access to all features—no payment, no checkout, no subscription required.
+              </div>
               {showTermsModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                   <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh]">
