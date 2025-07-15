@@ -56,7 +56,6 @@ const menuCategories = [
     items: [
       { name: 'My Profile', href: '/app/profile', icon: UserCircle },
       { name: 'Admin', href: '/app/admin', icon: ShieldCheck },
-      { name: 'Subscription', href: '/pricing', icon: CreditCard },
       { name: 'Data Manager', href: '/app/data-manager', icon: Settings },
       { name: 'Agent API', href: '/agent', icon: Bot },
       { name: 'Settings', href: '/app/settings', icon: Settings }

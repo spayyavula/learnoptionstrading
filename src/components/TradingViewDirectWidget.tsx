@@ -85,7 +85,7 @@ const TradingViewDirectWidget: React.FC<TradingViewDirectWidgetProps> = ({
       description.style.marginBottom = '1.5rem'
       description.style.fontSize = '14px' 
       description.style.color = theme === 'dark' ? '#adb5bd' : '#6c757d'
-      description.textContent = 'Click the button below to access professional charting tools with TradingView'
+      description.textContent = 'Click the button below to access advanced charting tools with TradingView (free account available)'
       
       // Format symbol to ensure it has exchange prefix if needed
       const formattedSymbol = symbol.includes(':') ? symbol : 

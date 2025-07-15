@@ -145,7 +145,7 @@ export default function Dashboard() {
         </div>
         <div className="card-body">
           <TradingViewDirectTicker 
-            symbols={tickerSymbols}
+            symbols={tickerSymbols.map(s => s === 'SPY' ? 'AMEX:SPY' : s)}
             width="100%" 
             height={160}
             darkMode={false}
@@ -284,27 +284,31 @@ export default function Dashboard() {
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Link to="/trading" className="btn btn-primary">
+            <Link to="/app/trading" className="btn btn-primary">
               <TrendingUp className="h-4 w-4" />
               Start Trading
             </Link> 
-            <Link to="/portfolio" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+            <Link to="/app/portfolio" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
               <PieChart className="h-4 w-4" />
               View Portfolio
             </Link>
-            <Link to="/learning" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+            <Link to="/app/learning" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
               <BookOpen className="h-4 w-4" />
               Start Learning
             </Link>
-            <Link to="/journal" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+            <Link to="/app/chain" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+              <Lightbulb className="h-4 w-4" />
+              Option Chain
+            </Link>
+            <Link to="/app/journal" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
               <BookMarked className="h-4 w-4" />
               Trading Journal
             </Link>
-            <Link to="/arbitrage" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+            <Link to="/app/arbitrage" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
               <Calculator className="h-4 w-4" />
               Find Arbitrage
             </Link>
-            <Link to="/agent" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
+            <Link to="/app/agent" className="btn btn-secondary bg-gradient-to-r from-gray-50 to-gray-100 hover:from-white hover:to-gray-50">
               <Bot className="h-4 w-4" />
               Agent API
             </Link>
@@ -319,14 +323,14 @@ export default function Dashboard() {
             <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
             Develop Your Trading Expertise
           </h3>
-          <Link to="/learning" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
+          <Link to="/app/learning" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
             View all
             <ArrowUpRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
         <div className="card-body">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Link to="/learning" className="p-4 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg hover:shadow-md transition-all">
+            <Link to="/app/learning" className="p-4 border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg hover:shadow-md transition-all">
               <div className="flex items-center space-x-3 mb-2">
                 <BookOpen className="h-6 w-6 text-blue-600" />
                 <h4 className="font-medium text-blue-900">Master the Fundamentals</h4>
@@ -334,7 +338,7 @@ export default function Dashboard() {
               <p className="text-sm text-blue-700">Build a strong foundation in options trading concepts through structured learning.</p>
             </Link>
             
-            <Link to="/strategies" className="p-4 border border-green-200 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:shadow-md transition-all">
+            <Link to="/app/strategies" className="p-4 border border-green-200 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:shadow-md transition-all">
               <div className="flex items-center space-x-3 mb-2">
                 <Lightbulb className="h-6 w-6 text-green-600" />
                 <h4 className="font-medium text-green-900">Develop Trading Strategies</h4>
@@ -342,7 +346,7 @@ export default function Dashboard() {
               <p className="text-sm text-green-700">Learn to create and test strategies for different market conditions.</p>
             </Link> 
             
-            <Link to="/journal" className="p-4 border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg hover:shadow-md transition-all">
+            <Link to="/app/journal" className="p-4 border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg hover:shadow-md transition-all">
               <div className="flex items-center space-x-3 mb-2">
                 <BookMarked className="h-6 w-6 text-purple-600" />
                 <h4 className="font-medium text-purple-900">Reflect & Improve</h4>
@@ -361,7 +365,7 @@ export default function Dashboard() {
               <Users className="h-5 w-5 mr-2 text-blue-600" />
               Community Activity
             </h3>
-            <Link to="/community" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
+            <Link to="/app/community" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center">
               View all
               <ArrowUpRight className="ml-1 h-4 w-4" />
             </Link>

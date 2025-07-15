@@ -23,8 +23,7 @@ test.describe('Subscription E2E Flow', () => {
     // 4. Verify free plan status is shown
     await expect(page.locator('text=Free Plan')).toBeVisible();
     
-    // 5. Click upgrade button
-    await page.click('button:has-text("Upgrade")');
+    // 5. No upgrade button, all features are free forever
     await expect(page).toHaveURL('/subscribe');
 
     // 6. Verify subscription page loaded

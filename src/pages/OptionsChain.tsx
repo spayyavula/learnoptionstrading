@@ -12,6 +12,31 @@ export default function OptionsChain() {
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'volume' | 'iv' | 'delta'>('volume')
 
+
+  // Validate contract shape
+  function isValidContract(contract: any): contract is OptionsContract {
+    return contract &&
+      typeof contract.contract_type === 'string' &&
+      typeof contract.exercise_style === 'string' &&
+      typeof contract.expiration_date === 'string' &&
+      typeof contract.shares_per_contract === 'number' &&
+      typeof contract.strike_price === 'number' &&
+      typeof contract.ticker === 'string' &&
+      typeof contract.underlying_ticker === 'string' &&
+      typeof contract.bid === 'number' &&
+      typeof contract.ask === 'number' &&
+      typeof contract.last === 'number' &&
+      typeof contract.volume === 'number' &&
+      typeof contract.open_interest === 'number' &&
+      typeof contract.implied_volatility === 'number' &&
+      typeof contract.delta === 'number' &&
+      typeof contract.gamma === 'number' &&
+      typeof contract.theta === 'number' &&
+      typeof contract.vega === 'number' &&
+      typeof contract.intrinsic_value === 'number' &&
+      typeof contract.time_value === 'number';
+  }
+
   useEffect(() => {
     loadOptionsChain()
   }, [selectedUnderlying])
@@ -20,10 +45,16 @@ export default function OptionsChain() {
     try {
       setLoading(true)
       const topContracts = PolygonService.getTopLiquidOptions()
-      const filteredContracts = selectedUnderlying === 'ALL' 
-        ? topContracts 
+      const filteredContracts = selectedUnderlying === 'ALL'
+        ? topContracts
         : topContracts.filter(contract => contract.underlying_ticker === selectedUnderlying)
-      setContracts(filteredContracts)
+      // Validate contracts
+      const validContracts = filteredContracts.filter(isValidContract)
+      if (filteredContracts.length !== validContracts.length) {
+        const invalids = filteredContracts.filter(c => !isValidContract(c))
+        console.warn('Invalid options contracts found and excluded:', invalids)
+      }
+      setContracts(validContracts)
     } catch (error) {
       console.error('Failed to load options chain:', error)
     } finally {
@@ -74,7 +105,6 @@ export default function OptionsChain() {
 
   return (
     <div className="space-y-6">
-      {/* Options Chain Statistics */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
           <div className="card-body">
@@ -305,7 +335,7 @@ export default function OptionsChain() {
             <h3 className="text-lg font-medium text-gray-900">
               {selectedUnderlying} Chart Analysis
               <a 
-                href={`https://www.tradingview.com/chart/?symbol=${selectedUnderlying}`} 
+                href={`https://www.tradingview.com/chart/?symbol=${selectedUnderlying === 'SPY' ? 'AMEX:SPY' : 'NASDAQ:' + selectedUnderlying}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-sm text-blue-600 hover:underline ml-2"
@@ -316,7 +346,7 @@ export default function OptionsChain() {
           </div>
           <div className="card-body">
             <TradingViewWidget
-              symbol={`NASDAQ:${selectedUnderlying || 'SPY'}`}
+              symbol={selectedUnderlying === 'SPY' ? 'AMEX:SPY' : `NASDAQ:${selectedUnderlying || 'SPY'}`}
               width="100%" 
               height={650}
               interval="D"

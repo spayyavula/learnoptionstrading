@@ -22,7 +22,7 @@ export default function RegimeAnalysisPage() {
   const [analysis, setAnalysis] = useState<RegimeAnalysis | null>(null)
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const [chartSymbol, setChartSymbol] = useState<string>('SPY')
-  const [chartInterval, setChartInterval] = useState<string>('1d')
+  const [chartInterval, setChartInterval] = useState<string>('D')
   const [selectedStrategy, setSelectedStrategy] = useState<TradingStrategy | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -583,7 +583,7 @@ export default function RegimeAnalysisPage() {
               </p>
               <ul className="text-xs text-blue-600 space-y-1">
                 <li>• Learn to identify support/resistance</li>
-                <li>• Practice premium collection strategies</li>
+                <li>• Practice credit spread and income strategies</li>
                 <li>• Develop pattern recognition skills</li>
               </ul>
             </div>

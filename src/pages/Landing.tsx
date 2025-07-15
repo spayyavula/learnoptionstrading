@@ -22,8 +22,6 @@ export default function Landing() {
   const navigate = useNavigate()
   // Platform is now 100% free! No paid plans, no checkout.
 
-
-
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -71,19 +69,13 @@ export default function Landing() {
               </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/app"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center"
-              >
-                Start Learning Free
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-              <Link
-                to="/app"
-                className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-              >
-                Get Started
-              </Link>
+            <Link
+              to="/app"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center"
+            >
+              Get Started Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
             </div>
           </div>
         </div>
@@ -164,13 +156,13 @@ export default function Landing() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Join our educational platform and master options trading safely
           </p>
-          <Link
-            to="/app"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-flex items-center"
-          >
-            Get Started Free
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+            <Link
+              to="/app"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-flex items-center"
+            >
+              Start Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
         </div>
       </section>
 
@@ -243,19 +235,19 @@ export default function Landing() {
               to="/app"
               className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
             >
-              Start Free Trial
+              Start Free
             </Link>
             <Link
               to="/app"
               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
             >
-              Start Learning
+              Get Started Free
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Pricing Section - Updated with Real Stripe */}
+      {/* Pricing Section - Only Free Plan */}
       <section id="pricing" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -263,76 +255,29 @@ export default function Landing() {
               Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Start free, upgrade when you're ready. No hidden fees, no long-term contracts.
+              <span className="font-bold text-green-700">100% FREE!</span> No hidden fees, no contracts, no payment required. Enjoy unlimited access to all features.
             </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Plan - No changes */}
-            <div className="bg-white rounded-lg shadow-lg border-2 border-gray-200 p-8">
+          <div className="grid md:grid-cols-1 gap-8 max-w-3xl mx-auto">
+            {/* Free Plan Only */}
+            <div className="bg-white rounded-lg shadow-lg border-2 border-green-400 p-8">
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$0<span className="text-lg text-gray-500">/month</span></div>
-                <p className="text-gray-600 mb-6">Perfect for beginners</p>
+                <div className="text-4xl font-bold text-green-700 mb-4">$0<span className="text-lg text-gray-500">/month</span></div>
+                <p className="text-gray-600 mb-6">Unlimited access for everyone</p>
               </div>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Basic options simulator</span>
+                  <span>All lessons & tutorials</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>10 lessons & tutorials</span>
+                  <span>Practice trading with real market data</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Paper trading portfolio</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Basic market data</span>
-                </li>
-              </ul>
-              <Link
-                to="/app"
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center block"
-              >
-                Start Free
-              </Link>
-            </div>
-
-            {/* Pro Plan - Updated with Real Stripe */}
-            <div className="bg-white rounded-lg shadow-lg border-2 border-blue-500 p-8 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Most Popular
-                </span>
-              </div>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$29<span className="text-lg text-gray-500">/month</span></div>
-                <p className="text-gray-600 mb-6">For serious learners</p>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Everything in Free</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Advanced strategies & analysis</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Real-time market data</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Portfolio analytics</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Options scanner & alerts</span>
+                  <span>Portfolio analytics & risk management</span>
                 </li>
                 <li className="flex items-center">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
@@ -342,131 +287,12 @@ export default function Landing() {
               <div className="w-full bg-green-100 text-green-900 px-6 py-4 rounded-lg font-bold text-center text-lg border-2 border-green-400 mb-4">
                 🎉 This platform is now <span className="text-green-700">100% FREE</span>! Enjoy unlimited access to all features—no payment, no checkout, no subscription required.
               </div>
-              {showTermsModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-                  <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 overflow-y-auto max-h-[90vh]">
-                    {!showSuccess ? (
-                      <>
-                        <h2 className="text-2xl font-bold mb-4 text-gray-900">Terms & Agreement</h2>
-                        <div className="prose max-w-none text-gray-800 text-sm mb-4" style={{maxHeight:'50vh',overflowY:'auto'}}>
-                          <h3>1. Account Agreement</h3>
-                          <p>By proceeding, you agree to open a simulated trading account with Learn Options Trading Academy. You confirm that all information provided is accurate and complete.</p>
-                          <h3>2. No Investment Advice</h3>
-                          <p>Nothing on this platform constitutes investment, tax, or legal advice. You are solely responsible for your investment decisions. Consult a qualified advisor before trading.</p>
-                          <h3>3. Risks of Options Trading</h3>
-                          <p>Options trading is highly speculative and involves significant risk of loss. You may lose the entire value of your simulated investment. Past performance is not indicative of future results.</p>
-                          <h3>4. Simulated Trading Only</h3>
-                          <p>All trades are simulated. No real money is traded or invested. No actual trades are executed on any financial exchange.</p>
-                          <h3>5. Market Data</h3>
-                          <p>Market data is provided for educational purposes only and may be delayed or inaccurate. We do not guarantee the accuracy or timeliness of any data.</p>
-                          <h3>6. User Conduct</h3>
-                          <p>You agree to use this platform lawfully and respectfully. Any misuse may result in termination of access.</p>
-                          <h3>7. Privacy</h3>
-                          <p>See our <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">Privacy Policy</a> for details on how your data is handled.</p>
-                          <h3>8. Disclaimer</h3>
-                          <p>Learn Options Trading Academy is an educational platform. We make no guarantees regarding the accuracy, completeness, or reliability of any information. Use at your own risk.</p>
-                          <h3>9. Electronic Communications</h3>
-                          <p>By using this platform, you consent to receive communications electronically.</p>
-                          <h3>10. Changes to Terms</h3>
-                          <p>We may update these terms at any time. Continued use of the platform constitutes acceptance of the new terms.</p>
-                          <h3>11. Acknowledgement</h3>
-                          <p>By clicking "I Agree & Continue", you acknowledge that you have read, understood, and agree to all terms, disclaimers, and policies above.</p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 justify-end">
-                          <button
-                            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold"
-                            onClick={() => setShowTermsModal(false)}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold"
-                            onClick={handleAcceptTerms}
-                          >
-                            I Agree & Continue
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-8">
-                        <div className="text-green-600 mb-4">
-                          <CheckCircle className="h-12 w-12" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Thank you!</h3>
-                        <p className="text-gray-700 text-center">You have accepted the Terms & Conditions. Redirecting to checkout...</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Enterprise Plan - Updated */}
-            <div className="bg-white rounded-lg shadow-lg border-2 border-gray-200 p-8">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$99<span className="text-lg text-gray-500">/month</span></div>
-                <p className="text-gray-600 mb-6">For institutions</p>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Everything in Pro</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Advanced risk management</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Custom strategies</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>White-label platform</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Priority support</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>API access</span>
-                </li>
-              </ul>
-              <button
-                onClick={() => {
-                  window.open('mailto:contact@learnoptionstrading.academy?subject=Enterprise%20Plan%20Interest&body=Hi, I\'m interested in learning more about your Enterprise plan. Please contact me with more details.', '_blank')
-                }}
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              <Link
+                to="/app"
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center block"
               >
-                Contact Sales
-              </button>
-            </div>
-          </div>
-
-          {/* FAQ Section - No changes */}
-          <div className="mt-20">
-            <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-              Frequently Asked Questions
-            </h3>
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Is the free plan really free?</h4>
-                <p className="text-gray-600">Yes! No credit card required. Start learning immediately with our comprehensive free tier.</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Can I cancel anytime?</h4>
-                <p className="text-gray-600">Absolutely. No long-term contracts. Cancel or change plans anytime from your dashboard.</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">What payment methods do you accept?</h4>
-                <p className="text-gray-600">We accept all major credit cards and PayPal for your convenience.</p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Do you offer student discounts?</h4>
-                <p className="text-gray-600">Yes! Contact us with your .edu email for a 50% student discount on Pro plans.</p>
-              </div>
+                Start Free
+              </Link>
             </div>
           </div>
         </div>
