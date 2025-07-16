@@ -33,6 +33,7 @@ const OptionsDataManager = lazy(() => import('./pages/OptionsDataManager'))
 const Construction = lazy(() => import('./pages/Construction'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const UserProfile = lazy(() => import('./pages/UserProfile'))
+const NotFound = lazy(() => import('./pages/NotFound')) // Import the NotFound component
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -115,7 +116,7 @@ function AppContent() {
             </Route>
             
             {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </div>
