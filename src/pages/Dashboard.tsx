@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TrendingUp, TrendingDown, Bot, DollarSign, PieChart, Activity, ArrowUpRight, Users, BookOpen, BookMarked, Lightbulb, Calculator } from 'lucide-react'
 import { CommunityService } from '../services/communityService' 
@@ -57,6 +57,55 @@ export default function Dashboard() {
   const recentOrders = state.orders
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
     .slice(0, 5)
+
+  const indicesTickerRef = useRef<HTMLDivElement>(null);
+  const stocksTickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Indices ticker
+    if (indicesTickerRef.current && !indicesTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "INDEX:SPX", "title": "S&P 500" },
+          { "proName": "INDEX:IXIC", "title": "NASDAQ" },
+          { "proName": "INDEX:DJI", "title": "Dow 30" },
+          { "proName": "INDEX:RUT", "title": "Russell 2000" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      indicesTickerRef.current.appendChild(script);
+    }
+    // Stocks ticker
+    if (stocksTickerRef.current && !stocksTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "NASDAQ:AAPL", "title": "Apple" },
+          { "proName": "NASDAQ:MSFT", "title": "Microsoft" },
+          { "proName": "NASDAQ:TSLA", "title": "Tesla" },
+          { "proName": "NASDAQ:NVDA", "title": "Nvidia" },
+          { "proName": "NASDAQ:AMZN", "title": "Amazon" },
+          { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+          { "proName": "AMEX:SPY", "title": "SPY" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      stocksTickerRef.current.appendChild(script);
+    }
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -415,6 +464,50 @@ export default function Dashboard() {
           <PageViewCounter />
         </div>
       </div>
-    </div>
+
+      {/* Indices Ticker Tape */}
+      <div className="w-full my-4">
+        <div className="rounded shadow overflow-hidden">
+          <div ref={indicesTickerRef} />
+        </div>
+      </div>
+      {/* Stocks Ticker Tape */}
+      <div className="w-full my-4">
+        <div className="rounded shadow overflow-hidden">
+          <div ref={stocksTickerRef} />
+        </div>
+      </div>
+      {/* (Optional) Large Liquid Option Stocks Chart */}
+      <div
+        className="w-full mb-8"
+        aria-label="Highly Liquid Option Stocks Chart"
+        tabIndex={0}
+      >
+        <div className="bg-gradient-to-r from-green-100 to-green-200 py-4 px-6 rounded shadow flex items-center">
+          <h3
+            className="text-2xl font-extrabold text-green-900 mr-6"
+            style={{ letterSpacing: '0.02em' }}
+            id="liquid-option-stocks-title"
+          >
+            Liquid Option Stocks
+          </h3>
+          <div className="flex-1">
+            <iframe
+              src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_ticker_liquid&symbols=NASDAQ%3AAAPL%2CNASDAQ%3AMSFT%2CNASDAQ%3ATSLA%2CNASDAQ%3ANVDA%2CNASDAQ%3AAMZN%2CNASDAQ%3AQQQ%2CAMEX%3ASPY&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=light&style=1&timezone=Etc/UTC&hideideas=1&hidelegend=1&hidevolume=1&allow_symbol_change=1"
+              height="320"
+              width="100%"
+              style={{ minWidth: 320, border: 0, background: "transparent" }}
+              allowFullScreen={false}
+              title="Liquid Options Stocks Chart"
+              aria-labelledby="liquid-option-stocks-title"
+              tabIndex={0}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Market Overview - Scrolling Ticker Tape */}
+      
+      </div>
   )
 }

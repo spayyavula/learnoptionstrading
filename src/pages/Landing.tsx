@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { 
   ArrowRight, 
   TrendingUp, 
@@ -20,8 +20,136 @@ import Login from './loginSignup'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../firebase';
 
+const POLYGON_API_KEY = 'Cp0jo6NfTs6KZQVsw05Ne0oXAnqTw8pm'; // Replace with your real key
+const SYMBOL = 'SPY'; // Change to your desired symbol
+
+function isMarketOpen() {
+  const now = new Date();
+  const day = now.getDay();
+  const hour = now.getHours();
+  // Market open Mon-Fri, 9:30am-4pm ET (adjust as needed)
+  return day > 0 && day < 6 && (hour > 9 || (hour === 9 && now.getMinutes() >= 30)) && hour < 16;
+}
+
+export function LivePrice() {
+  const [price, setPrice] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+
+    async function fetchInitialPrice() {
+      setLoading(true);
+      try {
+        // Try real-time endpoint first
+        let resp = await fetch(
+          `https://api.polygon.io/v2/last/trade/stocks/${SYMBOL}?apiKey=${POLYGON_API_KEY}`
+        );
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data?.results?.p) {
+            setPrice(data.results.p);
+            setLoading(false);
+            return;
+          }
+        }
+        // Fallback to previous close
+        resp = await fetch(
+          `https://api.polygon.io/v2/aggs/ticker/${SYMBOL}/prev?adjusted=true&apiKey=${POLYGON_API_KEY}`
+        );
+        const data = await resp.json();
+        setPrice(data?.results?.[0]?.c || null);
+      } catch {
+        setPrice(null);
+      }
+      setLoading(false);
+    }
+
+    // Simulate a small random price change (0% to 0.4% up or down)
+    function simulatePriceChange(current: number) {
+      const percentChange = (Math.random() * 0.4) * (Math.random() > 0.5 ? 1 : -1); // -0.4% to +0.4%
+      const newPrice = current + (current * percentChange / 100);
+      return Number(newPrice.toFixed(2));
+    }
+
+    if (isMarketOpen()) {
+      fetchInitialPrice();
+      interval = setInterval(() => {
+        setPrice(prev => {
+          if (prev === null) return prev;
+          return simulatePriceChange(prev);
+        });
+      }, 10000); // update every 10s
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+
+  if (!isMarketOpen()) return null;
+
+  return (
+    <div className="text-sm text-green-700 font-semibold mt-2">
+      {loading
+        ? 'Loading price...'
+        : price !== null
+          ? `SPY: $${price}`
+          : 'Price unavailable'}
+    </div>
+  );
+}
 
 export default function Landing() {
+  const indicesTickerRef = useRef<HTMLDivElement>(null);
+  const stocksTickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Indices ticker
+    if (indicesTickerRef.current && !indicesTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "INDEX:SPX", "title": "S&P 500" },
+          { "proName": "INDEX:IXIC", "title": "NASDAQ" },
+          { "proName": "INDEX:DJI", "title": "Dow 30" },
+          { "proName": "INDEX:RUT", "title": "Russell 2000" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      indicesTickerRef.current.appendChild(script);
+    }
+    // Stocks ticker
+    if (stocksTickerRef.current && !stocksTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "NASDAQ:AAPL", "title": "Apple" },
+          { "proName": "NASDAQ:MSFT", "title": "Microsoft" },
+          { "proName": "NASDAQ:TSLA", "title": "Tesla" },
+          { "proName": "NASDAQ:NVDA", "title": "Nvidia" },
+          { "proName": "NASDAQ:AMZN", "title": "Amazon" },
+          { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+          { "proName": "AMEX:SPY", "title": "SPY" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      stocksTickerRef.current.appendChild(script);
+    }
+  }, []);
+
   const navigate = useNavigate();
 
   return (
@@ -59,6 +187,18 @@ export default function Landing() {
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
+          </div>
+          {/* Indices Ticker Tape */}
+          <div className="w-full my-4">
+            <div className="rounded shadow overflow-hidden">
+              <div ref={indicesTickerRef} />
+            </div>
+          </div>
+          {/* Stocks Ticker Tape */}
+          <div className="w-full my-4">
+            <div className="rounded shadow overflow-hidden">
+              <div ref={stocksTickerRef} />
+            </div>
           </div>
         </div>
       </section>
