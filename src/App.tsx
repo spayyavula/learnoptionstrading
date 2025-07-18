@@ -12,6 +12,8 @@ import { OptionsDataProvider } from './context/OptionsDataContext'
 import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
+import { auth } from './firebase';
+import PrivateRoute from './components/PrivateRoute';
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -34,6 +36,10 @@ const Construction = lazy(() => import('./pages/Construction'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const UserProfile = lazy(() => import('./pages/UserProfile'))
 const NotFound = lazy(() => import('./pages/NotFound')) // Import the NotFound component
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'))
+const DisclaimerDetailed = lazy(() => import('./pages/DisclaimerDetailed'))
+const Login = lazy(() => import('./pages/loginSignup')) // Import the Login component
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -83,9 +89,17 @@ function AppContent() {
             <Route path="/" element={<Landing />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/success" element={<Success />} />
+            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+            <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+            <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
+            <Route path="/login" element={<Login />} />
             
             {/* App Routes with nested routing */}
-            <Route path="/app" element={<AppLayout />}>
+            <Route path="/app" element={
+              <PrivateRoute>
+                <AppLayout />
+              </PrivateRoute>
+            }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="agent" element={<AgentDashboard />} />

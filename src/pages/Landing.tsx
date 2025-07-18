@@ -16,11 +16,13 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import Login from './loginSignup'
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from '../firebase';
 
 
 export default function Landing() {
-  const navigate = useNavigate()
-  // Platform is now 100% free! No paid plans, no checkout.
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,14 +35,7 @@ export default function Landing() {
                 <h1 className="text-2xl font-bold">Learn Options Trading</h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/app"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Get Started
-              </Link>
-            </div>
+            {/* No Get Started button in header */}
           </div>
         </div>
       </header>
@@ -57,26 +52,13 @@ export default function Landing() {
               Learn options trading with our comprehensive educational platform. 
               Practice with virtual money before risking real capital.
             </p>
-            <div className="mb-4">
-              <span className="inline-flex items-center text-yellow-300 bg-yellow-900 bg-opacity-30 rounded px-3 py-2 text-sm">
-                <AlertTriangle className="h-4 w-4 mr-2 text-yellow-400" />
-                <span>
-                  Educational use only. No financial advice. See our
-                  <Link to='/disclaimer' className='underline ml-1 text-yellow-200 hover:text-white'>Disclaimer</Link>,
-                  <Link to='/terms' className='underline ml-1 text-yellow-200 hover:text-white'>Terms</Link>, and
-                  <Link to='/privacy' className='underline ml-1 text-yellow-200 hover:text-white'>Privacy Policy</Link>.
-                </span>
-              </span>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/app"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center"
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
             >
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-            </div>
+            </button>
           </div>
         </div>
       </section>
@@ -94,6 +76,7 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
+            {/* Educational Content */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="h-8 w-8 text-blue-600" />
@@ -102,8 +85,10 @@ export default function Landing() {
               <p className="text-gray-600">
                 Comprehensive lessons from basics to advanced strategies
               </p>
+              <div className="mt-2 text-sm font-bold text-gray-500">—</div>
             </div>
 
+            {/* Practice Trading */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Target className="h-8 w-8 text-green-600" />
@@ -112,8 +97,10 @@ export default function Landing() {
               <p className="text-gray-600">
                 Virtual trading with real market data to practice safely
               </p>
+              <div className="mt-2 text-sm font-bold text-gray-500">Buy &amp; Sell</div>
             </div>
 
+            {/* Risk Management */}
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-purple-600" />
@@ -122,6 +109,41 @@ export default function Landing() {
               <p className="text-gray-600">
                 Learn proper risk management before using real money
               </p>
+              <div className="mt-2 text-sm font-bold text-gray-500">—</div>
+            </div>
+          </div>
+
+          {/* Price Arbitrage - horizontal full row */}
+          <div className="mt-8">
+            <div className="flex flex-col md:flex-row items-center bg-yellow-50 border border-yellow-200 rounded-lg p-6 md:p-8 shadow">
+              <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-8 flex items-center justify-center">
+                <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <BarChart3 className="h-12 w-12 text-yellow-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-yellow-800 mb-2">Price Arbitrage (Options)</h3>
+                <p className="text-gray-700 mb-2">
+                  Discover how professional traders spot and act on price differences between related options contracts or markets—locking in low-risk profits.
+                </p>
+                <div className="text-sm font-bold text-yellow-700 mb-2">Simultaneous Buy &amp; Sell</div>
+                <div className="bg-yellow-100 border border-yellow-200 rounded p-3 text-left text-sm text-yellow-900 mb-2">
+                  <strong>How to Practice:</strong>
+                  <ol className="list-decimal ml-5 mt-1">
+                    <li>Find two related options or markets with a price gap.</li>
+                    <li>At the same time, <b>buy</b> the underpriced and <b>sell</b> the overpriced contract.</li>
+                    <li>Track your simulated P&amp;L to see if the price gap closes and you profit.</li>
+                    <li>
+                      <Link to="/app" className="text-yellow-700 underline hover:text-yellow-900">
+                        Try arbitrage in the simulator &rarr;
+                      </Link>
+                    </li>
+                  </ol>
+                  <div className="mt-2 text-xs text-gray-600">
+                    <strong>Tip:</strong> This is not the same as "option writing" (selling calls/puts for premium). Arbitrage is about exploiting price inefficiencies, not collecting premium.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -156,13 +178,13 @@ export default function Landing() {
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             Join our educational platform and master options trading safely
           </p>
-            <Link
-              to="/app"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors inline-flex items-center"
-            >
-              Start Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
+          >
+            Get Started Free
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </button>
         </div>
       </section>
 
@@ -230,20 +252,7 @@ export default function Landing() {
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of students who are mastering options trading safely and effectively.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/app"
-              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Start Free
-            </Link>
-            <Link
-              to="/app"
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Get Started Free
-            </Link>
-          </div>
+          {/* Removed Start Free and Get Started Free buttons from CTA section */}
         </div>
       </section>
 
@@ -287,12 +296,7 @@ export default function Landing() {
               <div className="w-full bg-green-100 text-green-900 px-6 py-4 rounded-lg font-bold text-center text-lg border-2 border-green-400 mb-4">
                 🎉 This platform is now <span className="text-green-700">100% FREE</span>! Enjoy unlimited access to all features—no payment, no checkout, no subscription required.
               </div>
-              <Link
-                to="/app"
-                className="w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center block"
-              >
-                Start Free
-              </Link>
+              {/* Removed Start Free button from pricing section */}
             </div>
           </div>
         </div>
@@ -312,7 +316,16 @@ export default function Landing() {
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><Link to="/app" className="hover:text-white">Trading Simulator</Link></li>
-                <li><Link to="/app/lessons" className="hover:text-white">Lessons</Link></li>
+                <li>
+                  <a
+                    href="https://www.investopedia.com/ask/answers/032415/why-are-call-and-put-options-considered-risky.asp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white"
+                  >
+                    Option Risks
+                  </a>
+                </li>
                 <li><Link to="/app/dashboard" className="hover:text-white">Dashboard</Link></li>
               </ul>
             </div>
@@ -320,21 +333,31 @@ export default function Landing() {
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="mailto:support@learnoptionstrading.academy" className="hover:text-white">Contact</a></li>
-                <li><Link to="/help" className="hover:text-white">Help Center</Link></li>
-                <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-white">Terms of Service</Link></li>
-                <li><Link to="/disclaimer" className="hover:text-white">Disclaimer</Link></li>
-              </ul>
+  <li>
+    <Link to="/PrivacyPolicy" className="hover:text-white">
+      Privacy Policy
+    </Link>
+  </li>
+  <li>
+    <Link to="/TermsAndConditions" className="hover:text-white">
+      Terms of Service
+    </Link>
+  </li>
+  <li>
+    <Link to="/DisclaimerDetailed" className="hover:text-white">
+      Disclaimer
+    </Link>
+  </li>
+</ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Learn Options Trading Academy. All rights reserved.</p>
+            <p>&copy; 2025 Learn Options Trading Academy. All rights reserved.</p>
           </div>
           {/* Add disclaimer at bottom of footer */}
           <div className="mt-8 pt-8 border-t border-gray-800">
@@ -343,14 +366,14 @@ export default function Landing() {
                 <AlertTriangle className="h-4 w-4 mr-2 text-yellow-400" />
                 <span>
                   Educational platform using simulated trading. Options trading involves substantial risk.
-                  <Link to="/disclaimer" className="ml-2 underline hover:text-white">
+                  <Link to="/DisclaimerDetailed" className="mt-2 underline hover:text-white">
                     View full disclaimer
                   </Link>
                 </span>
               </div>
               <div className="mt-4 md:mt-0">
                 <p className="text-sm text-gray-400">
-                  © 2024 Learn Options Trading. All rights reserved.
+                  © 2025 Learn Options Trading. All rights reserved.
                 </p>
               </div>
             </div>
