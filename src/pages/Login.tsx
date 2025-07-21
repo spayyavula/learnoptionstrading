@@ -29,6 +29,7 @@ export default function Login() {
     setError('')
     setSuccess('')
 
+    console.log('🔐 Form submit:', { isSignUp, email: formData.email })
     if (isSignUp) {
       if (!acceptedTerms) {
         setError('You must accept the Terms and Conditions to create an account')
@@ -46,21 +47,29 @@ export default function Login() {
 
     try {
       if (isSignUp) {
+        console.log('🔐 Attempting sign up...')
         const { error } = await signUp(formData.email, formData.password)
         if (error) {
+          console.error('🔐 Sign up error:', error)
           setError(error.message)
         } else {
+          console.log('🔐 Sign up successful')
           setSuccess('Account created successfully! Please check your email to verify your account.')
           setIsSignUp(false)
         }
       } else {
+        console.log('🔐 Attempting sign in...')
         const { error } = await signIn(formData.email, formData.password)
         if (error) {
+          console.error('🔐 Sign in error:', error)
           setError(error.message)
+        } else {
+          console.log('🔐 Sign in successful')
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('🔐 Form submit exception:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     }
   }
 
@@ -230,7 +239,15 @@ export default function Login() {
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex">
                   <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-                  <p className="text-sm text-red-600">{error}</p>
+                  <div className="text-sm text-red-600">
+                    <p className="font-medium">Authentication Error</p>
+                    <p className="mt-1">{error}</p>
+                    {error.includes('configuration') && (
+                      <p className="mt-2 text-xs">
+                        Please check that Supabase is properly configured with valid URL and API key.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

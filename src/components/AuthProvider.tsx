@@ -22,7 +22,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        console.log('🔐 Getting initial session...')
         const { data: { user } } = await auth.getUser()
+        console.log('🔐 Initial user:', user ? 'Found' : 'None')
         setUser(user)
         setLoading(false)
       } catch (error) {
@@ -34,20 +36,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     getInitialSession()
 
     // Listen for auth changes
-    const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
+    const authListener = auth.onAuthStateChange(async (event, session) => {
+      console.log('🔐 Auth state change:', event, session ? 'Session exists' : 'No session')
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    return () => subscription?.unsubscribe()
+    return () => {
+      if (authListener?.data?.subscription) {
+        authListener.data.subscription.unsubscribe()
+      }
+    }
   }, [])
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
+    setUser(null)
+    setSession(null)
     try {
+      console.log('🔐 AuthProvider signIn attempt for:', email)
       const result = await auth.signIn(email, password)
+      console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
+      if (result.error) {
+        console.error('🔐 SignIn error:', result.error)
+      }
       return result
+    } catch (error) {
+      console.error('🔐 SignIn exception:', error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -55,9 +72,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     setLoading(true)
+    setUser(null)
+    setSession(null)
     try {
+      console.log('🔐 AuthProvider signUp attempt for:', email)
       const result = await auth.signUp(email, password)
+      console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
+      if (result.error) {
+        console.error('🔐 SignUp error:', result.error)
+      }
       return result
+    } catch (error) {
+      console.error('🔐 SignUp exception:', error)
+      throw error
     } finally {
       setLoading(false)
     }
@@ -66,7 +93,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true)
     try {
+      console.log('🔐 AuthProvider signOut')
       await auth.signOut()
+      setUser(null)
+      setSession(null)
+    } catch (error) {
+      console.error('🔐 SignOut error:', error)
+      throw error
     } finally {
       setLoading(false)
     }

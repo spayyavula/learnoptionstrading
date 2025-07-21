@@ -3,6 +3,12 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
+console.log('🔧 Supabase Configuration Check:', {
+  url: supabaseUrl ? 'Set' : 'Missing',
+  key: supabaseAnonKey ? 'Set' : 'Missing',
+  urlValid: supabaseUrl.startsWith('https://'),
+  keyValid: supabaseAnonKey.length > 20
+})
 // Check if Supabase is properly configured
 const isSupabaseConfigured = supabaseUrl && 
   supabaseAnonKey && 
@@ -13,7 +19,11 @@ const isSupabaseConfigured = supabaseUrl &&
   supabaseAnonKey !== 'demo_anon_key'
 
 if (!isSupabaseConfigured) {
-  console.warn('Supabase configuration missing or using demo values. Using local storage fallback.')
+  console.error('❌ Supabase configuration missing or invalid:', {
+    url: supabaseUrl,
+    keyLength: supabaseAnonKey.length,
+    isConfigured: isSupabaseConfigured
+  })
 }
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
@@ -23,27 +33,45 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
 // Auth helper functions
 export const auth = {
   signUp: async (email: string, password: string) => {
-    if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) {
+      console.error('❌ Supabase not configured for signUp')
+      throw new Error('Authentication service not available. Please check configuration.')
+    }
+    console.log('🔐 Attempting sign up for:', email)
     return await supabase.auth.signUp({ email, password })
   },
   
   signIn: async (email: string, password: string) => {
-    if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) {
+      console.error('❌ Supabase not configured for signIn')
+      throw new Error('Authentication service not available. Please check configuration.')
+    }
+    console.log('🔐 Attempting sign in for:', email)
     return await supabase.auth.signInWithPassword({ email, password })
   },
   
   signOut: async () => {
-    if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) {
+      console.error('❌ Supabase not configured for signOut')
+      throw new Error('Authentication service not available. Please check configuration.')
+    }
+    console.log('🔐 Signing out')
     return await supabase.auth.signOut()
   },
   
   getUser: async () => {
-    if (!supabase) return { data: { user: null }, error: null }
+    if (!supabase) {
+      console.warn('⚠️ Supabase not configured for getUser')
+      return { data: { user: null }, error: null }
+    }
     return await supabase.auth.getUser()
   },
   
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    if (!supabase) return { data: { subscription: null } }
+    if (!supabase) {
+      console.warn('⚠️ Supabase not configured for onAuthStateChange')
+      return { data: { subscription: null } }
+    }
     return supabase.auth.onAuthStateChange(callback)
   }
 }
