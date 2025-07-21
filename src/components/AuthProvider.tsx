@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState<string | null>(null)
 
   useEffect(() => {
     // Get initial session
@@ -24,12 +25,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log('🔐 Getting initial session...')
         const { data: { user } } = await auth.getUser()
+        setAuthError(null)
         console.log('🔐 Initial user:', user ? 'Found' : 'None')
         setUser(user)
         setLoading(false)
       } catch (error) {
         console.error('Error getting initial session:', error)
         setLoading(false)
+        setAuthError(error instanceof Error ? error.message : 'Authentication service unavailable')
       }
     }
 
@@ -38,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const authListener = auth.onAuthStateChange(async (event, session) => {
       console.log('🔐 Auth state change:', event, session ? 'Session exists' : 'No session')
+      setAuthError(null)
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -52,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     setLoading(true)
+    setAuthError(null)
     setUser(null)
     setSession(null)
     try {
@@ -60,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
       if (result.error) {
         console.error('🔐 SignIn error:', result.error)
+        setAuthError(result.error.message)
       }
       return result
     } catch (error) {
@@ -72,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     setLoading(true)
+    setAuthError(null)
     setUser(null)
     setSession(null)
     try {
@@ -80,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
       if (result.error) {
         console.error('🔐 SignUp error:', result.error)
+        setAuthError(result.error.message)
       }
       return result
     } catch (error) {
@@ -92,6 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     setLoading(true)
+    setAuthError(null)
     try {
       console.log('🔐 AuthProvider signOut')
       await auth.signOut()
@@ -109,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
+    authError,
     signIn,
     signUp,
     signOut

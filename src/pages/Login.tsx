@@ -108,6 +108,7 @@ export default function Login() {
                     id="fullName"
                     name="fullName"
                     type="text"
+                    autoComplete="name"
                     required={isSignUp}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter your full name"
@@ -129,6 +130,7 @@ export default function Login() {
                   id="email"
                   name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter your email"
@@ -149,6 +151,7 @@ export default function Login() {
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
                   required
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Enter your password"
@@ -181,6 +184,7 @@ export default function Login() {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required={isSignUp}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Confirm your password"
@@ -243,8 +247,18 @@ export default function Login() {
                     <p className="font-medium">Authentication Error</p>
                     <p className="mt-1">{error}</p>
                     {error.includes('configuration') && (
+                      <div className="mt-2 text-xs">
+                        <p>Supabase configuration issues detected:</p>
+                        <ul className="list-disc ml-4 mt-1">
+                          <li>Check VITE_SUPABASE_URL environment variable</li>
+                          <li>Check VITE_SUPABASE_ANON_KEY environment variable</li>
+                          <li>Ensure Supabase project is active</li>
+                        </ul>
+                      </div>
+                    )}
+                    {error.includes('Invalid login credentials') && (
                       <p className="mt-2 text-xs">
-                        Please check that Supabase is properly configured with valid URL and API key.
+                        Please check your email and password. If you're a new user, try signing up first.
                       </p>
                     )}
                   </div>

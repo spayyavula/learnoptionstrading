@@ -7,16 +7,20 @@ console.log('🔧 Supabase Configuration Check:', {
   url: supabaseUrl ? 'Set' : 'Missing',
   key: supabaseAnonKey ? 'Set' : 'Missing',
   urlValid: supabaseUrl.startsWith('https://'),
-  keyValid: supabaseAnonKey.length > 20
+  keyValid: supabaseAnonKey.length > 20,
+  actualUrl: supabaseUrl.substring(0, 30) + '...',
+  keyLength: supabaseAnonKey.length
 })
+
 // Check if Supabase is properly configured
 const isSupabaseConfigured = supabaseUrl && 
   supabaseAnonKey && 
   supabaseUrl !== 'your_supabase_project_url_here' && 
   supabaseAnonKey !== 'your_supabase_anon_key_here' &&
   supabaseUrl.startsWith('https://') &&
-  supabaseUrl !== 'https://demo.supabase.co' &&
-  supabaseAnonKey !== 'demo_anon_key'
+  supabaseUrl.includes('supabase.co') &&
+  supabaseAnonKey.startsWith('eyJ') && // JWT tokens start with eyJ
+  supabaseAnonKey.length > 100 // Real JWT tokens are much longer
 
 if (!isSupabaseConfigured) {
   console.error('❌ Supabase configuration missing or invalid:', {
@@ -24,6 +28,8 @@ if (!isSupabaseConfigured) {
     keyLength: supabaseAnonKey.length,
     isConfigured: isSupabaseConfigured
   })
+} else {
+  console.log('✅ Supabase configuration valid')
 }
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
@@ -35,7 +41,7 @@ export const auth = {
   signUp: async (email: string, password: string) => {
     if (!supabase) {
       console.error('❌ Supabase not configured for signUp')
-      throw new Error('Authentication service not available. Please check configuration.')
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
     console.log('🔐 Attempting sign up for:', email)
     return await supabase.auth.signUp({ email, password })
@@ -44,7 +50,7 @@ export const auth = {
   signIn: async (email: string, password: string) => {
     if (!supabase) {
       console.error('❌ Supabase not configured for signIn')
-      throw new Error('Authentication service not available. Please check configuration.')
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
     console.log('🔐 Attempting sign in for:', email)
     return await supabase.auth.signInWithPassword({ email, password })
@@ -53,7 +59,7 @@ export const auth = {
   signOut: async () => {
     if (!supabase) {
       console.error('❌ Supabase not configured for signOut')
-      throw new Error('Authentication service not available. Please check configuration.')
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
     console.log('🔐 Signing out')
     return await supabase.auth.signOut()
