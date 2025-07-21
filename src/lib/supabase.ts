@@ -56,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 AuthProvider signIn attempt for:', email)
       const result = await auth.signIn(email, password)
       console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
+      if (result.error) {
         console.error('🔐 SignIn error:', result.error)
         setAuthError(result.error.message)
       }
