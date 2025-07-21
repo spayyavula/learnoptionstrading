@@ -111,7 +111,17 @@ export default function Login() {
       }
     } catch (err) {
       console.error('🔐 Form submit exception:', err)
-      setError('Something went wrong. Please check your internet connection and try again.')
+      if (err instanceof Error) {
+        if (err.message.includes('not configured')) {
+          setError('This appears to be a demo environment. Authentication is not fully configured. You can still explore the platform features.')
+        } else if (err.message.includes('fetch') || err.message.includes('network')) {
+          setError('Unable to connect to the authentication service. Please check your internet connection and try again.')
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError('An unexpected error occurred. Please try again or contact support if the problem persists.')
+      }
     }
   }
 

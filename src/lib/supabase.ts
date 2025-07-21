@@ -19,28 +19,35 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export const auth = {
   async signIn(email: string, password: string) {
     if (!isValidConfig) {
-      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
+      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
     }
     return await supabase.auth.signInWithPassword({ email, password })
   },
 
   async signUp(email: string, password: string) {
     if (!isValidConfig) {
-      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
+      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
     }
     return await supabase.auth.signUp({ email, password })
   },
 
+  async resetPasswordForEmail(email: string, options: any) {
+    if (!isValidConfig) {
+      throw new Error('Password reset is not available. Authentication service is not configured.')
+    }
+    return await supabase.auth.resetPassword({ email, ...options })
+  },
+
   async signOut() {
     if (!isValidConfig) {
-      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
+      throw new Error('Sign out is not available. Authentication service is not configured.')
     }
     return await supabase.auth.signOut()
   },
 
   async getUser() {
     if (!isValidConfig) {
-      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
+      return { data: { user: null }, error: null }
     }
     return await supabase.auth.getUser()
   },
