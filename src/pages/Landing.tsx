@@ -172,7 +172,31 @@ export default function Landing() {
                 <h1 className="text-2xl font-bold">Learn Options Trading</h1>
               </div>
             </div>
-            {/* No Get Started button in header */}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <Link
+                  to="/app"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Go to App
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-white hover:text-blue-200 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
