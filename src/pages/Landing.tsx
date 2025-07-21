@@ -22,7 +22,7 @@ import { useAuth } from '../components/AuthProvider'
 const SYMBOL = 'SPY'; // Change to your desired symbol
 
 // Replace with your actual Polygon API key or use an environment variable
-const POLYGON_API_KEY = process.env.REACT_APP_POLYGON_API_KEY || '';
+const POLYGON_API_KEY = import.meta.env.VITE_POLYGON_API_KEY || '';
 
 function isMarketOpen() {
   const now = new Date();
