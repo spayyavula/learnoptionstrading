@@ -3,6 +3,13 @@
   # Simple, reliable build command
   command = "npm install && npm run build"
   publish = "dist"
+  
+# Custom domain configuration
+[[redirects]]
+  from = "https://www.learnoptionstrading.academy/*"
+  to = "https://learnoptionstrading.academy/:splat"
+  status = 301
+  force = true
 
 [build.environment]
   # Use Node 20 for best compatibility with Vite 5+
