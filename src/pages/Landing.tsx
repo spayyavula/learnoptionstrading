@@ -20,8 +20,11 @@ import Login from './loginSignup'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from '../firebase';
 
-const POLYGON_API_KEY = 'Cp0jo6NfTs6KZQVsw05Ne0oXAnqTw8pm'; // Replace with your real key
+
 const SYMBOL = 'SPY'; // Change to your desired symbol
+
+// Replace with your actual Polygon API key or use an environment variable
+const POLYGON_API_KEY = process.env.REACT_APP_POLYGON_API_KEY || '';
 
 function isMarketOpen() {
   const now = new Date();
