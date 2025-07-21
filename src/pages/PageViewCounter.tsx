@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BarChart3, Eye, Globe, Clock } from 'lucide-react'
 
 interface PageViewStats {
@@ -8,7 +8,11 @@ interface PageViewStats {
   lastUpdated: Date
 }
 
-const PageViewCounter: React.FC = () => {
+interface PageViewCounterProps {
+  className?: string
+}
+
+const PageViewCounter: React.FC<PageViewCounterProps> = ({ className }) => {
   const [stats, setStats] = useState<PageViewStats>({
     totalViews: 0,
     todayViews: 0,
@@ -86,7 +90,7 @@ const PageViewCounter: React.FC = () => {
     .slice(0, 3)
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${className}`}>
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <Eye className="h-5 w-5 mr-2 text-blue-600" />
         Page Views

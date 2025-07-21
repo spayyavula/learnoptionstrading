@@ -14,6 +14,8 @@ const TradingViewDirectTicker: React.FC<TradingViewDirectTickerProps> = ({
   darkMode = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const indicesTickerRef = useRef<HTMLDivElement>(null);
+  const stocksTickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Clean up function
@@ -119,6 +121,50 @@ const TradingViewDirectTicker: React.FC<TradingViewDirectTickerProps> = ({
       if (containerRef.current) {
         containerRef.current.innerHTML = '<div style="text-align: center; padding: 10px; color: #888;">Failed to load ticker</div>'
       }
+    }
+    
+    // Indices ticker
+    if (indicesTickerRef.current && !indicesTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "INDEX:SPX", "title": "S&P 500" },
+          { "proName": "INDEX:IXIC", "title": "NASDAQ" },
+          { "proName": "INDEX:DJI", "title": "Dow 30" },
+          { "proName": "INDEX:RUT", "title": "Russell 2000" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      indicesTickerRef.current.appendChild(script);
+    }
+    // Stocks ticker
+    if (stocksTickerRef.current && !stocksTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "NASDAQ:AAPL", "title": "Apple" },
+          { "proName": "NASDAQ:MSFT", "title": "Microsoft" },
+          { "proName": "NASDAQ:TSLA", "title": "Tesla" },
+          { "proName": "NASDAQ:NVDA", "title": "Nvidia" },
+          { "proName": "NASDAQ:AMZN", "title": "Amazon" },
+          { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+          { "proName": "AMEX:SPY", "title": "SPY" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      stocksTickerRef.current.appendChild(script);
     }
     
     return cleanup

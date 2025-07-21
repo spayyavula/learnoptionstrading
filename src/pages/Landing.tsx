@@ -188,18 +188,7 @@ export default function Landing() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
-          {/* Indices Ticker Tape */}
-          <div className="w-full my-4">
-            <div className="rounded shadow overflow-hidden">
-              <div ref={indicesTickerRef} />
-            </div>
-          </div>
-          {/* Stocks Ticker Tape */}
-          <div className="w-full my-4">
-            <div className="rounded shadow overflow-hidden">
-              <div ref={stocksTickerRef} />
-            </div>
-          </div>
+          
         </div>
       </section>
 
