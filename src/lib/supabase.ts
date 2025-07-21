@@ -1,133 +1,57 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { auth } from '../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
-interface AuthContextType {
-  user: User | null
-  session: Session | null
-  loading: boolean
-  signIn: (email: string, password: string) => Promise<any>
-  signUp: (email: string, password: string) => Promise<any>
-  signOut: () => Promise<void>
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key'
+
+// Validate configuration
+const isValidConfig = supabaseUrl !== 'https://demo.supabase.co' && 
+                     supabaseAnonKey !== 'demo-key' &&
+                     supabaseUrl.includes('supabase.co') &&
+                     supabaseAnonKey.length > 50
+
+if (!isValidConfig) {
+  console.warn('⚠️ Supabase configuration missing or using demo values. Using local storage fallback.')
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        console.log('🔐 Getting initial session...')
-        const { data: { user } } = await auth.getUser()
-        console.log('🔐 Initial user:', user ? 'Found' : 'None')
-        setUser(user)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error getting initial session:', error)
-        setLoading(false)
-      }
+// Auth service wrapper
+export const auth = {
+  async signIn(email: string, password: string) {
+    if (!isValidConfig) {
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
+    return await supabase.auth.signInWithPassword({ email, password })
+  },
 
-    getInitialSession()
-
-    // Listen for auth changes
-    const authListener = auth.onAuthStateChange(async (event, session) => {
-      console.log('🔐 Auth state change:', event, session ? 'Session exists' : 'No session')
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => {
-      if (authListener?.data?.subscription) {
-        authListener.data.subscription.unsubscribe()
-      }
+  async signUp(email: string, password: string) {
+    if (!isValidConfig) {
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
-  }, [])
+    return await supabase.auth.signUp({ email, password })
+  },
 
-  const signIn = async (email: string, password: string) => {
-    setLoading(true)
-    try {
-      console.log('🔐 AuthProvider signIn attempt for:', email)
-      const result = await auth.signIn(email, password)
-      console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
-      if (result.error) {
-        console.error('🔐 SignIn error:', result.error)
-        setAuthError(result.error.message)
-      }
-      return result
-    } catch (error) {
-      console.error('🔐 SignIn exception:', error)
-      throw error
-    } finally {
-      setLoading(false)
+  async signOut() {
+    if (!isValidConfig) {
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
     }
+    return await supabase.auth.signOut()
+  },
+
+  async getUser() {
+    if (!isValidConfig) {
+      throw new Error('Authentication service not available. Supabase configuration is missing or invalid.')
+    }
+    return await supabase.auth.getUser()
+  },
+
+  onAuthStateChange(callback: (event: string, session: any) => void) {
+    if (!isValidConfig) {
+      console.warn('Auth state change listener not available without valid Supabase configuration')
+      return { data: { subscription: { unsubscribe: () => {} } } }
+    }
+    return supabase.auth.onAuthStateChange(callback)
   }
-
-  const signUp = async (email: string, password: string) => {
-    setLoading(true)
-    setAuthError(null)
-    setUser(null)
-    setSession(null)
-    try {
-      console.log('🔐 AuthProvider signUp attempt for:', email)
-      const result = await auth.signUp(email, password)
-      console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
-      if (result.error) {
-        console.error('🔐 SignUp error:', result.error)
-        setAuthError(result.error.message)
-      }
-      return result
-    } catch (error) {
-      console.error('🔐 SignUp exception:', error)
-      throw error
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const signOut = async () => {
-    setLoading(true)
-    setAuthError(null)
-    try {
-      console.log('🔐 AuthProvider signOut')
-      await auth.signOut()
-      setUser(null)
-      setSession(null)
-    } catch (error) {
-      console.error('🔐 SignOut error:', error)
-      throw error
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const value = {
-    user,
-    session,
-    loading,
-    authError,
-    signIn,
-    signUp,
-    signOut
-  }
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+export { isValidConfig }
