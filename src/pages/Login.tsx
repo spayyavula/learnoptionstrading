@@ -371,6 +371,7 @@ export default function Login() {
                         <p>• If you don't have an account, try signing up instead</p>
                         <p>• Use "Forgot Password" if you can't remember your password</p>
                       </div>
+                      </div>
                     )}
                     {error.includes('Invalid login credentials') && (
                       <div className="mt-2 text-xs">
