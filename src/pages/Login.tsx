@@ -6,7 +6,7 @@ import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react'
 export default function Login() {
   const { user, signIn, signUp, resetPassword, loading } = useAuth()
   const location = useLocation()
-  const [isSignUp, setIsSignUp] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(location.pathname === '/signup')
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)

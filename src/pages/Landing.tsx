@@ -158,7 +158,7 @@ export default function Landing() {
     if (user) {
       navigate('/app')
     } else {
-      navigate('/login')
+      navigate('/signup')
     }
   }
   return (
