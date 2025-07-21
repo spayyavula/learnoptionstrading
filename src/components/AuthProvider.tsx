@@ -76,6 +76,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error
     } finally {
       setLoading(false)
+  const resetPassword = async (email: string) => {
+    try {
+      setLoading(true)
+      console.log('🔐 AuthProvider: Attempting password reset for:', email)
+      const { error } = await auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+      
+      if (error) {
+        console.error('🔐 AuthProvider: Password reset error:', error)
+        return { error }
+      }
+      
+      console.log('🔐 AuthProvider: Password reset email sent')
+      return { success: true }
+    } catch (err) {
+      console.error('🔐 AuthProvider: Password reset exception:', err)
+      return { error: err as Error }
+    } finally {
+      setLoading(false)
+    }
+  }
+
     }
   }
 
@@ -127,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signIn,
     signUp,
+    resetPassword,
     signOut
   }
 
