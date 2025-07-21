@@ -175,7 +175,10 @@ export default function Landing() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-blue-200">Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!</span>
+                  <span className="text-blue-200">
+                    Welcome, {localStorage.getItem('demo_mode') === 'true' ? 'Demo User' : user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!
+                    {localStorage.getItem('demo_mode') === 'true' && <span className="text-orange-300 ml-1">(Demo)</span>}
+                  </span>
                   <Link
                     to="/app"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
@@ -197,6 +200,20 @@ export default function Landing() {
                   >
                     Get Started
                   </Link>
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('demo_mode', 'true')
+                      localStorage.setItem('demo_user', JSON.stringify({
+                        id: 'demo-user',
+                        email: 'demo@example.com',
+                        user_metadata: { full_name: 'Demo User' }
+                      }))
+                      window.location.reload()
+                    }}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Try Demo
+                  </button>
                 </>
               )}
             </div>

@@ -20,6 +20,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Check for demo mode first
+    const demoMode = localStorage.getItem('demo_mode')
+    const demoUser = localStorage.getItem('demo_user')
+    
+    if (demoMode === 'true' && demoUser) {
+      try {
+        const parsedDemoUser = JSON.parse(demoUser)
+        console.log('🔐 Demo mode detected, setting demo user')
+        setUser(parsedDemoUser)
+        setLoading(false)
+        return
+      } catch (error) {
+        console.error('Error parsing demo user:', error)
+        localStorage.removeItem('demo_mode')
+        localStorage.removeItem('demo_user')
+      }
+    }
+    
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -143,6 +161,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null)
     try {
       console.log('🔐 AuthProvider signOut')
+      
+      // Handle demo mode logout
+      if (localStorage.getItem('demo_mode') === 'true') {
+        localStorage.removeItem('demo_mode')
+        localStorage.removeItem('demo_user')
+        setUser(null)
+        setSession(null)
+        return
+      }
+      
       await auth.signOut()
       setUser(null)
       setSession(null)
