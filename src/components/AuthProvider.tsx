@@ -151,6 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signUp,
     resetPassword,
+    resetPassword,
     signOut
   }
 
