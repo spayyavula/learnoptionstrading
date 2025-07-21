@@ -59,6 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null)
     try {
       console.log('🔐 AuthProvider signIn attempt for:', email)
+      
+      // Check if Supabase is properly configured
+      const { isValidConfig } = await import('../lib/supabase')
+      if (!isValidConfig) {
+        throw new Error('Authentication service is not configured. Please check your Supabase settings.')
+      }
+      
       const result = await auth.signIn(email, password)
       console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
       if (result.error) {
@@ -72,7 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result
     } catch (error) {
       console.error('🔐 SignIn exception:', error)
-      setAuthError('Authentication service unavailable')
+      if (error instanceof Error) {
+        if (error.message.includes('not configured')) {
+          setAuthError('Authentication service is not configured. This appears to be a demo environment.')
+        } else if (error.message.includes('fetch')) {
+          setAuthError('Unable to connect to authentication service. Please check your internet connection.')
+        } else {
+          setAuthError(error.message)
+        }
+      } else {
+        setAuthError('Authentication service is temporarily unavailable. Please try again later.')
+      }
       throw error
     } finally {
       setLoading(false)
@@ -107,6 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null)
     try {
       console.log('🔐 AuthProvider signUp attempt for:', email)
+      
+      // Check if Supabase is properly configured
+      const { isValidConfig } = await import('../lib/supabase')
+      if (!isValidConfig) {
+        throw new Error('Authentication service is not configured. Please check your Supabase settings.')
+      }
+      
       const result = await auth.signUp(email, password)
       console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
       if (result.error) {
@@ -120,7 +144,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return result
     } catch (error) {
       console.error('🔐 SignUp exception:', error)
-      setAuthError('Authentication service unavailable')
+      if (error instanceof Error) {
+        if (error.message.includes('not configured')) {
+          setAuthError('Authentication service is not configured. This appears to be a demo environment.')
+        } else if (error.message.includes('fetch')) {
+          setAuthError('Unable to connect to authentication service. Please check your internet connection.')
+        } else {
+          setAuthError(error.message)
+        }
+      } else {
+        setAuthError('Authentication service is temporarily unavailable. Please try again later.')
+      }
       throw error
     } finally {
       setLoading(false)
@@ -144,13 +178,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const resetPassword = async (email: string) => {
+    try {
+      setLoading(true)
+      console.log('🔐 AuthProvider: Attempting password reset for:', email)
+      
+      // Check if Supabase is properly configured
+      const { isValidConfig } = await import('../lib/supabase')
+      if (!isValidConfig) {
+        throw new Error('Authentication service is not configured. Password reset is not available in demo mode.')
+      }
+      
+      const { error } = await auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+      
+      if (error) {
+        console.error('🔐 AuthProvider: Password reset error:', error)
+        return { error }
+      }
+      
+      console.log('🔐 AuthProvider: Password reset email sent')
+      return { success: true }
+    } catch (err) {
+      console.error('🔐 AuthProvider: Password reset exception:', err)
+      return { error: err as Error }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const value = {
     user,
     session,
     loading,
     signIn,
     signUp,
-    resetPassword,
     resetPassword,
     signOut
   }
