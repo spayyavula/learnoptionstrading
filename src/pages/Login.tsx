@@ -223,147 +223,146 @@ export default function Login() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name (Sign Up Only) */}
-            {isSignUp && (
+              {/* Full Name (Sign Up Only) */}
+              {isSignUp && (
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      id="fullName"
+                      name="fullName"
+                      type="text"
+                      autoComplete="name"
+                      required={isSignUp}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter your full name"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Email */}
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    autoComplete="name"
-                    required={isSignUp}
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter your full name"
-                    value={formData.fullName}
+                    placeholder="Enter your email"
+                    value={formData.email}
                     onChange={handleInputChange}
                   />
                 </div>
               </div>
-            )}
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                  required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password (Sign Up Only) */}
-            {isSignUp && (
+              {/* Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
-                    id="confirmPassword"
-                    name="confirmPassword"
+                    id="password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required={isSignUp}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
+                    required
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter your password"
+                    value={formData.password}
                     onChange={handleInputChange}
                   />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
                 </div>
               </div>
-            )}
 
-            {/* Terms and Conditions (Sign Up Only) */}
-            {isSignUp && (
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="flex items-center h-5">
+              {/* Confirm Password (Sign Up Only) */}
+              {isSignUp && (
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
-                      id="terms"
-                      name="terms"
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      required={isSignUp}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Confirm your password"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
                     />
                   </div>
-                  <div className="ml-3 text-sm">
-                    <label htmlFor="terms" className="text-gray-700">
-                      I agree to the{' '}
-                      <Link to="/TermsAndConditions" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
-                        Terms and Conditions
-                      </Link>
-                      {' '}and{' '}
-                      <Link to="/PrivacyPolicy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
-                        Privacy Policy
-                      </Link>
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Options trading involves substantial risk and may not be suitable for all investors.
-                    </p>
+                </div>
+              )}
+
+              {/* Terms and Conditions (Sign Up Only) */}
+              {isSignUp && (
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="terms"
+                        name="terms"
+                        type="checkbox"
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="terms" className="text-gray-700">
+                        I agree to the{' '}
+                        <Link to="/TermsAndConditions" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
+                          Terms and Conditions
+                        </Link>
+                        {' '}and{' '}
+                        <Link to="/PrivacyPolicy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
+                          Privacy Policy
+                        </Link>
+                      </label>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Options trading involves substantial risk and may not be suitable for all investors.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex">
-                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-                  <div className="text-sm text-red-600">
-                    <p className="font-medium">Authentication Error</p>
-                    <p className="mt-1">{error}</p>
-                    <div>
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex">
+                    <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                    <div className="text-sm text-red-600">
+                      <p className="font-medium">Authentication Error</p>
+                      <p className="mt-1">{error}</p>
                       {error.includes('email or password you entered is incorrect') && (
                         <div className="mt-2 text-xs">
                           <p>💡 <strong>Helpful tips:</strong></p>
@@ -392,65 +391,64 @@ export default function Login() {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Success Message */}
-            {success && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                  <div className="text-sm text-green-600">
-                    <p className="font-medium">Success!</p>
-                    <p className="mt-1">{success}</p>
+              {/* Success Message */}
+              {success && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                    <div className="text-sm text-green-600">
+                      <p className="font-medium">Success!</p>
+                      <p className="mt-1">{success}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading || (isSignUp && !acceptedTerms)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
-                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
-                </div>
-              ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
               )}
-            </button>
-          </form>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading || (isSignUp && !acceptedTerms)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
+                    {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  </div>
+                ) : (
+                  isSignUp ? 'Create Account' : 'Sign In'
+                )}
+              </button>
+            </form>
           )}
 
           {/* Toggle Sign In/Sign Up */}
           {!showForgotPassword && (
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError('')
-                setSuccess('')
-                setAcceptedTerms(false)
-                setFormData({
-                  email: '',
-                  password: '',
-                  confirmPassword: '',
-                  fullName: ''
-                })
-              }}
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              {isSignUp 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Sign up"
-              }
-            </button>
-          </div>
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(!isSignUp)
+                  setError('')
+                  setSuccess('')
+                  setAcceptedTerms(false)
+                  setFormData({
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    fullName: ''
+                  })
+                }}
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {isSignUp 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Sign up"
+                }
+              </button>
+            </div>
           )}
 
           {/* Forgot Password Link */}
