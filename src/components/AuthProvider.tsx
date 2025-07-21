@@ -76,6 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error
     } finally {
       setLoading(false)
+    }
+  }
+
   const resetPassword = async (email: string) => {
     try {
       setLoading(true)
@@ -96,9 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: err as Error }
     } finally {
       setLoading(false)
-    }
-  }
-
     }
   }
 
