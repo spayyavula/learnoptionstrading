@@ -363,32 +363,33 @@ export default function Login() {
                   <div className="text-sm text-red-600">
                     <p className="font-medium">Authentication Error</p>
                     <p className="mt-1">{error}</p>
-                    {error.includes('email or password you entered is incorrect') && (
-                      <div className="mt-2 text-xs">
-                        <p>💡 <strong>Helpful tips:</strong></p>
-                        <p>• Double-check your email address for typos</p>
-                        <p>• Make sure your password is correct</p>
-                        <p>• If you don't have an account, try signing up instead</p>
-                        <p>• Use "Forgot Password" if you can't remember your password</p>
-                      </div>
-                      </div>
-                    )}
-                    {error.includes('Invalid login credentials') && (
-                      <div className="mt-2 text-xs">
-                        <p>If you don't have an account, try signing up first.</p>
-                        <p>If you forgot your password, use the "Forgot Password" link below.</p>
-                      </div>
-                    )}
-                    {error.includes('configuration') && (
-                      <div className="mt-2 text-xs">
-                        <p>Supabase configuration issues detected:</p>
-                        <ul className="list-disc ml-4 mt-1">
-                          <li>Check VITE_SUPABASE_URL environment variable</li>
-                          <li>Check VITE_SUPABASE_ANON_KEY environment variable</li>
-                          <li>Ensure Supabase project is active</li>
-                        </ul>
-                      </div>
-                    )}
+                    <div>
+                      {error.includes('email or password you entered is incorrect') && (
+                        <div className="mt-2 text-xs">
+                          <p>💡 <strong>Helpful tips:</strong></p>
+                          <p>• Double-check your email address for typos</p>
+                          <p>• Make sure your password is correct</p>
+                          <p>• If you don't have an account, try signing up instead</p>
+                          <p>• Use "Forgot Password" if you can't remember your password</p>
+                        </div>
+                      )}
+                      {error.includes('Invalid login credentials') && (
+                        <div className="mt-2 text-xs">
+                          <p>If you don't have an account, try signing up first.</p>
+                          <p>If you forgot your password, use the "Forgot Password" link below.</p>
+                        </div>
+                      )}
+                      {error.includes('configuration') && (
+                        <div className="mt-2 text-xs">
+                          <p>Supabase configuration issues detected:</p>
+                          <ul className="list-disc ml-4 mt-1">
+                            <li>Check VITE_SUPABASE_URL environment variable</li>
+                            <li>Check VITE_SUPABASE_ANON_KEY environment variable</li>
+                            <li>Ensure Supabase project is active</li>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
