@@ -485,6 +485,13 @@ export default function Login() {
               className="text-gray-500 hover:text-gray-700 text-sm"
             >
               ← Back to home
+              <span className="mx-2 text-gray-300">|</span>
+              <Link 
+                to="/app" 
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                Try Demo Mode →
+              </Link>
             </Link>
           </div>
         </div>
