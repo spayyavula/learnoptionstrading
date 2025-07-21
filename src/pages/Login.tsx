@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
-import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function Login() {
   const { user, signIn, signUp, resetPassword, loading } = useAuth()
@@ -73,14 +73,20 @@ export default function Login() {
         const { error } = await signUp(formData.email, formData.password)
         if (error) {
           console.error('🔐 Sign up error:', error)
-          if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
-            setError('Authentication service is currently unavailable. Please try again later or contact support.')
+          if (error.message.includes('User already registered')) {
+            setError('An account with this email already exists. Please try signing in instead, or use a different email address.')
+          } else if (error.message.includes('Invalid email')) {
+            setError('Please enter a valid email address.')
+          } else if (error.message.includes('Password should be at least')) {
+            setError('Password must be at least 6 characters long.')
+          } else if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
+            setError('Our authentication service is temporarily unavailable. Please try again in a few minutes.')
           } else {
-            setError(error.message)
+            setError('Unable to create account. Please check your information and try again.')
           }
         } else {
           console.log('🔐 Sign up successful')
-          setSuccess('Account created successfully! Please check your email to verify your account.')
+          setSuccess('Welcome! Your account has been created successfully. You can now start learning options trading.')
           setIsSignUp(false)
         }
       } else {
@@ -88,10 +94,16 @@ export default function Login() {
         const { error } = await signIn(formData.email, formData.password)
         if (error) {
           console.error('🔐 Sign in error:', error)
-          if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
-            setError('Authentication service is currently unavailable. Please try again later or contact support.')
+          if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid email or password')) {
+            setError('The email or password you entered is incorrect. Please check your credentials and try again.')
+          } else if (error.message.includes('Email not confirmed')) {
+            setError('Please check your email and click the confirmation link before signing in.')
+          } else if (error.message.includes('Too many requests')) {
+            setError('Too many sign-in attempts. Please wait a few minutes before trying again.')
+          } else if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
+            setError('Our authentication service is temporarily unavailable. Please try again in a few minutes.')
           } else {
-            setError(error.message)
+            setError('Unable to sign in. Please check your email and password and try again.')
           }
         } else {
           console.log('🔐 Sign in successful')
@@ -99,7 +111,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error('🔐 Form submit exception:', err)
-      setError('Authentication service is currently unavailable. Please try again later.')
+      setError('Something went wrong. Please check your internet connection and try again.')
     }
   }
 
@@ -159,7 +171,7 @@ export default function Login() {
                     <div className="flex">
                       <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
                       <div className="text-sm text-red-600">
-                        <p className="font-medium">Error</p>
+                        <p className="font-medium">Unable to {isSignUp ? 'create account' : 'sign in'}</p>
                         <p className="mt-1">{error}</p>
                       </div>
                     </div>
@@ -169,7 +181,13 @@ export default function Login() {
                 {/* Success Message */}
                 {success && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-sm text-green-600">{success}</p>
+                    <div className="flex">
+                      <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                      <div className="text-sm text-green-600">
+                        <p className="font-medium">Success!</p>
+                        <p className="mt-1">{success}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -325,20 +343,13 @@ export default function Login() {
                         Terms and Conditions
                       </Link>
                       {' '}and{' '}
-                      <Link to="/PrivacyPolicy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
+                      {error.includes('email or password you entered is incorrect') && (
                         Privacy Policy
-                      </Link>
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" />
-                    <div className="text-sm text-yellow-700">
-                      <p className="font-medium">Educational Platform Notice</p>
-                      <p className="mt-1">
-                        This platform is for educational purposes only. All trading is simulated with virtual money. 
+                          <p>💡 <strong>Helpful tips:</strong></p>
+                          <p>• Double-check your email address for typos</p>
+                          <p>• Make sure your password is correct</p>
+                          <p>• If you don't have an account, try signing up instead</p>
+                          <p>• Use "Forgot Password" if you can't remember your password</p>
                         Options trading involves substantial risk and may not be suitable for all investors.
                       </p>
                     </div>
@@ -394,7 +405,13 @@ export default function Login() {
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
                   {isSignUp ? 'Creating Account...' : 'Signing In...'}
                 </div>
-              ) : (
+                  <div className="flex">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                    <div className="text-sm text-green-600">
+                      <p className="font-medium">Success!</p>
+                      <p className="mt-1">{success}</p>
+                    </div>
+                  </div>
                 isSignUp ? 'Create Account' : 'Sign In'
               )}
             </button>
