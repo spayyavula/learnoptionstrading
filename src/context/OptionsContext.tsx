@@ -166,19 +166,19 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
           
           // Schedule next update
           if (isActive) {
-            timeoutId = window.setTimeout(updatePrices, updateInterval)
+            timeoutId = window.setTimeout.call(window, updatePrices, updateInterval)
           }
         } catch (error) {
           console.error('Error updating options prices:', error)
           // Schedule retry on error
           if (isActive) {
-            timeoutId = window.setTimeout(updatePrices, updateInterval)
+            timeoutId = window.setTimeout.call(window, updatePrices, updateInterval)
           }
         }
       }
       
       // Start the update cycle
-      timeoutId = window.setTimeout(updatePrices, updateInterval)
+      timeoutId = window.setTimeout.call(window, updatePrices, updateInterval)
     } catch (error) {
       console.error('Error setting up options price updates:', error)
     }
@@ -187,7 +187,7 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
       isActive = false
       if (timeoutId) {
         try {
-          clearTimeout(timeoutId)
+          window.clearTimeout.call(window, timeoutId)
         } catch (error) {
           console.error('Error clearing options price timeout:', error)
         }
