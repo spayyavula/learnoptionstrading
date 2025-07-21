@@ -174,12 +174,15 @@ export default function Landing() {
             </div>
             <div className="flex items-center space-x-4">
               {user ? (
-                <Link
-                  to="/app"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                >
-                  Go to App
-                </Link>
+                <div className="flex items-center space-x-4">
+                  <span className="text-blue-200">Welcome, {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!</span>
+                  <Link
+                    to="/app"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Go to App
+                  </Link>
+                </div>
               ) : (
                 <>
                   <Link
