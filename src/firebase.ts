@@ -8,7 +8,7 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBwhhKdDAeansztKS7aijE7PZ30BVFrj4g",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "learnoptionstrading-academy.firebaseapp.com",
   projectId: "learnoptionstrading-academy",
   storageBucket: "learnoptionstrading-academy.firebasestorage.app",
