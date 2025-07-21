@@ -90,6 +90,7 @@ function AppContent() {
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Login />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/success" element={<Success />} />
             <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
