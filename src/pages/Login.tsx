@@ -343,16 +343,13 @@ export default function Login() {
                         Terms and Conditions
                       </Link>
                       {' '}and{' '}
-                      {error.includes('email or password you entered is incorrect') && (
+                      <Link to="/PrivacyPolicy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
                         Privacy Policy
-                          <p>💡 <strong>Helpful tips:</strong></p>
-                          <p>• Double-check your email address for typos</p>
-                          <p>• Make sure your password is correct</p>
-                          <p>• If you don't have an account, try signing up instead</p>
-                          <p>• Use "Forgot Password" if you can't remember your password</p>
-                        Options trading involves substantial risk and may not be suitable for all investors.
-                      </p>
-                    </div>
+                      </Link>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Options trading involves substantial risk and may not be suitable for all investors.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -366,6 +363,15 @@ export default function Login() {
                   <div className="text-sm text-red-600">
                     <p className="font-medium">Authentication Error</p>
                     <p className="mt-1">{error}</p>
+                    {error.includes('email or password you entered is incorrect') && (
+                      <div className="mt-2 text-xs">
+                        <p>💡 <strong>Helpful tips:</strong></p>
+                        <p>• Double-check your email address for typos</p>
+                        <p>• Make sure your password is correct</p>
+                        <p>• If you don't have an account, try signing up instead</p>
+                        <p>• Use "Forgot Password" if you can't remember your password</p>
+                      </div>
+                    )}
                     {error.includes('Invalid login credentials') && (
                       <div className="mt-2 text-xs">
                         <p>If you don't have an account, try signing up first.</p>
@@ -390,7 +396,13 @@ export default function Login() {
             {/* Success Message */}
             {success && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm text-green-600">{success}</p>
+                <div className="flex">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                  <div className="text-sm text-green-600">
+                    <p className="font-medium">Success!</p>
+                    <p className="mt-1">{success}</p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -405,13 +417,7 @@ export default function Login() {
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
                   {isSignUp ? 'Creating Account...' : 'Signing In...'}
                 </div>
-                  <div className="flex">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                    <div className="text-sm text-green-600">
-                      <p className="font-medium">Success!</p>
-                      <p className="mt-1">{success}</p>
-                    </div>
-                  </div>
+              ) : (
                 isSignUp ? 'Create Account' : 'Sign In'
               )}
             </button>
