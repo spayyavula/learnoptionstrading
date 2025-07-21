@@ -20,6 +20,33 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
 
+// Auth helper functions
+export const auth = {
+  signUp: async (email: string, password: string) => {
+    if (!supabase) throw new Error('Supabase not configured')
+    return await supabase.auth.signUp({ email, password })
+  },
+  
+  signIn: async (email: string, password: string) => {
+    if (!supabase) throw new Error('Supabase not configured')
+    return await supabase.auth.signInWithPassword({ email, password })
+  },
+  
+  signOut: async () => {
+    if (!supabase) throw new Error('Supabase not configured')
+    return await supabase.auth.signOut()
+  },
+  
+  getUser: async () => {
+    if (!supabase) return { data: { user: null }, error: null }
+    return await supabase.auth.getUser()
+  },
+  
+  onAuthStateChange: (callback: (event: string, session: any) => void) => {
+    if (!supabase) return { data: { subscription: null } }
+    return supabase.auth.onAuthStateChange(callback)
+  }
+}
 export type Database = {
   public: {
     Tables: {

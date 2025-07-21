@@ -16,9 +16,7 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import Login from './loginSignup'
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from '../firebase';
+import { useAuth } from '../components/AuthProvider'
 
 
 const SYMBOL = 'SPY'; // Change to your desired symbol
@@ -104,6 +102,7 @@ export function LivePrice() {
 }
 
 export default function Landing() {
+  const { user } = useAuth()
   const indicesTickerRef = useRef<HTMLDivElement>(null);
   const stocksTickerRef = useRef<HTMLDivElement>(null);
 
@@ -155,6 +154,13 @@ export default function Landing() {
 
   const navigate = useNavigate();
 
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/app')
+    } else {
+      navigate('/login')
+    }
+  }
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -184,10 +190,10 @@ export default function Landing() {
               Practice with virtual money before risking real capital.
             </p>
             <button
-              onClick={() => navigate('/login')}
+              onClick={handleGetStarted}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
             >
-              Get Started Free
+              {user ? 'Go to App' : 'Get Started Free'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
@@ -311,10 +317,10 @@ export default function Landing() {
             Join our educational platform and master options trading safely
           </p>
           <button
-            onClick={() => navigate('/login')}
+            onClick={handleGetStarted}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
           >
-            Get Started Free
+            {user ? 'Go to App' : 'Get Started Free'}
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </div>

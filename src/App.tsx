@@ -6,14 +6,15 @@ import Disclaimer from './components/Disclaimer'
 import ErrorDisplay from './components/ErrorDisplay'
 import Landing from './pages/Landing'
 import AdminRoute from './components/AdminRoute'
+import { AuthProvider } from './components/AuthProvider'
+import ProtectedRoute from './components/ProtectedRoute'
 import { OptionsProvider } from './context/OptionsContext'
 import { TradingProvider } from './context/TradingContext'
 import { OptionsDataProvider } from './context/OptionsDataContext'
 import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
-import { auth } from './firebase';
-import PrivateRoute from './components/PrivateRoute';
+import Login from './pages/Login'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -39,7 +40,6 @@ const NotFound = lazy(() => import('./pages/NotFound')) // Import the NotFound c
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'))
 const DisclaimerDetailed = lazy(() => import('./pages/DisclaimerDetailed'))
-const Login = lazy(() => import('./pages/loginSignup')) // Import the Login component
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -53,18 +53,20 @@ const LoadingFallback = () => (
 
 function App() {
   return (
-    <TradingProvider>
-      <ErrorBoundary>
-        <OptionsProvider>
-          <OptionsDataProvider>
-            <Router>
-              <SeoHelmet />
-              <AppContent />
-            </Router>
-          </OptionsDataProvider>
-        </OptionsProvider>
-      </ErrorBoundary>
-    </TradingProvider>
+    <AuthProvider>
+      <TradingProvider>
+        <ErrorBoundary>
+          <OptionsProvider>
+            <OptionsDataProvider>
+              <Router>
+                <SeoHelmet />
+                <AppContent />
+              </Router>
+            </OptionsDataProvider>
+          </OptionsProvider>
+        </ErrorBoundary>
+      </TradingProvider>
+    </AuthProvider>
   )
 }
 
@@ -87,18 +89,18 @@ function AppContent() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/success" element={<Success />} />
             <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
             <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
             <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
-            <Route path="/login" element={<Login />} />
             
             {/* App Routes with nested routing */}
             <Route path="/app" element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <AppLayout />
-              </PrivateRoute>
+              </ProtectedRoute>
             }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />

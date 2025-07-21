@@ -4,10 +4,11 @@ import {
   BarChart3, Briefcase, TrendingUp, FileText, PieChart, 
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
-  ShieldCheck, UserCircle
+  ShieldCheck, UserCircle, LogOut
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
+import { useAuth } from './AuthProvider'
 
 // Define menu categories with their items
 const menuCategories = [
@@ -69,6 +70,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
+  const { user, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = React.useState<string[]>(['Main'])
   
@@ -102,6 +104,13 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [location.pathname, activeItem])
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
@@ -284,8 +293,20 @@ export default function Layout({ children }: LayoutProps) {
               </h2>
             </div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="text-sm text-gray-500">
-                <h2>Learning Mode</h2>
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-gray-500">
+                  <span>Learning Mode</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-700">{user?.email}</span>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-gray-500 hover:text-gray-700 p-2 rounded-md hover:bg-gray-100"
+                    title="Sign out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
