@@ -51,7 +51,11 @@ export default function Login() {
         const { error } = await signUp(formData.email, formData.password)
         if (error) {
           console.error('🔐 Sign up error:', error)
-          setError(error.message)
+          if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
+            setError('Authentication service is currently unavailable. Please try again later or contact support.')
+          } else {
+            setError(error.message)
+          }
         } else {
           console.log('🔐 Sign up successful')
           setSuccess('Account created successfully! Please check your email to verify your account.')
@@ -62,14 +66,18 @@ export default function Login() {
         const { error } = await signIn(formData.email, formData.password)
         if (error) {
           console.error('🔐 Sign in error:', error)
-          setError(error.message)
+          if (error.message.includes('configuration') || error.message.includes('service unavailable')) {
+            setError('Authentication service is currently unavailable. Please try again later or contact support.')
+          } else {
+            setError(error.message)
+          }
         } else {
           console.log('🔐 Sign in successful')
         }
       }
     } catch (err) {
       console.error('🔐 Form submit exception:', err)
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setError('Authentication service is currently unavailable. Please try again later.')
     }
   }
 

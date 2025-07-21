@@ -57,8 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setLoading(true)
     setAuthError(null)
-    setUser(null)
-    setSession(null)
     try {
       console.log('🔐 AuthProvider signIn attempt for:', email)
       const result = await auth.signIn(email, password)
@@ -66,10 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result.error) {
         console.error('🔐 SignIn error:', result.error)
         setAuthError(result.error.message)
+      } else if (result.data?.user) {
+        console.log('🔐 SignIn successful, setting user')
+        setUser(result.data.user)
+        setSession(result.data.session || null)
       }
       return result
     } catch (error) {
       console.error('🔐 SignIn exception:', error)
+      setAuthError('Authentication service unavailable')
       throw error
     } finally {
       setLoading(false)
@@ -79,8 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string) => {
     setLoading(true)
     setAuthError(null)
-    setUser(null)
-    setSession(null)
     try {
       console.log('🔐 AuthProvider signUp attempt for:', email)
       const result = await auth.signUp(email, password)
@@ -88,10 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result.error) {
         console.error('🔐 SignUp error:', result.error)
         setAuthError(result.error.message)
+      } else if (result.data?.user) {
+        console.log('🔐 SignUp successful, setting user')
+        setUser(result.data.user)
+        setSession(result.data.session || null)
       }
       return result
     } catch (error) {
       console.error('🔐 SignUp exception:', error)
+      setAuthError('Authentication service unavailable')
       throw error
     } finally {
       setLoading(false)
@@ -108,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null)
     } catch (error) {
       console.error('🔐 SignOut error:', error)
+      setAuthError('Sign out failed')
       throw error
     } finally {
       setLoading(false)
@@ -118,7 +125,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
-    authError,
     signIn,
     signUp,
     signOut
