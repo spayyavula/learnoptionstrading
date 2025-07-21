@@ -8,6 +8,7 @@ export default function Login() {
   const location = useLocation()
   const [isSignUp, setIsSignUp] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,6 +30,10 @@ export default function Login() {
     setSuccess('')
 
     if (isSignUp) {
+      if (!acceptedTerms) {
+        setError('You must accept the Terms and Conditions to create an account')
+        return
+      }
       if (formData.password !== formData.confirmPassword) {
         setError('Passwords do not match')
         return
@@ -177,6 +182,49 @@ export default function Login() {
               </div>
             )}
 
+            {/* Terms and Conditions (Sign Up Only) */}
+            {isSignUp && (
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      name="terms"
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="terms" className="text-gray-700">
+                      I agree to the{' '}
+                      <Link to="/TermsAndConditions" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
+                        Terms and Conditions
+                      </Link>
+                      {' '}and{' '}
+                      <Link to="/PrivacyPolicy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
+                        Privacy Policy
+                      </Link>
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" />
+                    <div className="text-sm text-yellow-700">
+                      <p className="font-medium">Educational Platform Notice</p>
+                      <p className="mt-1">
+                        This platform is for educational purposes only. All trading is simulated with virtual money. 
+                        Options trading involves substantial risk and may not be suitable for all investors.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -197,7 +245,7 @@ export default function Login() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (isSignUp && !acceptedTerms)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -219,6 +267,7 @@ export default function Login() {
                 setIsSignUp(!isSignUp)
                 setError('')
                 setSuccess('')
+                setAcceptedTerms(false)
                 setFormData({
                   email: '',
                   password: '',
