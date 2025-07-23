@@ -15,7 +15,7 @@ import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
 import Login from './pages/Login'
-// import PrivateRoute from './components/PrivateRoute';
+import OptionsChain from './pages/OptionsChain'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -24,7 +24,6 @@ const Demo = lazy(() => import('./pages/Demo'))
 const OptionsPortfolio = lazy(() => import('./pages/OptionsPortfolio'))
 const OptionsTrading = lazy(() => import('./pages/OptionsTrading'))
 const Orders = lazy(() => import('./pages/Orders'))
-const OptionsChain = lazy(() => import('./pages/OptionsChain'))
 const RegimeAnalysis = lazy(() => import('./pages/RegimeAnalysis'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const OptionsArbitrage = lazy(() => import('./pages/OptionsArbitrage'))
@@ -56,7 +55,7 @@ function RequireLandingVisit({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const hasVisitedLanding = localStorage.getItem('hasVisitedLanding') === 'true'
 
-  // Allow landing page always
+  // Always allow landing page
   if (location.pathname === '/') {
     return <>{children}</>
   }
@@ -64,6 +63,11 @@ function RequireLandingVisit({ children }: { children: React.ReactNode }) {
   // If not visited landing, redirect to landing
   if (!hasVisitedLanding) {
     return <Navigate to="/" replace state={{ from: location }} />
+  }
+
+  // If user tries to access /optionschain, redirect to /app/optionschain
+  if (location.pathname === '/optionschain') {
+    return <Navigate to="/app/optionschain" replace />
   }
 
   // Otherwise, allow access
@@ -94,7 +98,6 @@ function AppContent() {
   const location = useLocation()
   const isLandingPage = location.pathname === '/'
 
-  // Mark landing page as visited
   useEffect(() => {
     if (isLandingPage) {
       localStorage.setItem('hasVisitedLanding', 'true')
@@ -105,24 +108,21 @@ function AppContent() {
     <div className="App min-h-screen flex flex-col">
       {/* Show disclaimer only on app pages, not landing */}
       {!isLandingPage && <Disclaimer variant="banner" />}
-      
-      {/* Dev error display */}
       {import.meta.env.DEV && <ErrorDisplay />}
-      
-      {/* Main content area */}
       <div className="flex-1">
         <Suspense fallback={<LoadingFallback />}>
           <RequireLandingVisit>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
+              <Route path="/optionschain" element={<OptionsChain />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/success" element={<Success />} />
               <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
               <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
               <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
               <Route path="/login" element={<Login />} />
-              
+
               {/* App Routes with nested routing */}
               <Route path="/app" element={
                 <AppLayout />
@@ -134,7 +134,11 @@ function AppContent() {
                 <Route path="portfolio" element={<OptionsPortfolio />} />
                 <Route path="trading" element={<OptionsTrading />} />
                 <Route path="orders" element={<Orders />} />
-                <Route path="chain" element={<OptionsChain />} />
+                <Route path="optionschain" element={
+                  <ProtectedRoute>
+                    <OptionsChain />
+                  </ProtectedRoute>
+                } />
                 <Route path="regime" element={<RegimeAnalysis />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="arbitrage" element={<OptionsArbitrage />} />
@@ -147,14 +151,12 @@ function AppContent() {
                 <Route path="construction" element={<Construction />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="profile" element={<UserProfile />} />
-                
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
                 } />
-              
                 {/* Catch-all redirect */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>

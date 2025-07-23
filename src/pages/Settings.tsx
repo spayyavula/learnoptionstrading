@@ -234,6 +234,8 @@ export default function Settings() {
                   checked={notifications.orderFills}
                   onChange={(e) => setNotifications({...notifications, orderFills: e.target.checked})}
                   className="h-4 w-4 text-blue-600 rounded"
+                  title="Order Fills Notification"
+                  placeholder="Enable order fills notification"
                 />
               </div>
               
@@ -247,6 +249,8 @@ export default function Settings() {
                   checked={notifications.priceAlerts}
                   onChange={(e) => setNotifications({...notifications, priceAlerts: e.target.checked})}
                   className="h-4 w-4 text-blue-600 rounded"
+                  title="Enable price alerts notification"
+                  placeholder="Enable price alerts notification"
                 />
               </div>
               
@@ -260,6 +264,8 @@ export default function Settings() {
                   checked={notifications.dailySummary}
                   onChange={(e) => setNotifications({...notifications, dailySummary: e.target.checked})}
                   className="h-4 w-4 text-blue-600 rounded"
+                  title="Daily Summary Notification"
+                  placeholder="Enable daily summary notification"
                 />
               </div>
               
@@ -273,6 +279,8 @@ export default function Settings() {
                   checked={notifications.marketNews}
                   onChange={(e) => setNotifications({...notifications, marketNews: e.target.checked})}
                   className="h-4 w-4 text-blue-600 rounded"
+                  title="Market News Notification"
+                  placeholder="Enable market news notification"
                 />
               </div>
             </div>
@@ -293,6 +301,8 @@ export default function Settings() {
                   className="form-input"
                   value={riskSettings.maxPositionSize}
                   onChange={(e) => setRiskSettings({...riskSettings, maxPositionSize: parseInt(e.target.value)})}
+                  placeholder="Enter max position size"
+                  title="Max Position Size"
                 />
                 <p className="text-sm text-gray-500 mt-1">Maximum amount per single position</p>
               </div>
@@ -304,6 +314,8 @@ export default function Settings() {
                   className="form-input"
                   value={riskSettings.maxDailyLoss}
                   onChange={(e) => setRiskSettings({...riskSettings, maxDailyLoss: parseInt(e.target.value)})}
+                  placeholder="Enter max daily loss"
+                  title="Max Daily Loss"
                 />
                 <p className="text-sm text-gray-500 mt-1">Stop trading if daily loss exceeds this amount</p>
               </div>
@@ -315,6 +327,8 @@ export default function Settings() {
                   className="form-input"
                   value={riskSettings.stopLossPercent}
                   onChange={(e) => setRiskSettings({...riskSettings, stopLossPercent: parseInt(e.target.value)})}
+                  title="Default Stop Loss (%)"
+                  placeholder="Enter default stop loss (%)"
                 />
                 <p className="text-sm text-gray-500 mt-1">Automatic stop loss percentage</p>
               </div>
@@ -326,6 +340,8 @@ export default function Settings() {
                   className="form-input"
                   value={riskSettings.takeProfitPercent}
                   onChange={(e) => setRiskSettings({...riskSettings, takeProfitPercent: parseInt(e.target.value)})}
+                  title="Default Take Profit (%)"
+                  placeholder="Enter default take profit (%)"
                 />
                 <p className="text-sm text-gray-500 mt-1">Automatic take profit percentage</p>
               </div>
@@ -347,6 +363,7 @@ export default function Settings() {
                 className="form-select"
                 value={displaySettings.theme}
                 onChange={(e) => setDisplaySettings({...displaySettings, theme: e.target.value})}
+                title="Theme"
               >
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -360,6 +377,7 @@ export default function Settings() {
                 className="form-select"
                 value={displaySettings.currency}
                 onChange={(e) => setDisplaySettings({...displaySettings, currency: e.target.value})}
+                title="Currency"
               >
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
@@ -374,6 +392,7 @@ export default function Settings() {
                 className="form-select"
                 value={displaySettings.timeZone}
                 onChange={(e) => setDisplaySettings({...displaySettings, timeZone: e.target.value})}
+                title="Time Zone"
               >
                 <option value="America/New_York">Eastern Time</option>
                 <option value="America/Chicago">Central Time</option>
@@ -389,6 +408,7 @@ export default function Settings() {
                 className="form-select"
                 value={displaySettings.chartType}
                 onChange={(e) => setDisplaySettings({...displaySettings, chartType: e.target.value})}
+                title="Chart Type"
               >
                 <option value="candlestick">Candlestick</option>
                 <option value="line">Line</option>

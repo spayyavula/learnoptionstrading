@@ -245,6 +245,17 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Add this button below your hero section or wherever you want */}
+      <div className="flex justify-center my-8">
+        <Link to="/optionschain">
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-lg font-semibold transition-colors"
+          >
+            View Options Chain (No Login Needed)
+          </button>
+        </Link>
+      </div>
+
       {/* Features Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

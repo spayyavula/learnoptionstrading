@@ -1,508 +1,261 @@
-import React, { useEffect, useState } from 'react'
-import { Search, TrendingUp, TrendingDown, Calculator, Eye } from 'lucide-react'
-import { useOptionsContext } from '../context/OptionsContext'
-import { PolygonService } from '../services/polygonService'
-import TradingViewWidget from '../components/TradingViewWidget'
-import type { OptionsContract } from '../types/options'
+import { useEffect, useState, useMemo } from 'react'
 
-const POLYGON_API_KEY = import.meta.env.VITE_POLYGON_API_KEY
+type Option = {
+  ticker: string
+  type: string
+  strike: number
+  expiry: string
+  bid: number
+  ask: number
+  last: number
+  volume: number
+  open_interest: number
+  implied_volatility: number
+  delta: number
+  gamma?: number
+  theta?: number
+  vega?: number
+  intrinsic_value?: number
+  time_value?: number
+  probability_of_profit?: number
+}
 
-const INSTRUMENTS = [
-  { symbol: 'SPY', name: 'S&P 500 ETF' },
-  { symbol: 'QQQ', name: 'NASDAQ 100 ETF' },
-  { symbol: 'AAPL', name: 'Apple' },
-  { symbol: 'MSFT', name: 'Microsoft' },
-  { symbol: 'TSLA', name: 'Tesla' },
-  { symbol: 'NVDA', name: 'Nvidia' },
-  { symbol: 'AMZN', name: 'Amazon' },
-  // Add more as needed
-]
+import styles from './OptionsChain.module.css'
 
 export default function OptionsChain() {
-  const { state } = useOptionsContext()
-  const [contracts, setContracts] = useState<OptionsContract[]>([])
-  const [selectedUnderlying, setSelectedUnderlying] = useState<string>('SPY')
+  const [options, setOptions] = useState<Option[]>([])
   const [loading, setLoading] = useState(true)
-  const [sortBy, setSortBy] = useState<'volume' | 'iv' | 'delta'>('volume')
+  const [expiry, setExpiry] = useState<string>('') // default empty, will be set after fetch
   const [expiries, setExpiries] = useState<string[]>([])
-  const [selectedExpiry, setSelectedExpiry] = useState<string>('')
-  const [chain, setChain] = useState<any[]>([])
-  const [underlyingPrice, setUnderlyingPrice] = useState<number | null>(null)
+  const [minVolume, setMinVolume] = useState<number>(100)
+  const [sortBy, setSortBy] = useState<'prob' | 'volume' | 'iv' | 'riskreward'>('prob')
   const [arbitrageRows, setArbitrageRows] = useState<any[]>([])
+  const [underlyingPrice, setUnderlyingPrice] = useState<number | null>(null)
 
-  // Validate contract shape
-  function isValidContract(contract: any): contract is OptionsContract {
-    return contract &&
-      typeof contract.contract_type === 'string' &&
-      typeof contract.exercise_style === 'string' &&
-      typeof contract.expiration_date === 'string' &&
-      typeof contract.shares_per_contract === 'number' &&
-      typeof contract.strike_price === 'number' &&
-      typeof contract.ticker === 'string' &&
-      typeof contract.underlying_ticker === 'string' &&
-      typeof contract.bid === 'number' &&
-      typeof contract.ask === 'number' &&
-      typeof contract.last === 'number' &&
-      typeof contract.volume === 'number' &&
-      typeof contract.open_interest === 'number' &&
-      typeof contract.implied_volatility === 'number' &&
-      typeof contract.delta === 'number' &&
-      typeof contract.gamma === 'number' &&
-      typeof contract.theta === 'number' &&
-      typeof contract.vega === 'number' &&
-      typeof contract.intrinsic_value === 'number' &&
-      typeof contract.time_value === 'number';
-  }
-
-  useEffect(() => {
-    loadOptionsChain()
-  }, [selectedUnderlying, selectedExpiry])
-
-  const loadOptionsChain = async () => {
-    try {
-      setLoading(true)
-      const topContracts = PolygonService.getTopLiquidOptions()
-      const filteredContracts = selectedUnderlying === 'ALL'
-        ? topContracts
-        : topContracts.filter(contract => contract.underlying_ticker === selectedUnderlying)
-      // Validate contracts
-      const validContracts = filteredContracts.filter(isValidContract)
-      if (filteredContracts.length !== validContracts.length) {
-        const invalids = filteredContracts.filter(c => !isValidContract(c))
-        console.warn('Invalid options contracts found and excluded:', invalids)
-      }
-      setContracts(validContracts)
-    } catch (error) {
-      console.error('Failed to load options chain:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Fetch available expiries and underlying price
+  // Fetch options contracts
   useEffect(() => {
     setLoading(true)
-    fetch(`https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=${selectedUnderlying}&apiKey=${POLYGON_API_KEY}`)
+    fetch('https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=SPY&apiKey=YOUR_POLYGON_API_KEY')
       .then(res => res.json())
       .then(data => {
-        const uniqueExpiries = Array.from(new Set(data.results.map((c: any) => c.expiration_date))) as string[]
-        setExpiries(uniqueExpiries)
-        setSelectedExpiry(uniqueExpiries[0] || '')
+        const contracts = (data.results || []).map((opt: any) => ({
+          ticker: opt.ticker,
+          type: opt.contract_type,
+          strike: opt.strike_price,
+          expiry: opt.expiration_date,
+          bid: opt.bid ?? 0,
+          ask: opt.ask ?? 0,
+          last: opt.last ?? 0,
+          volume: opt.volume ?? 0,
+          open_interest: opt.open_interest ?? 0,
+          implied_volatility: opt.implied_volatility ?? 0,
+          delta: opt.delta ?? 0,
+          gamma: opt.gamma ?? 0,
+          theta: opt.theta ?? 0,
+          vega: opt.vega ?? 0,
+          intrinsic_value: opt.intrinsic_value ?? 0,
+          time_value: opt.time_value ?? 0,
+          probability_of_profit: opt.delta ? Math.round(Math.abs(opt.delta) * 100) : undefined
+        }))
+        const uniqueExpiries = Array.from(new Set(contracts.map((c: Option) => c.expiry)))
+        setExpiries(uniqueExpiries as string[])
+        // Set default expiry to first available if not set
+        if (uniqueExpiries.length > 0 && !expiry) {
+          setExpiry(uniqueExpiries[0] as string)
+        }
+        setOptions(contracts)
+        setLoading(false)
       })
+      .catch(() => setLoading(false))
+  }, [])
 
-    // Fetch underlying price
-    fetch(`https://api.polygon.io/v2/aggs/ticker/${selectedUnderlying}/prev?adjusted=true&apiKey=${POLYGON_API_KEY}`)
+  useEffect(() => {
+    // Set expiry to first available when expiries change and expiry is not set
+    if (expiries.length > 0 && !expiry) {
+      setExpiry(expiries[0])
+    }
+  }, [expiries, expiry])
+
+  // Fetch underlying price for SPY
+  useEffect(() => {
+    fetch('https://api.polygon.io/v2/aggs/ticker/SPY/prev?adjusted=true&apiKey=YOUR_POLYGON_API_KEY')
       .then(res => res.json())
       .then(data => {
         setUnderlyingPrice(data.results?.[0]?.c ?? null)
-        setLoading(false)
       })
-  }, [selectedUnderlying])
+      .catch(() => setUnderlyingPrice(null))
+  }, [])
 
-  // Fetch option chain for selected expiry
+  // Arbitrage detection (simple: call/put parity)
   useEffect(() => {
-    if (!selectedExpiry) return
-    setLoading(true)
-    fetch(`https://api.polygon.io/v3/snapshot/options/${selectedUnderlying}?expiration_date=${selectedExpiry}&apiKey=${POLYGON_API_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        setChain(data.results?.options ?? [])
-        setLoading(false)
-      })
-  }, [selectedUnderlying, selectedExpiry])
-
-  // Find ATM strike and filter 10 above/below
-  const filteredStrikes = React.useMemo(() => {
-    if (!underlyingPrice || chain.length === 0) return []
-    const strikes = Array.from(new Set(chain.map((opt: any) => opt.strike_price))).sort((a, b) => a - b)
-    const atmIndex = strikes.findIndex(strike => strike >= underlyingPrice)
-    const start = Math.max(atmIndex - 10, 0)
-    return strikes.slice(start, atmIndex + 11) // 10 below, ATM, 10 above
-  }, [chain, underlyingPrice])
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount)
-  }
-
-  const formatPercent = (percent: number) => {
-    return `${percent >= 0 ? '+' : ''}${(percent * 100).toFixed(2)}%`
-  }
-
-  const sortedContracts = [...contracts].sort((a, b) => {
-    switch (sortBy) {
-      case 'volume':
-        return b.volume - a.volume
-      case 'iv':
-        return b.implied_volatility - a.implied_volatility
-      case 'delta':
-        return Math.abs(b.delta) - Math.abs(a.delta)
-      default:
-        return 0
-    }
-  })
-
-  const underlyingTickers = ['ALL', ...new Set(PolygonService.getTopLiquidOptions().map(c => c.underlying_ticker))]
-
-  const chainStats = {
-    totalContracts: contracts.length,
-    avgIV: contracts.length > 0 ? contracts.reduce((sum, c) => sum + c.implied_volatility, 0) / contracts.length : 0,
-    totalVolume: contracts.reduce((sum, c) => sum + c.volume, 0),
-    totalOI: contracts.reduce((sum, c) => sum + c.open_interest, 0)
-  }
-
-  // Detect arbitrage opportunities
-  useEffect(() => {
-    if (contracts.length === 0) return
+    if (!options.length) return
     const rows: any[] = []
-    const futurePriceMap: { [key: string]: number } = {}
-
-    // First pass: collect futures prices
-    contracts.forEach(contract => {
-      if (contract.contract_type === 'call' && contract.open_interest > 0) {
-        const key = `${contract.underlying_ticker}-${contract.expiration_date}-${contract.strike_price}`
-        futurePriceMap[key] = contract.last
-      }
-    })
-
-    // Second pass: find arbitrage opportunities
-    contracts.forEach(contract => {
-      if (contract.contract_type === 'put' && contract.open_interest > 0) {
-        const key = `${contract.underlying_ticker}-${contract.expiration_date}-${contract.strike_price}`
-        const callPrice = futurePriceMap[key]
-        if (callPrice) {
-          const syntheticPrice = (callPrice + contract.strike_price) / 2
-          const spread = contract.last - syntheticPrice
+    const calls = options.filter(o => o.type === 'call' && o.expiry === expiry)
+    const puts = options.filter(o => o.type === 'put' && o.expiry === expiry)
+    calls.forEach(call => {
+      const put = puts.find(p => p.strike === call.strike)
+      if (put) {
+        const parity = call.last - put.last - (call.strike - 0) // 0 = risk-free rate approx
+        if (Math.abs(parity) > 1) {
           rows.push({
-            underlying: contract.underlying_ticker,
-            expiry: contract.expiration_date,
-            strike: contract.strike_price,
-            callPrice: callPrice,
-            putPrice: contract.last,
-            futuresPrice: syntheticPrice,
-            syntheticPrice: syntheticPrice,
-            spread: spread,
-            optionVol: contract.implied_volatility,
-            futuresVol: 0 // Placeholder, calculate if futures data available
+            strike: call.strike,
+            expiry: call.expiry,
+            callPrice: call.last,
+            putPrice: put.last,
+            parity,
           })
         }
       }
     })
-
     setArbitrageRows(rows)
-  }, [contracts])
+  }, [options, expiry])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-gray-500">Loading options chain...</div>
-      </div>
-    )
-  }
+  // Filter for ATM, 10 above, 10 below
+  const filteredOptions = useMemo(() => {
+    const filtered = options
+      .filter(opt => opt.expiry === expiry)
+      .filter(opt => opt.volume >= minVolume)
+    if (!underlyingPrice || filtered.length === 0) return []
+    const strikes = Array.from(new Set(filtered.map(opt => opt.strike))).sort((a, b) => a - b)
+    const atmIndex = strikes.findIndex(strike => strike >= underlyingPrice)
+    const start = Math.max(atmIndex - 10, 0)
+    const selectedStrikes = strikes.slice(start, atmIndex + 11) // 10 below, ATM, 10 above
+    return filtered.filter(opt => selectedStrikes.includes(opt.strike))
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'prob':
+            return (b.probability_of_profit ?? 0) - (a.probability_of_profit ?? 0)
+          case 'volume':
+            return b.volume - a.volume
+          case 'iv':
+            return b.implied_volatility - a.implied_volatility
+          case 'riskreward':
+            return ((b.intrinsic_value ?? 0) / (b.ask || 1)) - ((a.intrinsic_value ?? 0) / (a.ask || 1))
+          default:
+            return 0
+        }
+      })
+  }, [options, expiry, minVolume, sortBy, underlyingPrice])
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Eye className="h-10 w-10 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Contracts</p>
-                <p className="text-3xl font-bold text-gray-900">{chainStats.totalContracts}</p>
-                <p className="text-xs text-gray-500 mt-1">Available for trading</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-md hover:shadow-lg transition-shadow">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Calculator className="h-10 w-10 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 uppercase tracking-wider">Avg Implied Vol</p>
-                <p className="text-3xl font-bold text-gray-900">{formatPercent(chainStats.avgIV)}</p>
-                <p className="text-xs text-gray-500 mt-1">Market volatility indicator</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md hover:shadow-lg transition-shadow">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingUp className="h-10 w-10 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Volume</p>
-                <p className="text-3xl font-bold text-gray-900">{(chainStats.totalVolume / 1000).toFixed(0)}K</p>
-                <p className="text-xs text-gray-500 mt-1">Daily trading activity</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-md hover:shadow-lg transition-shadow">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingDown className="h-10 w-10 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 uppercase tracking-wider">Open Interest</p>
-                <p className="text-3xl font-bold text-gray-900">{(chainStats.totalOI / 1000).toFixed(0)}K</p>
-                <p className="text-xs text-gray-500 mt-1">Total outstanding contracts</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="options-chain-container">
+      <h2 className="options-chain-title">SPY Options Chain</h2>
+      <div className="options-chain-controls">
+        <label>
+          Expiry:
+          <select value={expiry} onChange={e => setExpiry(e.target.value)} className="options-chain-select">
+            {expiries.length === 0 ? (
+              <option value="">Loading...</option>
+            ) : (
+              expiries.map(e => <option key={e} value={e}>{e}</option>)
+            )}
+          </select>
+        </label>
+        <label>
+          Min Volume:
+          <input type="number" value={minVolume} onChange={e => setMinVolume(Number(e.target.value))} className="options-chain-input" />
+        </label>
+        <label>
+          Sort By:
+          <select value={sortBy} onChange={e => setSortBy(e.target.value as any)} className="options-chain-select">
+            <option value="prob">Probability of Profit</option>
+            <option value="volume">Volume</option>
+            <option value="iv">Implied Volatility</option>
+            <option value="riskreward">Risk/Reward</option>
+          </select>
+        </label>
       </div>
-
-      {/* Options Chain Table */}
-      <div className="card shadow-md border-blue-200">
-        <div className="card-header bg-gradient-to-r from-blue-50 to-blue-100">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900">Options Chain</h3>
-            <div className="flex space-x-4">
-              <select
-                className="form-select"
-                value={selectedUnderlying}
-                onChange={(e) => setSelectedUnderlying(e.target.value)}
-                aria-label="Select underlying ticker"
-                title="Select underlying ticker"
-              >
-                {underlyingTickers.map(ticker => (
-                  <option key={ticker} value={ticker}>{ticker}</option>
-                ))}
-              </select>
-              <select
-                className="form-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'volume' | 'iv' | 'delta')}
-              >
-                <option value="volume">Sort by Volume</option>
-                <option value="iv">Sort by IV</option>
-                <option value="delta">Sort by Delta</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div className="card-body p-0">
-          {sortedContracts.length === 0 ? (
-            <div className="text-center py-8">
-              <Calculator className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No options contracts found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {selectedUnderlying === 'ALL' 
-                  ? "No contracts available."
-                  : `No contracts found for ${selectedUnderlying}.`
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-b-lg">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Contract</th>
-                    <th>Type</th>
-                    <th>Underlying</th>
-                    <th>Strike</th>
-                    <th>Expiry</th>
-                    <th>Bid/Ask</th>
-                    <th>Last</th>
-                    <th>Volume</th>
-                    <th>Open Interest</th>
-                    <th>Implied Vol</th>
-                    <th>Greeks</th>
-                    <th>Intrinsic Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedContracts.map((contract) => {
-                    const hasPosition = state.positions.some(pos => pos.contractTicker === contract.ticker)
-                    return (
-                      <tr 
-                        key={contract.ticker}
-                        className={hasPosition ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'}
-                      >
-                        <td>
-                          <div className="flex items-center">
-                            <div>
-                              <div className="font-medium text-gray-900">{contract.ticker}</div>
-                              {hasPosition && (
-                                <div className="text-xs text-blue-600 font-medium">POSITION</div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            contract.contract_type === 'call'
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {contract.contract_type.toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="font-medium">{contract.underlying_ticker}</td>
-                        <td className="font-medium">{formatCurrency(contract.strike_price)}</td>
-                        <td className="text-sm text-gray-500">{contract.expiration_date}</td>
-                        <td>
-                          <div className="text-sm">
-                            <div className="text-red-600">{formatCurrency(contract.bid)}</div>
-                            <div className="text-green-600">{formatCurrency(contract.ask)}</div>
-                          </div>
-                        </td>
-                        <td className="font-medium bg-gray-50">{formatCurrency(contract.last)}</td>
-                        <td className="text-sm">
-                          {(contract.volume / 1000).toFixed(1)}K
-                        </td>
-                        <td className="text-sm">
-                          {(contract.open_interest / 1000).toFixed(1)}K
-                        </td>
-                        <td className="font-medium">
-                          <span className="bg-purple-50 px-2 py-1 rounded-md">{formatPercent(contract.implied_volatility)}</span>
-                        </td>
-                        <td className="text-xs">
-                          <div>Δ: <span className={contract.delta >= 0 ? 'text-green-600' : 'text-red-600'}>{contract.delta.toFixed(3)}</span></div>
-                          <div>Γ: {contract.gamma.toFixed(3)}</div>
-                          <div>Θ: <span className="text-red-600">{contract.theta.toFixed(3)}</span></div>
-                          <div>ν: {contract.vega.toFixed(3)}</div>
-                        </td>
-                        <td>
-                          <div className="text-sm">
-                            <div>Intrinsic: {formatCurrency(contract.intrinsic_value)}</div>
-                            <div className="text-gray-500">Time: {formatCurrency(contract.time_value)}</div>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Options Education */}
-      <div className="card shadow-md border-blue-200">
-        <div className="card-header bg-gradient-to-r from-blue-50 to-blue-100">
-          <h3 className="text-lg font-medium text-gray-900">Options Greeks Explained</h3>
-        </div>
-        <div className="card-body">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Delta (Δ)</h4>
-              <p className="text-sm text-gray-600">
-                Measures price sensitivity to underlying asset movement. Range: -1 to +1 for options.
-              </p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Gamma (Γ)</h4>
-              <p className="text-sm text-gray-600">
-                Rate of change of delta. Higher gamma means delta changes more rapidly.
-              </p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Theta (Θ)</h4>
-              <p className="text-sm text-gray-600">
-                Time decay. Shows how much option value decreases per day, all else equal.
-              </p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Vega (ν)</h4>
-              <p className="text-sm text-gray-600">
-                Sensitivity to implied volatility changes. Higher vega means more volatility risk.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Chart for Selected Underlying */}
-      {selectedUnderlying && selectedUnderlying !== 'ALL' && (
-        <div className="card shadow-md border-blue-200 mb-6"> 
-          <div className="card-header bg-gradient-to-r from-blue-50 to-blue-100">
-            <h3 className="text-lg font-medium text-gray-900">
-              {selectedUnderlying} Chart Analysis
-              <a 
-                href={`https://www.tradingview.com/chart/?symbol=${selectedUnderlying === 'SPY' ? 'AMEX:SPY' : 'NASDAQ:' + selectedUnderlying}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-sm text-blue-600 hover:underline ml-2"
-              >
-                Open in TradingView
-              </a>
-            </h3>
-          </div>
-          <div className="card-body">
-            <TradingViewWidget
-              symbol={selectedUnderlying === 'SPY' ? 'AMEX:SPY' : `NASDAQ:${selectedUnderlying || 'SPY'}`}
-              width="100%" 
-              height={650}
-              interval="D"
-              theme="light" 
-              studies={["RSI", "MACD", "Volume"]}
-              style="candles"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Arbitrage Opportunities Table */}
-      <div className="card shadow-md border-green-200 mt-8">
-        <div className="card-header bg-gradient-to-r from-green-50 to-green-100">
-          <h3 className="text-lg font-medium text-gray-900">Arbitrage Opportunities</h3>
-          <p className="text-sm text-gray-600">ITM options vs. futures for liquid instruments</p>
-        </div>
-        <div className="card-body p-0">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Underlying</th>
-                <th>Expiry</th>
-                <th>Strike</th>
-                <th>Call Price</th>
-                <th>Put Price</th>
-                <th>Futures Price</th>
-                <th>Synthetic Price</th>
-                <th>Spread</th>
-                <th>Option Vol</th>
-                <th>Futures Vol</th>
+      {loading ? (
+        <div className="options-chain-loading">Loading options...</div>
+      ) : (
+        <>
+        <table className="options-chain-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Type</th>
+              <th>Strike</th>
+              <th>Expiry</th>
+              <th>Bid</th>
+              <th>Ask</th>
+              <th>Last</th>
+              <th>Volume</th>
+              <th>OI</th>
+              <th>IV</th>
+              <th>Delta</th>
+              <th>Gamma</th>
+              <th>Theta</th>
+              <th>Vega</th>
+              <th>Intrinsic</th>
+              <th>Time Value</th>
+              <th>Prob. of Profit</th>
+              <th>Risk/Reward</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOptions.map(opt => (
+              <tr key={opt.ticker}>
+                <td>{opt.ticker}</td>
+                <td>{opt.type}</td>
+                <td>{opt.strike}</td>
+                <td>{opt.expiry}</td>
+                <td>{opt.bid}</td>
+                <td>{opt.ask}</td>
+                <td>{opt.last}</td>
+                <td>{opt.volume}</td>
+                <td>{opt.open_interest}</td>
+                <td>{opt.implied_volatility}</td>
+                <td>{opt.delta}</td>
+                <td>{opt.gamma}</td>
+                <td>{opt.theta}</td>
+                <td>{opt.vega}</td>
+                <td>{opt.intrinsic_value}</td>
+                <td>{opt.time_value}</td>
+                <td className="options-chain-profit">
+                  {opt.probability_of_profit ? `${opt.probability_of_profit}%` : '--'}
+                </td>
+                <td>
+                  {opt.intrinsic_value && opt.ask
+                    ? (opt.intrinsic_value / opt.ask).toFixed(2)
+                    : '--'}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {arbitrageRows.map(row => (
-                <tr key={row.key} className={Math.abs(row.spread) > 0.5 ? 'bg-yellow-100 font-bold' : ''}>
-                  <td>{row.underlying}</td>
-                  <td>{row.expiry}</td>
-                  <td>{row.strike}</td>
-                  <td>{row.callPrice}</td>
-                  <td>{row.putPrice}</td>
-                  <td>{row.futuresPrice}</td>
-                  <td>{row.syntheticPrice}</td>
-                  <td>{row.spread.toFixed(2)}</td>
-                  <td>{row.optionVol}</td>
-                  <td>{row.futuresVol}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {arbitrageRows.length === 0 && (
-            <div className="text-center py-8 text-gray-500">No clear arbitrage opportunities found for selected expiry.</div>
-          )}
-        </div>
-      </div>
+            ))}
+          </tbody>
+        </table>
+        <h3 className="options-chain-arbitrage-title">Arbitrage Opportunities</h3>
+        <table className="options-chain-arbitrage-table">
+          <thead>
+            <tr>
+              <th>Strike</th>
+              <th>Expiry</th>
+              <th>Call Price</th>
+              <th>Put Price</th>
+              <th>Parity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {arbitrageRows.map(row => (
+              <tr key={row.strike + row.expiry} className={Math.abs(row.parity) > 1 ? "options-chain-arbitrage-highlight" : undefined}>
+                <td>{row.strike}</td>
+                <td>{row.expiry}</td>
+                <td>{row.callPrice}</td>
+                <td>{row.putPrice}</td>
+                <td>{row.parity.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {arbitrageRows.length === 0 && (
+          <div className="options-chain-no-arbitrage">
+            No clear arbitrage opportunities found for selected expiry.
+          </div>
+        )}
+        </>
+      )}
+      <p className="options-chain-description">
+        This table shows SPY options contracts (ATM, 10 above, 10 below) with greeks, risk/reward, and highlights arbitrage opportunities. Use filters and sorting to find the best trades!
+      </p>
     </div>
   )
 }
