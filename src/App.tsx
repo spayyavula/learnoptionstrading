@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import SeoHelmet from './components/SeoHelmet'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -12,8 +12,6 @@ import { OptionsDataProvider } from './context/OptionsDataContext'
 import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
-import { auth } from './firebase';
-import PrivateRoute from './components/PrivateRoute';
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -51,6 +49,24 @@ const LoadingFallback = () => (
   </div>
 )
 
+function RequireLandingVisit({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const hasVisitedLanding = localStorage.getItem('hasVisitedLanding') === 'true'
+
+  // Allow landing page always
+  if (location.pathname === '/') {
+    return <>{children}</>
+  }
+
+  // If not visited landing, redirect to landing
+  if (!hasVisitedLanding) {
+    return <Navigate to="/" replace state={{ from: location }} />
+  }
+
+  // Otherwise, allow access
+  return <>{children}</>
+}
+
 function App() {
   return (
     <TradingProvider>
@@ -73,6 +89,13 @@ function AppContent() {
   const location = useLocation()
   const isLandingPage = location.pathname === '/'
 
+  // Mark landing page as visited
+  useEffect(() => {
+    if (isLandingPage) {
+      localStorage.setItem('hasVisitedLanding', 'true')
+    }
+  }, [isLandingPage])
+
   return (
     <div className="App min-h-screen flex flex-col">
       {/* Show disclaimer only on app pages, not landing */}
@@ -84,22 +107,17 @@ function AppContent() {
       {/* Main content area */}
       <div className="flex-1">
         <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/subscription" element={<SubscriptionPage />} />
-            <Route path="/success" element={<Success />} />
-            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-            <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
-            <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
-            <Route path="/login" element={<Login />} />
+          <RequireLandingVisit>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/subscription" element={<SubscriptionPage />} />
+              <Route path="/success" element={<Success />} />
+              <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+              <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
+              <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
+              <Route path="/login" element={<Login />} />
             
-            {/* App Routes with nested routing */}
-            <Route path="/app" element={
-              <PrivateRoute>
-                <AppLayout />
-              </PrivateRoute>
-            }>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="agent" element={<AgentDashboard />} />
@@ -127,11 +145,11 @@ function AppContent() {
                   <AdminDashboard />
                 </AdminRoute>
               } />
-            </Route>
             
             {/* Catch-all redirect */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </RequireLandingVisit>
         </Suspense>
       </div>
     </div>

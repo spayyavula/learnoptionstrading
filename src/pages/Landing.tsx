@@ -18,13 +18,13 @@ import {
 import { Link, useNavigate } from 'react-router-dom'
 import Login from './loginSignup'
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from '../firebase';
+
 
 
 const SYMBOL = 'SPY'; // Change to your desired symbol
 
 // Replace with your actual Polygon API key or use an environment variable
-const POLYGON_API_KEY = process.env.REACT_APP_POLYGON_API_KEY || '';
+const POLYGON_API_KEY = import.meta.env.VITE_POLYGON_API_KEY || '';
 
 function isMarketOpen() {
   const now = new Date();

@@ -1,9 +1,22 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Search, TrendingUp, TrendingDown, Calculator, Eye } from 'lucide-react'
 import { useOptionsContext } from '../context/OptionsContext'
 import { PolygonService } from '../services/polygonService'
 import TradingViewWidget from '../components/TradingViewWidget'
 import type { OptionsContract } from '../types/options'
+
+const POLYGON_API_KEY = import.meta.env.VITE_POLYGON_API_KEY
+
+const INSTRUMENTS = [
+  { symbol: 'SPY', name: 'S&P 500 ETF' },
+  { symbol: 'QQQ', name: 'NASDAQ 100 ETF' },
+  { symbol: 'AAPL', name: 'Apple' },
+  { symbol: 'MSFT', name: 'Microsoft' },
+  { symbol: 'TSLA', name: 'Tesla' },
+  { symbol: 'NVDA', name: 'Nvidia' },
+  { symbol: 'AMZN', name: 'Amazon' },
+  // Add more as needed
+]
 
 export default function OptionsChain() {
   const { state } = useOptionsContext()
@@ -11,7 +24,11 @@ export default function OptionsChain() {
   const [selectedUnderlying, setSelectedUnderlying] = useState<string>('SPY')
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<'volume' | 'iv' | 'delta'>('volume')
-
+  const [expiries, setExpiries] = useState<string[]>([])
+  const [selectedExpiry, setSelectedExpiry] = useState<string>('')
+  const [chain, setChain] = useState<any[]>([])
+  const [underlyingPrice, setUnderlyingPrice] = useState<number | null>(null)
+  const [arbitrageRows, setArbitrageRows] = useState<any[]>([])
 
   // Validate contract shape
   function isValidContract(contract: any): contract is OptionsContract {
@@ -39,7 +56,7 @@ export default function OptionsChain() {
 
   useEffect(() => {
     loadOptionsChain()
-  }, [selectedUnderlying])
+  }, [selectedUnderlying, selectedExpiry])
 
   const loadOptionsChain = async () => {
     try {
@@ -61,6 +78,47 @@ export default function OptionsChain() {
       setLoading(false)
     }
   }
+
+  // Fetch available expiries and underlying price
+  useEffect(() => {
+    setLoading(true)
+    fetch(`https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=${selectedUnderlying}&apiKey=${POLYGON_API_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        const uniqueExpiries = Array.from(new Set(data.results.map((c: any) => c.expiration_date))) as string[]
+        setExpiries(uniqueExpiries)
+        setSelectedExpiry(uniqueExpiries[0] || '')
+      })
+
+    // Fetch underlying price
+    fetch(`https://api.polygon.io/v2/aggs/ticker/${selectedUnderlying}/prev?adjusted=true&apiKey=${POLYGON_API_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        setUnderlyingPrice(data.results?.[0]?.c ?? null)
+        setLoading(false)
+      })
+  }, [selectedUnderlying])
+
+  // Fetch option chain for selected expiry
+  useEffect(() => {
+    if (!selectedExpiry) return
+    setLoading(true)
+    fetch(`https://api.polygon.io/v3/snapshot/options/${selectedUnderlying}?expiration_date=${selectedExpiry}&apiKey=${POLYGON_API_KEY}`)
+      .then(res => res.json())
+      .then(data => {
+        setChain(data.results?.options ?? [])
+        setLoading(false)
+      })
+  }, [selectedUnderlying, selectedExpiry])
+
+  // Find ATM strike and filter 10 above/below
+  const filteredStrikes = React.useMemo(() => {
+    if (!underlyingPrice || chain.length === 0) return []
+    const strikes = Array.from(new Set(chain.map((opt: any) => opt.strike_price))).sort((a, b) => a - b)
+    const atmIndex = strikes.findIndex(strike => strike >= underlyingPrice)
+    const start = Math.max(atmIndex - 10, 0)
+    return strikes.slice(start, atmIndex + 11) // 10 below, ATM, 10 above
+  }, [chain, underlyingPrice])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -94,6 +152,47 @@ export default function OptionsChain() {
     totalVolume: contracts.reduce((sum, c) => sum + c.volume, 0),
     totalOI: contracts.reduce((sum, c) => sum + c.open_interest, 0)
   }
+
+  // Detect arbitrage opportunities
+  useEffect(() => {
+    if (contracts.length === 0) return
+    const rows: any[] = []
+    const futurePriceMap: { [key: string]: number } = {}
+
+    // First pass: collect futures prices
+    contracts.forEach(contract => {
+      if (contract.contract_type === 'call' && contract.open_interest > 0) {
+        const key = `${contract.underlying_ticker}-${contract.expiration_date}-${contract.strike_price}`
+        futurePriceMap[key] = contract.last
+      }
+    })
+
+    // Second pass: find arbitrage opportunities
+    contracts.forEach(contract => {
+      if (contract.contract_type === 'put' && contract.open_interest > 0) {
+        const key = `${contract.underlying_ticker}-${contract.expiration_date}-${contract.strike_price}`
+        const callPrice = futurePriceMap[key]
+        if (callPrice) {
+          const syntheticPrice = (callPrice + contract.strike_price) / 2
+          const spread = contract.last - syntheticPrice
+          rows.push({
+            underlying: contract.underlying_ticker,
+            expiry: contract.expiration_date,
+            strike: contract.strike_price,
+            callPrice: callPrice,
+            putPrice: contract.last,
+            futuresPrice: syntheticPrice,
+            syntheticPrice: syntheticPrice,
+            spread: spread,
+            optionVol: contract.implied_volatility,
+            futuresVol: 0 // Placeholder, calculate if futures data available
+          })
+        }
+      }
+    })
+
+    setArbitrageRows(rows)
+  }, [contracts])
 
   if (loading) {
     return (
@@ -177,6 +276,8 @@ export default function OptionsChain() {
                 className="form-select"
                 value={selectedUnderlying}
                 onChange={(e) => setSelectedUnderlying(e.target.value)}
+                aria-label="Select underlying ticker"
+                title="Select underlying ticker"
               >
                 {underlyingTickers.map(ticker => (
                   <option key={ticker} value={ticker}>{ticker}</option>
@@ -357,6 +458,51 @@ export default function OptionsChain() {
           </div>
         </div>
       )}
+
+      {/* Arbitrage Opportunities Table */}
+      <div className="card shadow-md border-green-200 mt-8">
+        <div className="card-header bg-gradient-to-r from-green-50 to-green-100">
+          <h3 className="text-lg font-medium text-gray-900">Arbitrage Opportunities</h3>
+          <p className="text-sm text-gray-600">ITM options vs. futures for liquid instruments</p>
+        </div>
+        <div className="card-body p-0">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Underlying</th>
+                <th>Expiry</th>
+                <th>Strike</th>
+                <th>Call Price</th>
+                <th>Put Price</th>
+                <th>Futures Price</th>
+                <th>Synthetic Price</th>
+                <th>Spread</th>
+                <th>Option Vol</th>
+                <th>Futures Vol</th>
+              </tr>
+            </thead>
+            <tbody>
+              {arbitrageRows.map(row => (
+                <tr key={row.key} className={Math.abs(row.spread) > 0.5 ? 'bg-yellow-100 font-bold' : ''}>
+                  <td>{row.underlying}</td>
+                  <td>{row.expiry}</td>
+                  <td>{row.strike}</td>
+                  <td>{row.callPrice}</td>
+                  <td>{row.putPrice}</td>
+                  <td>{row.futuresPrice}</td>
+                  <td>{row.syntheticPrice}</td>
+                  <td>{row.spread.toFixed(2)}</td>
+                  <td>{row.optionVol}</td>
+                  <td>{row.futuresVol}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {arbitrageRows.length === 0 && (
+            <div className="text-center py-8 text-gray-500">No clear arbitrage opportunities found for selected expiry.</div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
