@@ -44,6 +44,8 @@ const Disclaimer: React.FC<DisclaimerProps> = ({
           <div className="relative bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
             {showCloseButton && (
               <button 
+                type="button"
+                title="Dismiss disclaimer"
                 onClick={handleDismiss}
                 className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
               >
@@ -72,6 +74,8 @@ const Disclaimer: React.FC<DisclaimerProps> = ({
                 {showCloseButton && (
                   <div className="mt-4">
                     <button
+                      type="button"
+                      title="Acknowledge disclaimer"
                       onClick={handleDismiss}
                       className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
@@ -103,6 +107,8 @@ const Disclaimer: React.FC<DisclaimerProps> = ({
           
           {showCloseButton && (
             <button 
+              type="button"
+              title="Dismiss disclaimer"
               onClick={handleDismiss}
               className="text-gray-400 hover:text-white"
             >

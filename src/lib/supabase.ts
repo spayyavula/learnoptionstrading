@@ -1,219 +1,64 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key'
 
-// Check if Supabase is properly configured
-const isSupabaseConfigured = supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'your_supabase_project_url_here' && 
-  supabaseAnonKey !== 'your_supabase_anon_key_here' &&
-  supabaseUrl.startsWith('https://') &&
-  supabaseUrl !== 'https://demo.supabase.co' &&
-  supabaseAnonKey !== 'demo_anon_key'
+// Validate configuration
+const isValidConfig = supabaseUrl !== 'https://demo.supabase.co' && 
+                     supabaseAnonKey !== 'demo-key' &&
+                     supabaseUrl.includes('supabase.co') &&
+                     supabaseAnonKey.length > 50
 
-if (!isSupabaseConfigured) {
-  console.warn('Supabase configuration missing or using demo values. Using local storage fallback.')
+if (!isValidConfig) {
+  console.warn('⚠️ Supabase configuration missing or using demo values. Using local storage fallback.')
 }
 
-export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-export type Database = {
-  public: {
-    Tables: {
-      historical_data: {
-        Row: {
-          id: string
-          ticker: string
-          date: string
-          open: number
-          high: number
-          low: number
-          close: number
-          volume: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          ticker: string
-          date: string
-          open: number
-          high: number
-          low: number
-          close: number
-          volume: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          ticker?: string
-          date?: string
-          open?: number
-          high?: number
-          low?: number
-          close?: number
-          volume?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      options_historical_data: {
-        Row: {
-          id: string
-          contract_ticker: string
-          underlying_ticker: string
-          date: string
-          bid: number
-          ask: number
-          last: number
-          volume: number
-          open_interest: number
-          implied_volatility: number
-          delta: number
-          gamma: number
-          theta: number
-          vega: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          contract_ticker: string
-          underlying_ticker: string
-          date: string
-          bid: number
-          ask: number
-          last: number
-          volume: number
-          open_interest: number
-          implied_volatility: number
-          delta: number
-          gamma: number
-          theta: number
-          vega: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          contract_ticker?: string
-          underlying_ticker?: string
-          date?: string
-          bid?: number
-          ask?: number
-          last?: number
-          volume?: number
-          open_interest?: number
-          implied_volatility?: number
-          delta?: number
-          gamma?: number
-          theta?: number
-          vega?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      user_portfolios: {
-        Row: {
-          id: string
-          user_id: string
-          balance: number
-          buying_power: number
-          total_value: number
-          day_change: number
-          day_change_percent: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          balance: number
-          buying_power: number
-          total_value: number
-          day_change?: number
-          day_change_percent?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          balance?: number
-          buying_power?: number
-          total_value?: number
-          day_change?: number
-          day_change_percent?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
+// Auth service wrapper
+export const auth = {
+  async signIn(email: string, password: string) {
+    if (!isValidConfig) {
+      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
     }
-    subscriptions: {
-      Row: {
-        id: string
-        customer_id: string
-        user_id: string
-        status: string
-        price_id: string
-        quantity: number
-        cancel_at_period_end: boolean
-        cancel_at: string | null
-        canceled_at: string | null
-        current_period_start: string
-        current_period_end: string | null
-        created: string
-        ended_at: string | null
-        trial_start: string | null
-        trial_end: string | null
-        metadata: any
-        terms_accepted: boolean
-        terms_accepted_at: string | null
-      }
-      Insert: {
-        id: string
-        customer_id: string
-        user_id: string
-        status: string
-        price_id?: string
-        quantity?: number
-        cancel_at_period_end?: boolean
-        cancel_at?: string | null
-        canceled_at?: string | null
-        current_period_start: string
-        current_period_end?: string | null
-        created?: string
-        ended_at?: string | null
-        trial_start?: string | null
-        trial_end?: string | null
-        metadata?: any
-        terms_accepted?: boolean
-        terms_accepted_at?: string | null
-      }
-      Update: {
-        id?: string
-        customer_id?: string
-        user_id?: string
-        status?: string
-        price_id?: string
-        quantity?: number
-        cancel_at_period_end?: boolean
-        cancel_at?: string | null
-        canceled_at?: string | null
-        current_period_start?: string
-        current_period_end?: string | null
-        created?: string
-        ended_at?: string | null
-        trial_start?: string | null
-        trial_end?: string | null
-        metadata?: any
-        terms_accepted?: boolean
-        terms_accepted_at?: string | null
-      }
+    return await supabase.auth.signInWithPassword({ email, password })
+  },
+
+  async signUp(email: string, password: string) {
+    if (!isValidConfig) {
+      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
     }
+    return await supabase.auth.signUp({ email, password })
+  },
+
+  async resetPasswordForEmail(email: string, options: any) {
+    if (!isValidConfig) {
+      throw new Error('Password reset is not available. Authentication service is not configured.')
+    }
+    return await supabase.auth.resetPassword({ email, ...options })
+  },
+
+  async signOut() {
+    if (!isValidConfig) {
+      throw new Error('Sign out is not available. Authentication service is not configured.')
+    }
+    return await supabase.auth.signOut()
+  },
+
+  async getUser() {
+    if (!isValidConfig) {
+      return { data: { user: null }, error: null }
+    }
+    return await supabase.auth.getUser()
+  },
+
+  onAuthStateChange(callback: (event: string, session: any) => void) {
+    if (!isValidConfig) {
+      console.warn('Auth state change listener not available without valid Supabase configuration')
+      return { data: { subscription: { unsubscribe: () => {} } } }
+    }
+    return supabase.auth.onAuthStateChange(callback)
   }
 }
+
+export { isValidConfig }

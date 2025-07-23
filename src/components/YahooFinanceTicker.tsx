@@ -83,7 +83,7 @@ const YahooFinanceTicker: React.FC<YahooFinanceTickerProps> = ({
       containerRef.current.appendChild(tickerContainer)
       
       // For demo purposes, update with mock data
-      window.setTimeout(() => {
+      setTimeout(() => {
         symbols.forEach(symbol => {
           const priceElement = document.getElementById(`${symbol}-price`)
           const changeElement = document.getElementById(`${symbol}-change`)

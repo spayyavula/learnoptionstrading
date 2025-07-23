@@ -4,10 +4,11 @@ import {
   BarChart3, Briefcase, TrendingUp, FileText, PieChart, 
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
-  ShieldCheck, UserCircle
+  ShieldCheck, UserCircle, LogOut, User
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
+import { useAuth } from './AuthProvider'
 
 // Define menu categories with their items
 const menuCategories = [
@@ -69,8 +70,11 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation()
+  const { user, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
+  const [userMenuOpen, setUserMenuOpen] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = React.useState<string[]>(['Main'])
+  const isDemoMode = localStorage.getItem('demo_mode') === 'true'
   
   // Memoize the active navigation item to prevent unnecessary re-renders
   const activeItem = useMemo(() => {
@@ -101,6 +105,30 @@ export default function Layout({ children }: LayoutProps) {
       }
     }
   }, [location.pathname, activeItem])
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      setUserMenuOpen(false)
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  // Close user menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (!target.closest('.user-menu-container')) {
+        setUserMenuOpen(false)
+      }
+    }
+
+    if (userMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [userMenuOpen])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -284,8 +312,83 @@ export default function Layout({ children }: LayoutProps) {
               </h2>
             </div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="text-sm text-gray-500">
-                <h2>Learning Mode</h2>
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-gray-500">
+                  <span>Learning Mode</span>
+                </div>
+                
+                {/* User Menu */}
+                <div className="relative user-menu-container">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="hidden md:block text-left">
+                      <div className="text-sm font-medium">
+                        {isDemoMode ? 'Demo User' : user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                        {isDemoMode && <span className="text-xs text-orange-600 ml-1">(Demo)</span>}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {isDemoMode ? 'demo@example.com' : user?.email}
+                      </div>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="text-sm font-medium text-gray-900">
+                          {isDemoMode ? 'Demo User' : user?.user_metadata?.full_name || 'User'}
+                          {isDemoMode && <span className="text-xs text-orange-600 ml-2">(Demo Mode)</span>}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {isDemoMode ? 'demo@example.com' : user?.email}
+                        </div>
+                      </div>
+                      
+                      {isDemoMode && (
+                        <div className="px-4 py-2 bg-orange-50 border-b border-orange-100">
+                          <div className="text-xs text-orange-700">
+                            🚀 You're in demo mode! All data is simulated.
+                          </div>
+                        </div>
+                      )}
+                      
+                      <Link
+                        to="/app/profile"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <UserCircle className="h-4 w-4 mr-3" />
+                        My Profile
+                      </Link>
+                      
+                      <Link
+                        to="/app/settings"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <Settings className="h-4 w-4 mr-3" />
+                        Settings
+                      </Link>
+                      
+                      <div className="border-t border-gray-100 my-1"></div>
+                      
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4 mr-3" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -462,19 +462,19 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
           
           // Schedule next update
           if (isActive) {
-            timeoutId = window.setTimeout(updatePrices, 5000)
+            timeoutId = setTimeout(updatePrices, 5000)
           }
         } catch (error) {
           console.error('Error updating stock prices:', error)
           // Schedule retry on error
           if (isActive) {
-            timeoutId = window.setTimeout(updatePrices, 5000)
+            timeoutId = setTimeout(updatePrices, 5000)
           }
         }
       }
       
       // Start the update cycle
-      timeoutId = window.setTimeout(updatePrices, 5000)
+      timeoutId = setTimeout(updatePrices, 5000)
     } catch (error) {
       console.error('Error setting up stock price updates:', error)
     }
@@ -499,7 +499,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
     const scheduleCleanup = () => {
       if (!isCleanupActive) return
       
-      cleanupTimeoutId = window.setTimeout(async () => {
+      cleanupTimeoutId = setTimeout(async () => {
         try {
           const enableDataPersistence = import.meta.env.VITE_ENABLE_DATA_PERSISTENCE === 'true'
           if (!enableDataPersistence) {

@@ -93,7 +93,7 @@ const TradingViewDirectTicker: React.FC<TradingViewDirectTickerProps> = ({
       containerRef.current.appendChild(tickerContainer)
       
       // For demo purposes, update with mock data
-      window.setTimeout(() => {
+      setTimeout(() => {
         if (!containerRef.current) return; // Check if component is still mounted
         
         symbols.forEach((symbol) => {

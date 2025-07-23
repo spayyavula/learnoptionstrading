@@ -16,9 +16,7 @@ import {
   AlertTriangle
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import Login from './loginSignup'
-import { useAuthState } from "react-firebase-hooks/auth";
-
+import { useAuth } from '../components/AuthProvider'
 
 
 const SYMBOL = 'SPY'; // Change to your desired symbol
@@ -104,6 +102,7 @@ export function LivePrice() {
 }
 
 export default function Landing() {
+  const { user } = useAuth()
   const indicesTickerRef = useRef<HTMLDivElement>(null);
   const stocksTickerRef = useRef<HTMLDivElement>(null);
 
@@ -155,6 +154,13 @@ export default function Landing() {
 
   const navigate = useNavigate();
 
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/app')
+    } else {
+      navigate('/signup')
+    }
+  }
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -166,7 +172,51 @@ export default function Landing() {
                 <h1 className="text-2xl font-bold">Learn Options Trading</h1>
               </div>
             </div>
-            {/* No Get Started button in header */}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-blue-200">
+                    Welcome, {localStorage.getItem('demo_mode') === 'true' ? 'Demo User' : user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!
+                    {localStorage.getItem('demo_mode') === 'true' && <span className="text-orange-300 ml-1">(Demo)</span>}
+                  </span>
+                  <Link
+                    to="/app"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Go to App
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="text-white hover:text-blue-200 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Get Started
+                  </Link>
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('demo_mode', 'true')
+                      localStorage.setItem('demo_user', JSON.stringify({
+                        id: 'demo-user',
+                        email: 'demo@example.com',
+                        user_metadata: { full_name: 'Demo User' }
+                      }))
+                      window.location.reload()
+                    }}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Try Demo
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -184,10 +234,10 @@ export default function Landing() {
               Practice with virtual money before risking real capital.
             </p>
             <button
-              onClick={() => navigate('/login')}
+              onClick={handleGetStarted}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
             >
-              Get Started Free
+              {user ? 'Go to App' : 'Get Started Free'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
@@ -311,10 +361,10 @@ export default function Landing() {
             Join our educational platform and master options trading safely
           </p>
           <button
-            onClick={() => navigate('/login')}
+            onClick={handleGetStarted}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
           >
-            Get Started Free
+            {user ? 'Go to App' : 'Get Started Free'}
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </div>
