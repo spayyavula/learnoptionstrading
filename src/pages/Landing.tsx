@@ -75,7 +75,7 @@ export function LivePrice() {
 
     if (isMarketOpen()) {
       fetchInitialPrice();
-      interval = setInterval(() => {
+      interval = globalThis.setInterval(() => {
         setPrice(prev => {
           if (prev === null) return prev;
           return simulatePriceChange(prev);
@@ -84,7 +84,7 @@ export function LivePrice() {
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) globalThis.clearInterval(interval);
     };
   }, []);
 
@@ -163,6 +163,11 @@ export default function Landing() {
   }
   return (
     <div className="min-h-screen bg-white">
+      {/* Free Forever Banner */}
+      <div className="bg-green-600 text-white py-3 px-4 text-center text-sm font-bold">
+        🎉 ALL FEATURES ARE FREE FOREVER! No Subscription Required. Start Learning Now! 🎉
+      </div>
+
       {/* Header */}
       <header className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -195,10 +200,10 @@ export default function Landing() {
                     Sign In
                   </Link>
                   <Link
-                    to="/signup"
+                    to="/app"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
-                    Get Started
+                    Launch App Now
                   </Link>
                   <button
                     onClick={() => {
@@ -226,18 +231,18 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Master Options Trading
-              <span className="block text-blue-400">Risk-Free</span>
+              Master Options Trading.
+              <span className="block text-green-400">All Features Are Free Forever!</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Learn options trading with our comprehensive educational platform. 
-              Practice with virtual money before risking real capital.
+              Enjoy unlimited access to all educational content, trading tools, and community features.
+              Practice with virtual money before risking real capital—no payment, no subscription, no upgrade required.
             </p>
             <button
               onClick={handleGetStarted}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
             >
-              {user ? 'Go to App' : 'Get Started Free'}
+              {user ? 'Go to App' : 'Launch App Now - 100% Free'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
@@ -264,7 +269,7 @@ export default function Landing() {
               Why Choose Our Platform?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to learn options trading safely and effectively
+              Everything you need to learn options trading safely and effectively - completely free!
             </p>
           </div>
 
@@ -278,7 +283,7 @@ export default function Landing() {
               <p className="text-gray-600">
                 Comprehensive lessons from basics to advanced strategies
               </p>
-              <div className="mt-2 text-sm font-bold text-gray-500">—</div>
+              <div className="mt-2 text-sm font-bold text-green-600">100% Free</div>
             </div>
 
             {/* Practice Trading */}
@@ -290,7 +295,7 @@ export default function Landing() {
               <p className="text-gray-600">
                 Virtual trading with real market data to practice safely
               </p>
-              <div className="mt-2 text-sm font-bold text-gray-500">Buy &amp; Sell</div>
+              <div className="mt-2 text-sm font-bold text-green-600">Unlimited Access</div>
             </div>
 
             {/* Risk Management */}
@@ -302,7 +307,7 @@ export default function Landing() {
               <p className="text-gray-600">
                 Learn proper risk management before using real money
               </p>
-              <div className="mt-2 text-sm font-bold text-gray-500">—</div>
+              <div className="mt-2 text-sm font-bold text-green-600">No Cost</div>
             </div>
           </div>
 
@@ -362,20 +367,48 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Simple CTA Section instead of Pricing */}
+      {/* Free Access CTA Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Start Learning Today
+            Launch Your Trading Journey Today
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Join our educational platform and master options trading safely
+            Access all features instantly and start building your options trading expertise - completely free!
           </p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <CheckCircle className="h-8 w-8 text-green-600 mr-3" />
+              <h3 className="text-2xl font-bold text-green-800">100% Free Forever</h3>
+            </div>
+            <ul className="text-left text-green-700 space-y-2">
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <span>All educational content and tutorials</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <span>Full trading simulator with real market data</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <span>Advanced analytics and portfolio management</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <span>Community features and trading journal</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <span>No hidden fees, no upgrades, no limits</span>
+              </li>
+            </ul>
+          </div>
           <button
             onClick={handleGetStarted}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
           >
-            {user ? 'Go to App' : 'Get Started Free'}
+            {user ? 'Go to App' : 'Launch App Now - 100% Free'}
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </div>
@@ -400,7 +433,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "This platform helped me understand options trading without risking real money. The educational content is top-notch!"
+                "Amazing that all these features are completely free! The educational content is top-notch and I love that there's no paywall."
               </p>
               <div className="font-semibold">- Sarah J.</div>
             </div>
@@ -414,7 +447,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "The practice trading feature is incredible. I learned so much before putting real money at risk."
+                "The practice trading feature is incredible and it's all free! I learned so much before putting real money at risk."
               </p>
               <div className="font-semibold">- Mike T.</div>
             </div>
@@ -428,7 +461,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-gray-600 mb-4">
-                "Best investment I've made in my trading education. The risk management lessons alone are worth it."
+                "Best free resource I've found for trading education. The risk management lessons alone are incredibly valuable."
               </p>
               <div className="font-semibold">- Lisa R.</div>
             </div>
@@ -436,139 +469,60 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Start Learning?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of students who are mastering options trading safely and effectively.
-          </p>
-          {/* Removed Start Free and Get Started Free buttons from CTA section */}
-        </div>
-      </section>
-
-      {/* Pricing Section - Only Free Plan */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              <span className="font-bold text-green-700">100% FREE!</span> No hidden fees, no contracts, no payment required. Enjoy unlimited access to all features.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-1 gap-8 max-w-3xl mx-auto">
-            {/* Free Plan Only */}
-            <div className="bg-white rounded-lg shadow-lg border-2 border-green-400 p-8">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
-                <div className="text-4xl font-bold text-green-700 mb-4">$0<span className="text-lg text-gray-500">/month</span></div>
-                <p className="text-gray-600 mb-6">Unlimited access for everyone</p>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>All lessons & tutorials</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Practice trading with real market data</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Portfolio analytics & risk management</span>
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                  <span>Community access</span>
-                </li>
-              </ul>
-              <div className="w-full bg-green-100 text-green-900 px-6 py-4 rounded-lg font-bold text-center text-lg border-2 border-green-400 mb-4">
-                🎉 This platform is now <span className="text-green-700">100% FREE</span>! Enjoy unlimited access to all features—no payment, no checkout, no subscription required.
-              </div>
-              {/* Removed Start Free button from pricing section */}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer - No changes needed */}
+      {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold mb-4">Learn Options Trading</h3>
+              <h3 className="text-lg font-semibold mb-4">Learn Options Trading</h3>
               <p className="text-gray-400">
-                Master options trading with our comprehensive educational platform.
+                Master options trading with our comprehensive, free educational platform.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
+              <h4 className="text-lg font-semibold mb-4">Features</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><Link to="/app" className="hover:text-white">Trading Simulator</Link></li>
-                <li>
-                  <a
-                    href="https://www.investopedia.com/ask/answers/032415/why-are-call-and-put-options-considered-risky.asp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-white"
-                  >
-                    Option Risks
-                  </a>
-                </li>
-                <li><Link to="/app/dashboard" className="hover:text-white">Dashboard</Link></li>
+                <li>Educational Content</li>
+                <li>Practice Trading</li>
+                <li>Risk Management</li>
+                <li>Community</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
+              <h4 className="text-lg font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="mailto:support@learnoptionstrading.academy" className="hover:text-white">Contact</a></li>
+                <li>Trading Guides</li>
+                <li>Market Analysis</li>
+                <li>Strategy Tutorials</li>
+                <li>FAQ</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-400">
-  <li>
-    <Link to="/PrivacyPolicy" className="hover:text-white">
-      Privacy Policy
-    </Link>
-  </li>
-  <li>
-    <Link to="/TermsAndConditions" className="hover:text-white">
-      Terms of Service
-    </Link>
-  </li>
-  <li>
-    <Link to="/DisclaimerDetailed" className="hover:text-white">
-      Disclaimer
-    </Link>
-  </li>
-</ul>
+              <h4 className="text-lg font-semibold mb-4">Contact</h4>
+              <div className="flex items-center text-gray-400 mb-2">
+                <Mail className="h-4 w-4 mr-2" />
+                <span>support@learnoptions.com</span>
+              </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 Learn Options Trading Academy. All rights reserved.</p>
-          </div>
-          {/* Add disclaimer at bottom of footer */}
-          <div className="mt-8 pt-8 border-t border-gray-800">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center text-sm text-gray-400">
-                <AlertTriangle className="h-4 w-4 mr-2 text-yellow-400" />
-                <span>
-                  Educational platform using simulated trading. Options trading involves substantial risk.
-                  <Link to="/DisclaimerDetailed" className="mt-2 underline hover:text-white">
-                    View full disclaimer
-                  </Link>
-                </span>
-              </div>
-              <div className="mt-4 md:mt-0">
-                <p className="text-sm text-gray-400">
-                  © 2025 Learn Options Trading. All rights reserved.
-                </p>
-              </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="flex space-x-6">
+              <Link to="/privacy" className="text-gray-400 hover:text-white">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="text-gray-400 hover:text-white">
+                Terms of Service
+              </Link>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <p className="text-sm text-gray-400">
+                © 2025 Learn Options Trading Academy. All rights reserved.
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <p className="text-sm text-gray-400">
+                © 2025 Learn Options Trading. All rights reserved.
+              </p>
             </div>
           </div>
         </div>

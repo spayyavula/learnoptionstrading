@@ -136,7 +136,7 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
   // Simulate real-time price updates for options - set up once on mount
   useEffect(() => {
     const updateInterval = Math.max(1000, parseInt(import.meta.env.VITE_OPTIONS_UPDATE_INTERVAL || '5000') || 5000)
-    let timeoutId: number | null = null
+    let timeoutId: NodeJS.Timeout | null = null
     let isActive = true
     
     try {
@@ -166,19 +166,19 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
           
           // Schedule next update
           if (isActive) {
-            timeoutId = setTimeout(updatePrices, updateInterval)
+            timeoutId = globalThis.setTimeout(updatePrices, updateInterval)
           }
         } catch (error) {
           console.error('Error updating options prices:', error)
           // Schedule retry on error
           if (isActive) {
-            timeoutId = setTimeout(updatePrices, updateInterval)
+            timeoutId = globalThis.setTimeout(updatePrices, updateInterval)
           }
         }
       }
       
       // Start the update cycle
-      timeoutId = setTimeout(updatePrices, updateInterval)
+      timeoutId = globalThis.setTimeout(updatePrices, updateInterval)
     } catch (error) {
       console.error('Error setting up options price updates:', error)
     }
@@ -187,7 +187,7 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
       isActive = false
       if (timeoutId) {
         try {
-          clearTimeout(timeoutId)
+          globalThis.clearTimeout(timeoutId)
         } catch (error) {
           console.error('Error clearing options price timeout:', error)
         }

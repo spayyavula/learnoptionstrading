@@ -342,7 +342,7 @@ export class PolygonOptionsDataService {
   private static delay(ms: number): Promise<void> {
     return new Promise(resolve => {
       try {
-        setTimeout(resolve, Math.max(100, ms || 1000))
+        globalThis.setTimeout(resolve, Math.max(100, ms || 1000))
       } catch (error) {
         console.error('Error in delay function:', error)
         resolve() // Resolve immediately if setTimeout fails

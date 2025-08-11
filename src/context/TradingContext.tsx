@@ -436,7 +436,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
   
   // Simulate real-time price updates - set up once on mount
   useEffect(() => {
-    let timeoutId: number | null = null
+    let timeoutId: NodeJS.Timeout | null = null
     let isActive = true
     
     try {
@@ -462,19 +462,19 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
           
           // Schedule next update
           if (isActive) {
-            timeoutId = setTimeout(updatePrices, 5000)
+            timeoutId = globalThis.setTimeout(updatePrices, 5000)
           }
         } catch (error) {
           console.error('Error updating stock prices:', error)
           // Schedule retry on error
           if (isActive) {
-            timeoutId = setTimeout(updatePrices, 5000)
+            timeoutId = globalThis.setTimeout(updatePrices, 5000)
           }
         }
       }
       
       // Start the update cycle
-      timeoutId = setTimeout(updatePrices, 5000)
+      timeoutId = globalThis.setTimeout(updatePrices, 5000)
     } catch (error) {
       console.error('Error setting up stock price updates:', error)
     }
@@ -483,7 +483,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
       isActive = false
       if (timeoutId) {
         try {
-          clearTimeout(timeoutId)
+          globalThis.clearTimeout(timeoutId)
         } catch (error) {
           console.error('Error clearing stock price timeout:', error)
         }
@@ -493,13 +493,13 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
   
   // Cleanup old data periodically (once per day) - only if services are available
   useEffect(() => {
-    let cleanupTimeoutId: number | null = null
+    let cleanupTimeoutId: NodeJS.Timeout | null = null
     let isCleanupActive = true
     
     const scheduleCleanup = () => {
       if (!isCleanupActive) return
       
-      cleanupTimeoutId = setTimeout(async () => {
+      cleanupTimeoutId = globalThis.setTimeout(async () => {
         try {
           const enableDataPersistence = import.meta.env.VITE_ENABLE_DATA_PERSISTENCE === 'true'
           if (!enableDataPersistence) {
@@ -523,7 +523,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isCleanupActive = false
       if (cleanupTimeoutId) {
-        clearTimeout(cleanupTimeoutId)
+        globalThis.clearTimeout(cleanupTimeoutId)
       }
     }
   }, [])
