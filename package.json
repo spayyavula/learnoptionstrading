@@ -26,12 +26,8 @@
     "recharts": "^2.8.0"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@playwright/test": "^1.54.1",
-    "@types/axios": "^0.9.36",
-=======
     "@types/node": "^24.2.1",
->>>>>>> cfcf68309c6736398d3cdc07b5296c49ed4f0c2a
+    "@types/axios": "^1.11.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.3.1",
