@@ -75,7 +75,7 @@ export function LivePrice() {
 
     if (isMarketOpen()) {
       fetchInitialPrice();
-      interval = setInterval(() => {
+      interval = globalThis.setInterval(() => {
         setPrice(prev => {
           if (prev === null) return prev;
           return simulatePriceChange(prev);
@@ -84,7 +84,7 @@ export function LivePrice() {
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (interval) globalThis.clearInterval(interval);
     };
   }, []);
 

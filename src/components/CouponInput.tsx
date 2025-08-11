@@ -38,7 +38,7 @@ export default function CouponInput({
     }
 
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => globalThis.setTimeout(resolve, 500))
     
     const validation = CouponService.validateCoupon(
       couponCode.trim(),

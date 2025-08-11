@@ -17,8 +17,8 @@ const SuccessPage: React.FC = () => {
   useEffect(() => {
     // Auto-redirect after countdown
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
+      const timer = globalThis.setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => globalThis.clearTimeout(timer);
     } else {
       window.location.href = '/app';
     }
