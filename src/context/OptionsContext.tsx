@@ -136,7 +136,7 @@ export function OptionsProvider({ children }: { children: React.ReactNode }) {
   // Simulate real-time price updates for options - set up once on mount
   useEffect(() => {
     const updateInterval = Math.max(1000, parseInt(import.meta.env.VITE_OPTIONS_UPDATE_INTERVAL || '5000') || 5000)
-    let timeoutId: number | null = null
+    let timeoutId: NodeJS.Timeout | null = null
     let isActive = true
     
     try {

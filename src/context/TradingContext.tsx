@@ -436,7 +436,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
   
   // Simulate real-time price updates - set up once on mount
   useEffect(() => {
-    let timeoutId: number | null = null
+    let timeoutId: NodeJS.Timeout | null = null
     let isActive = true
     
     try {
@@ -493,7 +493,7 @@ export function TradingProvider({ children }: { children: React.ReactNode }) {
   
   // Cleanup old data periodically (once per day) - only if services are available
   useEffect(() => {
-    let cleanupTimeoutId: number | null = null
+    let cleanupTimeoutId: NodeJS.Timeout | null = null
     let isCleanupActive = true
     
     const scheduleCleanup = () => {
