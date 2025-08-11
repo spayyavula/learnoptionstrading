@@ -16,6 +16,7 @@ import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
 import Login from './pages/Login'
 import OptionsChain from './pages/OptionsChain'
+import Trading from './components/Trading'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -132,13 +133,9 @@ function AppContent() {
                 <Route path="agent" element={<AgentDashboard />} />
                 <Route path="demo" element={<Demo />} />
                 <Route path="portfolio" element={<OptionsPortfolio />} />
-                <Route path="trading" element={<OptionsTrading />} />
+                <Route path="trading" element={<Trading />} />
                 <Route path="orders" element={<Orders />} />
-                <Route path="optionschain" element={
-                  <ProtectedRoute>
-                    <OptionsChain />
-                  </ProtectedRoute>
-                } />
+                <Route path="optionschain" element={<OptionsChain />} />
                 <Route path="regime" element={<RegimeAnalysis />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="arbitrage" element={<OptionsArbitrage />} />
@@ -157,6 +154,7 @@ function AppContent() {
                     <AdminDashboard />
                   </AdminRoute>
                 } />
+                <Route path="/app/option-chain" element={<OptionsChain />} />
                 {/* Catch-all redirect */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>

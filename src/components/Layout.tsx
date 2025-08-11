@@ -24,7 +24,7 @@ const menuCategories = [
     items: [
       { name: 'Portfolio', href: '/app/portfolio', icon: Briefcase },
       { name: 'Trading', href: '/app/trading', icon: TrendingUp },
-      { name: 'Options Chain', href: '/app/watchlist', icon: PieChart },
+      { name: 'Option Chain', href: '/app/option-chain', icon: PieChart },
       { name: 'Orders', href: '/app/orders', icon: FileText }
     ]
   },
@@ -139,6 +139,8 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex h-16 items-center justify-between px-4">
             <h1 className="text-xl font-bold text-gray-900">Paper Trading</h1>
             <button
+              type="button"
+              title="Close sidebar menu"
               onClick={() => setSidebarOpen(false)}
               className="text-gray-400 hover:text-gray-600"
             >
@@ -301,6 +303,7 @@ export default function Layout({ children }: LayoutProps) {
             type="button"
             className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
             onClick={() => setSidebarOpen(true)}
+            title="Open sidebar menu"
           >
             <Menu className="h-6 w-6" />
           </button>

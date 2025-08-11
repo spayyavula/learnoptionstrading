@@ -15,16 +15,19 @@
   "dependencies": {
     "@stripe/stripe-js": "^7.4.0",
     "@supabase/supabase-js": "^2.52.0",
+    "axios": "^1.11.0",
     "date-fns": "^2.30.0",
     "jstat": "^1.9.6",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
+    "react-calendar": "^6.0.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
     "recharts": "^2.8.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.1",
+    "@types/axios": "^0.9.36",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.3.1",
