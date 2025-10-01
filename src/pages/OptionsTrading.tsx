@@ -3,8 +3,9 @@ import { AlertTriangle, Info } from 'lucide-react'
 import { useOptionsContext } from '../context/OptionsContext'
 import { PolygonService } from '../services/polygonService'
 import { CommunityService } from '../services/communityService'
-import TradingViewWidget from '../components/TradingViewWidget' 
+import TradingViewWidget from '../components/TradingViewWidget'
 import Disclaimer from '../components/Disclaimer'
+import KellyCriterion from '../components/KellyCriterion'
 import type { OptionsContract } from '../types/options'
 import Trading from '../components/Trading'
 import { Route } from 'react-router-dom'
@@ -45,6 +46,7 @@ export default function OptionsTrading() {
   const [showRegimeInfo, setShowRegimeInfo] = useState(false);
   const [showStrategyModal, setShowStrategyModal] = useState(false);
   const [modalStrategy, setModalStrategy] = useState<{name: string, description: string} | null>(null);
+  const [kellyRecommendedQuantity, setKellyRecommendedQuantity] = useState<number>(0);
 
   useEffect(() => {
     loadOptionsContracts()
@@ -112,15 +114,27 @@ export default function OptionsTrading() {
         type: tradeType,
         orderType,
         quantity: orderQuantity,
-        price: orderType === 'market' ? undefined : parseFloat(limitPrice),
-        status: 'pending'
+        price: price,
+        status: 'filled'
       }
     })
 
-    // Reset form
+    if (tradeType === 'sell_to_close' && existingPosition) {
+      dispatch({
+        type: 'CLOSE_POSITION',
+        payload: {
+          positionId: existingPosition.id,
+          exitPrice: price,
+          strategyType: selectedStrategy || undefined
+        }
+      })
+    }
+
     setQuantity('')
     setLimitPrice('')
-    alert(`${tradeType.replace('_', ' ').toUpperCase()} order placed for ${orderQuantity} contracts of ${selectedContract}`)
+    setSelectedContract(null)
+    setSelectedStrategy(null)
+    alert(`${tradeType.replace('_', ' ').toUpperCase()} order placed successfully for ${orderQuantity} contracts of ${selectedContract}`)
     
     // Offer to share trade with community
     if (CommunityService.hasConfiguredPlatforms()) {
@@ -187,7 +201,7 @@ export default function OptionsTrading() {
 
       {/* Wizard Progress Bar */}
       <div className="flex justify-between mb-6">
-        {['Regime', 'Strategy', 'Contracts', 'Review', 'Trade'].map((label, idx) => (
+        {['Regime', 'Strategy', 'Position Size', 'Review & Trade'].map((label, idx) => (
           <div key={label} className={`flex-1 text-center ${step === idx + 1 ? 'font-bold text-blue-600' : 'text-gray-400'}`}>
             {idx + 1}. {label}
           </div>
@@ -312,17 +326,90 @@ export default function OptionsTrading() {
           >
             Learn more about options strategies
           </a>
+          <div className="mt-4 p-4 bg-white border rounded-lg">
+            <h4 className="font-medium text-gray-900 mb-3">Select a Contract (Demo)</h4>
+            <p className="text-sm text-gray-600 mb-3">
+              For demonstration purposes, select a contract from popular options:
+            </p>
+            <select
+              value={selectedContract || ''}
+              onChange={(e) => setSelectedContract(e.target.value)}
+              className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            >
+              <option value="">-- Select a contract --</option>
+              {contracts.slice(0, 10).map((contract) => (
+                <option key={contract.ticker} value={contract.ticker}>
+                  {contract.ticker} - ${contract.strike_price} {contract.contract_type.toUpperCase()} - ${contract.last}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex justify-between mt-6">
             <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(1)}>Back</button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded" disabled={!selectedStrategy} onClick={() => setStep(3)}>
-              Next: Select Contracts
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+              disabled={!selectedStrategy || !selectedContract}
+              onClick={() => setStep(3)}
+            >
+              Next: Position Sizing
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 3: Select Contracts (placeholder) */}
-      {step === 3 && (
+      {/* Step 3: Kelly Criterion Position Sizing */}
+      {step === 3 && selectedContract && selectedContractData && (
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            Step 3: Kelly Criterion Position Sizing
+            <span className="ml-2 text-blue-500 cursor-pointer" title="Calculate optimal position size based on your trading history.">
+              <Info size={16} />
+            </span>
+          </h2>
+
+          <KellyCriterion
+            accountBalance={state.buyingPower}
+            contractPrice={orderType === 'market' ? selectedContractData.last : parseFloat(limitPrice) || selectedContractData.last}
+            onRecommendedQuantity={(qty) => {
+              setKellyRecommendedQuantity(qty)
+              setQuantity(qty.toString())
+            }}
+          />
+
+          <div className="mt-6 p-4 border rounded-lg bg-white">
+            <h4 className="text-md font-semibold text-gray-800 mb-4">Selected Contract</h4>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-gray-600">Ticker:</span>
+                <span className="ml-2 font-medium">{selectedContract}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Last Price:</span>
+                <span className="ml-2 font-medium">{formatCurrency(selectedContractData.last)}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Strike:</span>
+                <span className="ml-2 font-medium">{formatCurrency(selectedContractData.strike_price)}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Expiry:</span>
+                <span className="ml-2 font-medium">{selectedContractData.expiration_date}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between mt-6">
+            <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(2)}>Back</button>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setStep(4)}>
+              Next: Review & Trade
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3 fallback if no contract selected */}
+      {step === 3 && !selectedContract && (
         <div className="mt-6 p-4 border rounded-lg bg-gray-50">
           <h4 className="text-md font-semibold text-gray-800 mb-2 flex items-center">
             {selectedStrategy} Builder
@@ -333,6 +420,9 @@ export default function OptionsTrading() {
           <p className="text-sm text-gray-700">
             Configure your {selectedStrategy} below. (Contract selection, payoff chart, Greeks, etc. coming next!)
           </p>
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-sm text-yellow-800">Please select a contract to proceed with Kelly Criterion position sizing.</p>
+          </div>
           <a
             href="https://www.optionseducation.org/strategies"
             target="_blank"
@@ -344,22 +434,91 @@ export default function OptionsTrading() {
           <div className="flex justify-between mt-6">
             <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(2)}>Back</button>
             <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setStep(4)}>
-              Next: Review Payoff
+              Next: Review & Trade
             </button>
           </div>
         </div>
       )}
 
-      {/* Step 4: Review Payoff/Greeks (placeholder) */}
+      {/* Step 4: Review & Trade */}
       {step === 4 && (
         <>
           <h2 className="text-xl font-bold mb-4 flex items-center">
-            Step 4: Review Payoff & Greeks
-            <span className="ml-2 text-blue-500 cursor-pointer" title="See your risk/reward, payoff chart, and Greeks before trading.">
+            Step 4: Review & Place Trade
+            <span className="ml-2 text-blue-500 cursor-pointer" title="Review your trade and execute.">
               <Info size={16} />
             </span>
           </h2>
-          <p className="mb-4 text-gray-700">Show payoff chart, Greeks, risk/reward, and trade summary here.</p>
+
+          {selectedContract && selectedContractData && (
+            <div className="space-y-4">
+              <div className="p-4 bg-white border rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Trade Summary</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">Contract:</span>
+                    <span className="ml-2 font-medium">{selectedContract}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Strategy:</span>
+                    <span className="ml-2 font-medium">{selectedStrategy}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Quantity:</span>
+                    <span className="ml-2 font-medium">{quantity || 0} contracts</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Kelly Recommended:</span>
+                    <span className="ml-2 font-medium text-blue-600">{kellyRecommendedQuantity} contracts</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Price per Contract:</span>
+                    <span className="ml-2 font-medium">{formatCurrency(selectedContractData.last)}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Cost:</span>
+                    <span className="ml-2 font-medium">
+                      {formatCurrency((parseInt(quantity) || 0) * selectedContractData.last * 100)}
+                    </span>
+                  </div>
+                </div>
+
+                {parseInt(quantity) > kellyRecommendedQuantity && kellyRecommendedQuantity > 0 && (
+                  <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p className="text-sm text-yellow-800">
+                      <AlertTriangle className="inline h-4 w-4 mr-1" />
+                      Warning: Your position size exceeds Kelly Criterion recommendation. Consider reducing to {kellyRecommendedQuantity} contracts.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 bg-white border rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Adjust Quantity</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      placeholder="Enter quantity"
+                    />
+                  </div>
+                  <button
+                    onClick={() => setQuantity(kellyRecommendedQuantity.toString())}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Use Kelly Recommended: {kellyRecommendedQuantity} contracts
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <p className="mb-4 text-gray-700 mt-4">Additional features like payoff charts and Greeks analysis coming soon.</p>
           <a
             href="https://www.optionseducation.org/tools"
             target="_blank"
@@ -370,39 +529,20 @@ export default function OptionsTrading() {
           </a>
           <div className="flex justify-between mt-6">
             <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(3)}>Back</button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setStep(5)}>
-              Next: Confirm Trade
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => {
+                handlePlaceOrder()
+                setStep(1)
+              }}
+              disabled={!selectedContract || !quantity || parseInt(quantity) <= 0}
+            >
+              Place Trade
             </button>
           </div>
         </>
       )}
 
-      {/* Step 5: Confirm Trade (placeholder) */}
-      {step === 5 && (
-        <>
-          <h2 className="text-xl font-bold mb-4 flex items-center">
-            Step 5: Confirm & Trade
-            <span className="ml-2 text-blue-500 cursor-pointer" title="Final review before placing your trade.">
-              <Info size={16} />
-            </span>
-          </h2>
-          <p className="mb-4 text-gray-700">Final review and simulated trade placement UI goes here.</p>
-          <a
-            href="https://www.optionseducation.org/resources"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline mt-2 block"
-          >
-            Trading best practices
-          </a>
-          <div className="flex justify-between mt-6">
-            <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(4)}>Back</button>
-            <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={() => setStep(1)}>
-              Start Over
-            </button>
-          </div>
-        </>
-      )}
 
       {/* Strategy Modal */}
       {showStrategyModal && modalStrategy && (

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react'
 import type { OptionsContract, OptionsPosition, OptionsOrder } from '../types/options'
+import { TradingHistoryService } from '../services/tradingHistoryService'
 
 interface OptionsState {
   balance: number
@@ -20,6 +21,7 @@ type OptionsAction =
   | { type: 'UPDATE_CONTRACT_PRICES'; payload: OptionsContract[] }
   | { type: 'SET_SELECTED_UNDERLYING'; payload: string | null }
   | { type: 'LOAD_OPTIONS_DATA' }
+  | { type: 'CLOSE_POSITION'; payload: { positionId: string; exitPrice: number; strategyType?: string } }
 
 const initialState: OptionsState = {
   balance: 100000,
@@ -46,7 +48,69 @@ function optionsReducer(state: OptionsState, action: OptionsAction): OptionsStat
         id: Date.now().toString(),
         timestamp: new Date()
       }
-      
+
+      if (action.payload.type === 'buy_to_open' && action.payload.status === 'filled') {
+        const totalCost = action.payload.quantity * (action.payload.price || 0) * 100
+
+        const existingPositionIndex = state.positions.findIndex(
+          p => p.contractTicker === action.payload.contractTicker
+        )
+
+        let updatedPositions: OptionsPosition[]
+
+        if (existingPositionIndex >= 0) {
+          const existing = state.positions[existingPositionIndex]
+          const newQuantity = existing.quantity + action.payload.quantity
+          const newAvgPrice =
+            ((existing.quantity * existing.avgPrice) + (action.payload.quantity * (action.payload.price || 0))) /
+            newQuantity
+
+          updatedPositions = state.positions.map((pos, idx) =>
+            idx === existingPositionIndex
+              ? {
+                  ...pos,
+                  quantity: newQuantity,
+                  avgPrice: newAvgPrice,
+                  currentPrice: action.payload.price || 0,
+                  totalValue: newQuantity * (action.payload.price || 0) * 100,
+                  unrealizedPnL: 0,
+                  unrealizedPnLPercent: 0
+                }
+              : pos
+          )
+        } else {
+          const newPosition: OptionsPosition = {
+            id: `pos_${Date.now()}`,
+            contractTicker: action.payload.contractTicker,
+            underlyingTicker: action.payload.underlyingTicker,
+            contractType: 'call',
+            strikePrice: 0,
+            expirationDate: '',
+            quantity: action.payload.quantity,
+            avgPrice: action.payload.price || 0,
+            currentPrice: action.payload.price || 0,
+            totalValue: action.payload.quantity * (action.payload.price || 0) * 100,
+            unrealizedPnL: 0,
+            unrealizedPnLPercent: 0,
+            purchaseDate: new Date(),
+            delta: 0,
+            gamma: 0,
+            theta: 0,
+            vega: 0,
+            impliedVolatility: 0
+          }
+          updatedPositions = [...state.positions, newPosition]
+        }
+
+        return {
+          ...state,
+          orders: [...state.orders, newOrder],
+          positions: updatedPositions,
+          balance: state.balance - totalCost,
+          buyingPower: state.buyingPower - totalCost
+        }
+      }
+
       return {
         ...state,
         orders: [...state.orders, newOrder]
@@ -93,7 +157,38 @@ function optionsReducer(state: OptionsState, action: OptionsAction): OptionsStat
       }
       return state
     }
-    
+
+    case 'CLOSE_POSITION': {
+      const position = state.positions.find(p => p.id === action.payload.positionId)
+      if (!position) return state
+
+      const exitPrice = action.payload.exitPrice
+      const profitLoss = (exitPrice - position.avgPrice) * position.quantity * 100
+      const profitLossPercent = ((exitPrice - position.avgPrice) / position.avgPrice) * 100
+
+      TradingHistoryService.recordTrade({
+        contract_ticker: position.contractTicker,
+        underlying_ticker: position.underlyingTicker,
+        trade_type: 'sell_to_close',
+        entry_price: position.avgPrice,
+        exit_price: exitPrice,
+        quantity: position.quantity,
+        profit_loss: profitLoss,
+        profit_loss_percent: profitLossPercent,
+        entry_date: position.purchaseDate,
+        exit_date: new Date(),
+        strategy_type: action.payload.strategyType,
+        is_winner: profitLoss > 0
+      }).catch(err => console.error('Failed to record trade:', err))
+
+      return {
+        ...state,
+        positions: state.positions.filter(p => p.id !== action.payload.positionId),
+        balance: state.balance + (position.quantity * exitPrice * 100),
+        buyingPower: state.buyingPower + (position.quantity * exitPrice * 100)
+      }
+    }
+
     default:
       return state
   }
