@@ -33,6 +33,7 @@ const menuCategories = [
     icon: PieChart,
     items: [
       { name: 'Analytics', href: '/app/analytics', icon: PieChart },
+      { name: 'Event Analysis', href: '/app/events', icon: TrendingUp },
       { name: 'Regime Analysis', href: '/app/regime', icon: PieChart },
       { name: 'Options Arbitrage', href: '/app/arbitrage', icon: Calculator }
     ]

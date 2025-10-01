@@ -41,6 +41,7 @@ const NotFound = lazy(() => import('./pages/NotFound')) // Import the NotFound c
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'))
 const DisclaimerDetailed = lazy(() => import('./pages/DisclaimerDetailed'))
+const EventOptionsAnalysis = lazy(() => import('./pages/EventOptionsAnalysis'))
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -148,6 +149,7 @@ function AppContent() {
                 <Route path="construction" element={<Construction />} />
                 <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="profile" element={<UserProfile />} />
+                <Route path="events" element={<EventOptionsAnalysis />} />
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>
