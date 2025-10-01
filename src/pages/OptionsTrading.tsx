@@ -6,6 +6,7 @@ import { CommunityService } from '../services/communityService'
 import TradingViewWidget from '../components/TradingViewWidget'
 import Disclaimer from '../components/Disclaimer'
 import KellyCriterion from '../components/KellyCriterion'
+import PayoffDiagram from '../components/PayoffDiagram'
 import type { OptionsContract } from '../types/options'
 import Trading from '../components/Trading'
 import { Route } from 'react-router-dom'
@@ -318,11 +319,22 @@ export default function OptionsTrading() {
               </li>
             ))}
           </ul>
+
+          {selectedStrategy && (
+            <div className="mt-6">
+              <h4 className="text-md font-semibold text-gray-800 mb-4">Strategy Payoff Preview</h4>
+              <PayoffDiagram
+                strategyName={selectedStrategy}
+                underlyingPrice={100}
+              />
+            </div>
+          )}
+
           <a
             href="https://www.optionseducation.org/strategies"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 underline mt-2 block"
+            className="text-blue-600 underline mt-4 block"
           >
             Learn more about options strategies
           </a>
@@ -450,6 +462,14 @@ export default function OptionsTrading() {
             </span>
           </h2>
 
+          {selectedStrategy && (
+            <PayoffDiagram
+              strategyName={selectedStrategy}
+              underlyingPrice={selectedContractData?.strike_price || 100}
+              className="mb-6"
+            />
+          )}
+
           {selectedContract && selectedContractData && (
             <div className="space-y-4">
               <div className="p-4 bg-white border rounded-lg">
@@ -518,7 +538,13 @@ export default function OptionsTrading() {
             </div>
           )}
 
-          <p className="mb-4 text-gray-700 mt-4">Additional features like payoff charts and Greeks analysis coming soon.</p>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <Info className="inline h-4 w-4 mr-1" />
+              Review the payoff diagram above to understand your potential profit and loss at expiration.
+              Greeks analysis coming soon.
+            </p>
+          </div>
           <a
             href="https://www.optionseducation.org/tools"
             target="_blank"
