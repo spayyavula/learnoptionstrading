@@ -17,13 +17,11 @@ import {
   Lightbulb,
   Shield
 } from 'lucide-react'
-import Disclaimer from '../components/Disclaimer' 
+import Disclaimer from '../components/Disclaimer'
 import { LearningService } from '../services/learningService'
 import type { StrategyTemplate } from '../types/learning'
-import { useOptionsContext } from '../context/OptionsContext'
 
 export default function OptionsStrategies() {
-  const { state } = useOptionsContext()
   const [strategies, setStrategies] = useState<StrategyTemplate[]>([])
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyTemplate | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
