@@ -7,9 +7,16 @@ import TradingViewWidget from '../components/TradingViewWidget'
 import Disclaimer from '../components/Disclaimer'
 import KellyCriterion from '../components/KellyCriterion'
 import PayoffDiagram from '../components/PayoffDiagram'
+import InteractivePayoffDiagram from '../components/InteractivePayoffDiagram'
+import ContractSelector from '../components/ContractSelector'
+import GreeksPanel from '../components/GreeksPanel'
+import ScenarioAnalysis from '../components/ScenarioAnalysis'
+import GreeksSensitivityGrid from '../components/GreeksSensitivityGrid'
 import type { OptionsContract } from '../types/options'
 import Trading from '../components/Trading'
 import { Route } from 'react-router-dom'
+import { GreeksCalculator } from '../services/greeksCalculator'
+import { GreeksUpdateService } from '../services/greeksUpdateService'
 
 const regimeStrategies = {
   Bull: [
@@ -48,10 +55,26 @@ export default function OptionsTrading() {
   const [showStrategyModal, setShowStrategyModal] = useState(false);
   const [modalStrategy, setModalStrategy] = useState<{name: string, description: string} | null>(null);
   const [kellyRecommendedQuantity, setKellyRecommendedQuantity] = useState<number>(0);
+  const [underlyingPrice, setUnderlyingPrice] = useState<number>(100);
+  const [showGreeks, setShowGreeks] = useState(false);
+  const [showScenario, setShowScenario] = useState(false);
+  const [showSensitivity, setShowSensitivity] = useState(false);
 
   useEffect(() => {
     loadOptionsContracts()
+    GreeksUpdateService.start()
+
+    return () => {
+      GreeksUpdateService.stop()
+    }
   }, [])
+
+  useEffect(() => {
+    if (selectedContractData) {
+      const price = selectedContractData.strike_price
+      setUnderlyingPrice(price)
+    }
+  }, [selectedContractData])
 
   const loadOptionsContracts = async () => {
     try {
@@ -338,23 +361,16 @@ export default function OptionsTrading() {
           >
             Learn more about options strategies
           </a>
-          <div className="mt-4 p-4 bg-white border rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-3">Select a Contract (Demo)</h4>
-            <p className="text-sm text-gray-600 mb-3">
-              For demonstration purposes, select a contract from popular options:
-            </p>
-            <select
-              value={selectedContract || ''}
-              onChange={(e) => setSelectedContract(e.target.value)}
-              className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            >
-              <option value="">-- Select a contract --</option>
-              {contracts.slice(0, 10).map((contract) => (
-                <option key={contract.ticker} value={contract.ticker}>
-                  {contract.ticker} - ${contract.strike_price} {contract.contract_type.toUpperCase()} - ${contract.last}
-                </option>
-              ))}
-            </select>
+          <div className="mt-6">
+            <ContractSelector
+              contracts={contracts}
+              onSelectContract={(contract) => {
+                setSelectedContract(contract.ticker)
+                setUnderlyingPrice(contract.strike_price)
+              }}
+              selectedContract={selectedContractData}
+              underlyingPrice={underlyingPrice}
+            />
           </div>
 
           <div className="flex justify-between mt-6">
@@ -411,6 +427,50 @@ export default function OptionsTrading() {
             </div>
           </div>
 
+          <div className="mt-6 space-y-4">
+            <button
+              onClick={() => setShowGreeks(!showGreeks)}
+              className="w-full px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+            >
+              {showGreeks ? 'Hide' : 'Show'} Greeks Analysis
+            </button>
+
+            {showGreeks && (
+              <GreeksPanel
+                greeks={GreeksCalculator.calculateGreeks(selectedContractData, underlyingPrice)}
+                contractType={selectedContractData.contract_type}
+              />
+            )}
+
+            <button
+              onClick={() => setShowScenario(!showScenario)}
+              className="w-full px-4 py-2 bg-purple-50 border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors font-medium"
+            >
+              {showScenario ? 'Hide' : 'Show'} What-If Scenario Analysis
+            </button>
+
+            {showScenario && (
+              <ScenarioAnalysis
+                contract={selectedContractData}
+                underlyingPrice={underlyingPrice}
+              />
+            )}
+
+            <button
+              onClick={() => setShowSensitivity(!showSensitivity)}
+              className="w-full px-4 py-2 bg-cyan-50 border border-cyan-200 text-cyan-700 rounded-lg hover:bg-cyan-100 transition-colors font-medium"
+            >
+              {showSensitivity ? 'Hide' : 'Show'} Greeks Sensitivity Grid
+            </button>
+
+            {showSensitivity && (
+              <GreeksSensitivityGrid
+                contract={selectedContractData}
+                underlyingPrice={underlyingPrice}
+              />
+            )}
+          </div>
+
           <div className="flex justify-between mt-6">
             <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(2)}>Back</button>
             <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setStep(4)}>
@@ -462,10 +522,11 @@ export default function OptionsTrading() {
             </span>
           </h2>
 
-          {selectedStrategy && (
-            <PayoffDiagram
-              strategyName={selectedStrategy}
-              underlyingPrice={selectedContractData?.strike_price || 100}
+          {selectedContractData && (
+            <InteractivePayoffDiagram
+              contract={selectedContractData}
+              strategyName={selectedStrategy || undefined}
+              underlyingPrice={underlyingPrice}
               className="mb-6"
             />
           )}
