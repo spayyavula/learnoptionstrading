@@ -41,6 +41,17 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
   
   const scheduler = OptionsDataScheduler.getInstance()
 
+  // Auto-start scheduler on mount
+  useEffect(() => {
+    console.log('OptionsDataProvider: Auto-starting scheduler...')
+    scheduler.start()
+
+    return () => {
+      console.log('OptionsDataProvider: Stopping scheduler on unmount...')
+      scheduler.stop()
+    }
+  }, [scheduler])
+
   // Update scheduler status periodically
   useEffect(() => {
     const updateStatus = () => {
