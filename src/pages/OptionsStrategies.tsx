@@ -412,14 +412,18 @@ export default function OptionsStrategies() {
                       Implementation & Risk Management
                     </h4>
                     <div className="space-y-4">
-                      {selectedStrategy.instructions.map((instruction, index) => (
-                        <div key={index} className="flex items-start space-x-3">
-                          <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
-                            {index + 1}
+                      {selectedStrategy.instructions && selectedStrategy.instructions.length > 0 ? (
+                        selectedStrategy.instructions.map((instruction, index) => (
+                          <div key={index} className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">
+                              {index + 1}
+                            </div>
+                            <p className="text-sm text-gray-600">{instruction}</p>
                           </div>
-                          <p className="text-sm text-gray-600">{instruction}</p>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 italic">No implementation instructions available for this strategy.</p>
+                      )}
                     </div>
                     
                     {/* New Risk Adjustment Section */}
@@ -449,7 +453,7 @@ export default function OptionsStrategies() {
                     </div>
 
                     {/* Example */}
-                    {selectedStrategy.examples.length > 0 && (
+                    {selectedStrategy.examples && selectedStrategy.examples.length > 0 && (
                       <div className="mt-6">
                         <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
                           <Play className="h-4 w-4 mr-2" />
