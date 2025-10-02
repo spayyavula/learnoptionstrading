@@ -393,26 +393,38 @@ export class PolygonService {
     return data
   }
 
-  static async getTopLiquidOptions() {
-    const { POLYGON_API_KEY } = getEnvVars();
+  static getTopLiquidOptions(): OptionsContract[] {
+    return [...TOP_LIQUID_OPTIONS]
+  }
+
+  static async getTopLiquidOptionsFromAPI() {
+    const { POLYGON_API_KEY, ENABLE_REAL_TIME_DATA } = getEnvVars();
+
+    if (!ENABLE_REAL_TIME_DATA || POLYGON_API_KEY === 'demo_api_key') {
+      console.log('Using static top liquid options (no valid API key)')
+      return this.getTopLiquidOptions()
+    }
+
     const today = new Date();
 
-    // Polygon API: Get SPY call options, sorted by expiry
-    const url = `https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=SPY&contract_type=call&order_by=expiration_date&sort=asc&limit=1000&apiKey=${POLYGON_API_KEY}`;
+    try {
+      const url = `https://api.polygon.io/v3/reference/options/contracts?underlying_ticker=SPY&contract_type=call&order_by=expiration_date&sort=asc&limit=1000&apiKey=${POLYGON_API_KEY}`;
 
-    const response = await axios.get(url);
-    const contracts = (response.data as { results?: any[] }).results || [];
+      const response = await axios.get(url);
+      const contracts = (response.data as { results?: any[] }).results || [];
 
-    // Filter for unexpired contracts
-    const unexpiredContracts = contracts.filter(
-      (c: any) => new Date(c.expiration_date) > today
-    );
+      const unexpiredContracts = contracts.filter(
+        (c: any) => new Date(c.expiration_date) > today
+      );
 
-    // Further filter for open_interest or volume if needed
-    const liquidContracts = unexpiredContracts.filter(
-      (c: any) => (c.open_interest > 0 || c.volume > 0)
-    );
+      const liquidContracts = unexpiredContracts.filter(
+        (c: any) => (c.open_interest > 0 || c.volume > 0)
+      );
 
-    return liquidContracts;
+      return liquidContracts;
+    } catch (error) {
+      console.warn('Error fetching from API, using static data:', error)
+      return this.getTopLiquidOptions()
+    }
   }
 }

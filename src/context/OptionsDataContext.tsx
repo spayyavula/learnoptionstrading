@@ -29,26 +29,48 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
     nextFetchTime: null as Date | null,
     timeUntilNextFetch: null as number | null
   })
-  
+
   const [dataStats, setDataStats] = useState({
     lastFetch: null as Date | null,
     totalContracts: 0,
     dataPoints: 0,
     nextScheduledFetch: new Date()
   })
-  
+
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [error, setError] = useState<string | null>(null)
+
   const scheduler = OptionsDataScheduler.getInstance()
 
-  // Auto-start scheduler on mount
+  // Auto-start scheduler on mount with error handling
   useEffect(() => {
-    console.log('OptionsDataProvider: Auto-starting scheduler...')
-    scheduler.start()
+    const startSchedulerSafely = async () => {
+      try {
+        console.log('OptionsDataProvider: Auto-starting scheduler...')
+
+        const dataPersistenceEnabled = import.meta.env.VITE_ENABLE_DATA_PERSISTENCE === 'true'
+        if (!dataPersistenceEnabled) {
+          console.warn('⚠️ Data persistence is disabled. Historical data will not be stored.')
+          setError('Data persistence is disabled. Enable VITE_ENABLE_DATA_PERSISTENCE in your .env file.')
+        }
+
+        scheduler.start()
+        setError(null)
+      } catch (err) {
+        console.error('Failed to start options data scheduler:', err)
+        setError(`Failed to start scheduler: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      }
+    }
+
+    startSchedulerSafely()
 
     return () => {
-      console.log('OptionsDataProvider: Stopping scheduler on unmount...')
-      scheduler.stop()
+      try {
+        console.log('OptionsDataProvider: Stopping scheduler on unmount...')
+        scheduler.stop()
+      } catch (err) {
+        console.error('Error stopping scheduler:', err)
+      }
     }
   }, [scheduler])
 
@@ -81,11 +103,15 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
 
   const triggerManualFetch = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       await scheduler.triggerManualFetch()
       await refreshStats()
+      console.log('Manual fetch completed successfully')
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error during fetch'
       console.error('Error triggering manual fetch:', error)
+      setError(`Failed to fetch data: ${errorMessage}`)
     } finally {
       setIsLoading(false)
     }
@@ -97,6 +123,7 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
       setDataStats(stats)
     } catch (error) {
       console.error('Error refreshing stats:', error)
+      setError(error instanceof Error ? error.message : 'Failed to refresh stats')
     }
   }
 

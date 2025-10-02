@@ -201,22 +201,45 @@ export class PolygonOptionsDataService {
    */
   private static async generateAndStoreMockData(): Promise<void> {
     console.log('Generating mock options data...')
-    
-    const topContracts = PolygonService.getTopLiquidOptions()
-    
-    for (const contract of topContracts) {
-      const historicalData = this.generateMockHistoricalData(contract, 14)
-      
-      try {
-        await HistoricalDataService.storeOptionsHistoricalData(
-          contract.ticker,
-          contract.underlying_ticker,
-          historicalData
-        )
-        console.log(`Stored mock data for ${contract.ticker}`)
-      } catch (error) {
-        console.error(`Error storing mock data for ${contract.ticker}:`, error)
+
+    try {
+      const topContracts = PolygonService.getTopLiquidOptions()
+
+      if (!Array.isArray(topContracts)) {
+        console.error('getTopLiquidOptions did not return an array:', topContracts)
+        return
       }
+
+      if (topContracts.length === 0) {
+        console.warn('No contracts available for mock data generation')
+        return
+      }
+
+      console.log(`Generating mock data for ${topContracts.length} contracts...`)
+
+      for (const contract of topContracts) {
+        if (!contract || !contract.ticker || !contract.underlying_ticker) {
+          console.warn('Invalid contract data, skipping:', contract)
+          continue
+        }
+
+        const historicalData = this.generateMockHistoricalData(contract, 14)
+
+        try {
+          await HistoricalDataService.storeOptionsHistoricalData(
+            contract.ticker,
+            contract.underlying_ticker,
+            historicalData
+          )
+          console.log(`Stored mock data for ${contract.ticker}`)
+        } catch (error) {
+          console.error(`Error storing mock data for ${contract.ticker}:`, error)
+        }
+      }
+
+      console.log('Mock data generation completed')
+    } catch (error) {
+      console.error('Error in generateAndStoreMockData:', error)
     }
   }
 

@@ -138,7 +138,7 @@ export default function OptionsTrading() {
   const loadOptionsContracts = async () => {
     try {
       setLoading(true)
-      const topContracts = await PolygonService.getTopLiquidOptions()
+      const topContracts = PolygonService.getTopLiquidOptions()
       setContracts(topContracts)
     } catch (error) {
       console.error('Failed to load options contracts:', error)
