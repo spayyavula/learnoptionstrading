@@ -619,10 +619,26 @@ export default function OptionsTrading() {
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => {
-                handlePlaceOrder()
-                setStep(1)
+                if (multiLegLegs.length > 0) {
+                  dispatch({
+                    type: 'PLACE_MULTI_LEG_ORDER',
+                    payload: {
+                      legs: multiLegLegs,
+                      strategyName: selectedStrategy || '',
+                      quantity: parseInt(quantity) || 1
+                    }
+                  })
+                  alert(`${selectedStrategy} order placed successfully!`)
+                  setStep(1)
+                  setMultiLegLegs([])
+                  setMultiLegValidation(null)
+                  setSelectedStrategy(null)
+                } else {
+                  handlePlaceOrder()
+                  setStep(1)
+                }
               }}
-              disabled={!selectedContract || !quantity || parseInt(quantity) <= 0}
+              disabled={(multiLegLegs.length === 0 && (!selectedContract || !quantity || parseInt(quantity) <= 0)) || (multiLegLegs.length > 0 && (!quantity || parseInt(quantity) <= 0))}
             >
               Place Trade
             </button>

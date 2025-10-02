@@ -8,7 +8,9 @@ import PayoffDiagram from './PayoffDiagram'
 import InteractivePayoffDiagram from './InteractivePayoffDiagram'
 import GreeksPanel from './GreeksPanel'
 import KellyCriterion from './KellyCriterion'
+import MultiLegStrategyBuilder from './MultiLegStrategyBuilder'
 import { GreeksCalculator } from '../services/greeksCalculator'
+import { StrategyValidationService, type StrategyLeg, type ValidationResult } from '../services/strategyValidationService'
 import type { OptionsContract } from '../types/options'
 
 interface Strategy {
@@ -54,6 +56,8 @@ export default function EnhancedTrading() {
   const [selectedContract, setSelectedContract] = useState<OptionsContract | null>(null)
   const [quantity, setQuantity] = useState('')
   const [loading, setLoading] = useState(false)
+  const [multiLegLegs, setMultiLegLegs] = useState<StrategyLeg[]>([])
+  const [multiLegValidation, setMultiLegValidation] = useState<ValidationResult | null>(null)
 
   const availableUnderlyings = useMemo(() => getAvailableUnderlyings(), [])
 
@@ -75,7 +79,8 @@ export default function EnhancedTrading() {
   const strategies = STRATEGY_CONFIG[regime]
 
   const canProceedToStep2 = regime && selectedUnderlying
-  const canProceedToStep3 = selectedStrategy && selectedContract
+  const canProceedToStep3 = selectedStrategy && (selectedContract || multiLegLegs.length > 0)
+  const isMultiLegStrategy = selectedStrategy ? StrategyValidationService.isMultiLegStrategy(selectedStrategy.name) : false
 
   const handlePlaceOrder = () => {
     if (!selectedContract || !quantity || parseInt(quantity) <= 0) return

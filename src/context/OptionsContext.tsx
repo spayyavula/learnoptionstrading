@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react'
 import type { OptionsContract, OptionsPosition, OptionsOrder } from '../types/options'
 import { TradingHistoryService } from '../services/tradingHistoryService'
+import type { StrategyLeg } from '../services/strategyValidationService'
 
 interface OptionsState {
   balance: number
@@ -16,6 +17,7 @@ interface OptionsState {
 
 type OptionsAction =
   | { type: 'PLACE_OPTIONS_ORDER'; payload: Omit<OptionsOrder, 'id' | 'timestamp'> }
+  | { type: 'PLACE_MULTI_LEG_ORDER'; payload: { legs: StrategyLeg[]; strategyName: string; quantity: number } }
   | { type: 'CANCEL_OPTIONS_ORDER'; payload: string }
   | { type: 'FILL_OPTIONS_ORDER'; payload: { orderId: string; filledPrice: number } }
   | { type: 'UPDATE_CONTRACT_PRICES'; payload: OptionsContract[] }
@@ -156,6 +158,61 @@ function optionsReducer(state: OptionsState, action: OptionsAction): OptionsStat
         }
       }
       return state
+    }
+
+    case 'PLACE_MULTI_LEG_ORDER': {
+      const { legs, strategyName, quantity } = action.payload
+
+      const totalCost = legs.reduce((sum, leg) => {
+        const sign = leg.action === 'buy' ? 1 : -1
+        return sum + (sign * leg.contract.last * leg.quantity * 100)
+      }, 0)
+
+      if (totalCost > state.buyingPower) {
+        console.error('Insufficient buying power for multi-leg order')
+        return state
+      }
+
+      const orders: OptionsOrder[] = legs.map(leg => ({
+        id: `${Date.now()}_${leg.contract.ticker}`,
+        contractTicker: leg.contract.ticker,
+        underlyingTicker: leg.contract.underlying_ticker,
+        type: leg.action === 'buy' ? 'buy_to_open' : 'sell_to_close',
+        orderType: 'market',
+        quantity: leg.quantity * quantity,
+        price: leg.contract.last,
+        status: 'filled',
+        timestamp: new Date()
+      }))
+
+      const position: OptionsPosition = {
+        id: `pos_${Date.now()}`,
+        contractTicker: `${strategyName}_${legs[0].contract.underlying_ticker}`,
+        underlyingTicker: legs[0].contract.underlying_ticker,
+        contractType: legs[0].contract.contract_type,
+        strikePrice: legs[0].contract.strike_price,
+        expirationDate: legs[0].contract.expiration_date,
+        quantity: quantity,
+        avgPrice: Math.abs(totalCost) / (quantity * 100),
+        currentPrice: Math.abs(totalCost) / (quantity * 100),
+        totalValue: Math.abs(totalCost),
+        unrealizedPnL: 0,
+        unrealizedPnLPercent: 0,
+        purchaseDate: new Date(),
+        delta: 0,
+        gamma: 0,
+        theta: 0,
+        vega: 0,
+        impliedVolatility: 0
+      }
+
+      return {
+        ...state,
+        orders: [...state.orders, ...orders],
+        positions: [...state.positions, position],
+        balance: state.balance - totalCost,
+        buyingPower: state.buyingPower - totalCost
+      }
     }
 
     case 'CLOSE_POSITION': {
