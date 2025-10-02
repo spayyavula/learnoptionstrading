@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  BookOpen, 
-  Trophy, 
-  Clock, 
+import {
+  BookOpen,
+  Trophy,
+  Clock,
   AlertTriangle,
-  CheckCircle, 
-  Play, 
+  CheckCircle,
+  Play,
   Lock,
   Star,
   Target,
   Brain,
   TrendingUp,
   Award,
-  BarChart3
+  BarChart3,
+  ExternalLink,
+  Link as LinkIcon,
+  Video,
+  FileText,
+  GraduationCap
 } from 'lucide-react'
 import { LearningService } from '../services/learningService'
 import type { LearningModule, LearningProgress } from '../types/learning'
@@ -25,6 +30,7 @@ export default function OptionsLearning() {
   const [showQuiz, setShowQuiz] = useState(false)
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({})
   const [quizSubmitted, setQuizSubmitted] = useState(false)
+  const [activeTab, setActiveTab] = useState<'modules' | 'links'>('modules')
 
   useEffect(() => {
     LearningService.initializeDefaultData()
@@ -344,7 +350,7 @@ export default function OptionsLearning() {
           </div>
         </div>
       </div>
-      
+
       {/* Header */}
       <div className="card shadow-md border-blue-200">
         <div className="card-header bg-gradient-to-r from-blue-50 to-blue-100">
@@ -358,10 +364,46 @@ export default function OptionsLearning() {
             <BookOpen className="h-12 w-12 text-blue-700" />
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200 bg-white">
+          <nav className="flex -mb-px">
+            <button
+              onClick={() => setActiveTab('modules')}
+              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'modules'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <GraduationCap className="h-5 w-5" />
+                <span>Learning Modules</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('links')}
+              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'links'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <LinkIcon className="h-5 w-5" />
+                <span>Useful Links</span>
+              </div>
+            </button>
+          </nav>
+        </div>
       </div>
 
-      {/* Progress Overview */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {activeTab === 'links' && <UsefulLinksSection />}
+
+      {activeTab === 'modules' && (
+        <>
+          {/* Progress Overview */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card shadow-md border-blue-200">
           <div className="card-body">
             <div className="flex items-center">
@@ -549,6 +591,291 @@ export default function OptionsLearning() {
           </div>
         </div>
       )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function UsefulLinksSection() {
+  const educationalResources = [
+    {
+      category: 'Educational Platforms',
+      icon: GraduationCap,
+      links: [
+        {
+          title: 'Options Industry Council (OIC)',
+          url: 'https://www.optionseducation.org/',
+          description: 'Free educational resources, webinars, and courses on options trading fundamentals',
+          type: 'course'
+        },
+        {
+          title: 'Investopedia Options Guide',
+          url: 'https://www.investopedia.com/options-basics-tutorial-4583012',
+          description: 'Comprehensive guide covering options basics to advanced strategies',
+          type: 'article'
+        },
+        {
+          title: 'tastytrade Learn Center',
+          url: 'https://www.tastytrade.com/learn',
+          description: 'Video courses and live trading shows focused on options strategies',
+          type: 'video'
+        },
+        {
+          title: 'CBOE Learning Center',
+          url: 'https://www.cboe.com/education/',
+          description: 'Educational content from the Chicago Board Options Exchange',
+          type: 'course'
+        }
+      ]
+    },
+    {
+      category: 'Options Greeks & Pricing',
+      icon: BarChart3,
+      links: [
+        {
+          title: 'Understanding Options Greeks',
+          url: 'https://www.investopedia.com/trading/getting-to-know-the-greeks/',
+          description: 'Deep dive into Delta, Gamma, Theta, Vega, and Rho',
+          type: 'article'
+        },
+        {
+          title: 'Black-Scholes Model Explained',
+          url: 'https://www.investopedia.com/terms/b/blackscholes.asp',
+          description: 'Learn about the foundational options pricing model',
+          type: 'article'
+        },
+        {
+          title: 'Options Pricing Calculator',
+          url: 'https://www.optionsprofitcalculator.com/',
+          description: 'Free tool to calculate profit/loss and visualize options strategies',
+          type: 'tool'
+        }
+      ]
+    },
+    {
+      category: 'Strategy Guides',
+      icon: Target,
+      links: [
+        {
+          title: 'Options Strategies Overview',
+          url: 'https://www.theoptionsguide.com/option-trading-strategies.aspx',
+          description: 'Comprehensive list of options strategies with examples',
+          type: 'article'
+        },
+        {
+          title: 'Iron Condor Strategy Guide',
+          url: 'https://www.investopedia.com/terms/i/ironcondor.asp',
+          description: 'Master the popular neutral income strategy',
+          type: 'article'
+        },
+        {
+          title: 'Credit Spreads Explained',
+          url: 'https://www.investopedia.com/terms/c/creditspread.asp',
+          description: 'Learn how to generate income with defined risk',
+          type: 'article'
+        },
+        {
+          title: 'Vertical Spreads Tutorial',
+          url: 'https://www.optionseducation.org/strategies/vertical-spreads',
+          description: 'Bull call spreads and bear put spreads explained',
+          type: 'article'
+        }
+      ]
+    },
+    {
+      category: 'Video Courses',
+      icon: Video,
+      links: [
+        {
+          title: 'Options Trading for Beginners',
+          url: 'https://www.youtube.com/results?search_query=options+trading+for+beginners',
+          description: 'YouTube tutorials covering options trading basics',
+          type: 'video'
+        },
+        {
+          title: 'projectfinance Options Courses',
+          url: 'https://www.youtube.com/@projectfinance',
+          description: 'Data-driven options education with visual explanations',
+          type: 'video'
+        },
+        {
+          title: 'Sky View Trading',
+          url: 'https://www.youtube.com/@SkyViewTrading',
+          description: 'Weekly market analysis and options strategy videos',
+          type: 'video'
+        }
+      ]
+    },
+    {
+      category: 'Books & Reading',
+      icon: BookOpen,
+      links: [
+        {
+          title: 'Options as a Strategic Investment',
+          url: 'https://www.amazon.com/Options-Strategic-Investment-Lawrence-McMillan/dp/0735204659',
+          description: 'The comprehensive reference guide by Lawrence McMillan',
+          type: 'book'
+        },
+        {
+          title: 'Option Volatility & Pricing',
+          url: 'https://www.amazon.com/Option-Volatility-Pricing-Strategies-Techniques/dp/0071818774',
+          description: 'Advanced trading strategies by Sheldon Natenberg',
+          type: 'book'
+        },
+        {
+          title: 'The Options Playbook',
+          url: 'https://www.optionsplaybook.com/',
+          description: 'Free online resource with strategy examples and payoff diagrams',
+          type: 'article'
+        }
+      ]
+    },
+    {
+      category: 'Risk Management',
+      icon: AlertTriangle,
+      links: [
+        {
+          title: 'Position Sizing Guide',
+          url: 'https://www.investopedia.com/articles/trading/09/determine-position-size.asp',
+          description: 'Learn how to size positions for optimal risk management',
+          type: 'article'
+        },
+        {
+          title: 'Options Risk Management',
+          url: 'https://www.optionseducation.org/getting-started/risk-management',
+          description: 'Essential principles for managing options risk',
+          type: 'article'
+        },
+        {
+          title: 'Kelly Criterion Explained',
+          url: 'https://www.investopedia.com/articles/trading/04/091504.asp',
+          description: 'Mathematical approach to position sizing',
+          type: 'article'
+        }
+      ]
+    },
+    {
+      category: 'Market Data & Tools',
+      icon: TrendingUp,
+      links: [
+        {
+          title: 'CBOE Volatility Index (VIX)',
+          url: 'https://www.cboe.com/tradable_products/vix/',
+          description: 'Track market volatility and fear gauge',
+          type: 'tool'
+        },
+        {
+          title: 'Barchart Options Screener',
+          url: 'https://www.barchart.com/options/unusual-activity',
+          description: 'Find unusual options activity and opportunities',
+          type: 'tool'
+        },
+        {
+          title: 'TradingView',
+          url: 'https://www.tradingview.com/',
+          description: 'Advanced charting and technical analysis platform',
+          type: 'tool'
+        }
+      ]
+    }
+  ]
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'video':
+        return <Video className="h-4 w-4" />
+      case 'course':
+        return <GraduationCap className="h-4 w-4" />
+      case 'book':
+        return <BookOpen className="h-4 w-4" />
+      case 'tool':
+        return <Target className="h-4 w-4" />
+      default:
+        return <FileText className="h-4 w-4" />
+    }
+  }
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'video':
+        return 'text-red-600 bg-red-50'
+      case 'course':
+        return 'text-purple-600 bg-purple-50'
+      case 'book':
+        return 'text-green-600 bg-green-50'
+      case 'tool':
+        return 'text-blue-600 bg-blue-50'
+      default:
+        return 'text-gray-600 bg-gray-50'
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="card shadow-md border-blue-200">
+        <div className="card-body">
+          <div className="flex items-start space-x-3 mb-6">
+            <LinkIcon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Curated Learning Resources</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                External resources to supplement your options trading education. These are independently maintained sites and tools.
+              </p>
+            </div>
+          </div>
+
+          {educationalResources.map((category, idx) => {
+            const CategoryIcon = category.icon
+            return (
+              <div key={idx} className="mb-8 last:mb-0">
+                <div className="flex items-center space-x-2 mb-4">
+                  <CategoryIcon className="h-5 w-5 text-blue-600" />
+                  <h4 className="text-md font-semibold text-gray-800">{category.category}</h4>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {category.links.map((link, linkIdx) => (
+                    <a
+                      key={linkIdx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all group"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h5 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {link.title}
+                        </h5>
+                        <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-blue-600 flex-shrink-0 ml-2" />
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">{link.description}</p>
+                      <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium ${getTypeColor(link.type)}`}>
+                        {getTypeIcon(link.type)}
+                        <span className="capitalize">{link.type}</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+
+          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex">
+              <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="ml-3">
+                <h4 className="text-sm font-medium text-yellow-800">External Resources Disclaimer</h4>
+                <p className="text-sm text-yellow-700 mt-1">
+                  These links direct to external websites not owned or controlled by us.
+                  We are not responsible for their content, accuracy, or availability.
+                  Always verify information and exercise caution when using external resources.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
