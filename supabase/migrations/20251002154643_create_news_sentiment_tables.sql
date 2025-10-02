@@ -1,0 +1,286 @@
+/*
+  # News Feed and Sentiment Analysis Tables
+
+  ## Overview
+  This migration creates the complete database schema for news feed aggregation,
+  FinBERT sentiment analysis, and options sentiment mapping for liquid options trading.
+
+  ## 1. New Tables
+
+  ### `news_articles`
+  Stores raw news articles from multiple providers (Polygon.io, Alpha Vantage, Finnhub, EODHD)
+  - `id` (uuid, primary key) - Unique identifier
+  - `ticker` (text) - Stock ticker symbol (SPY, QQQ, AAPL, TSLA, NVDA)
+  - `headline` (text) - Article headline/title
+  - `summary` (text) - Article summary or description
+  - `content` (text) - Full article content if available
+  - `source` (text) - News source (e.g., Reuters, Bloomberg, CNBC)
+  - `author` (text) - Article author
+  - `url` (text, unique) - Article URL for deduplication
+  - `published_at` (timestamptz) - Article publication timestamp
+  - `fetched_at` (timestamptz) - When we fetched the article
+  - `provider` (text) - API provider (polygon, alphavantage, finnhub, eodhd)
+  - `relevance_score` (numeric) - How relevant article is to ticker (0-100)
+  - `keywords` (text[]) - Extracted keywords from article
+  - `entities` (jsonb) - Named entities extracted from article
+  - `created_at` (timestamptz) - Record creation timestamp
+
+  ### `sentiment_analysis`
+  Stores FinBERT sentiment analysis results for news articles
+  - `id` (uuid, primary key) - Unique identifier
+  - `article_id` (uuid, foreign key) - Link to news_articles
+  - `ticker` (text) - Stock ticker symbol
+  - `finbert_score` (numeric) - FinBERT sentiment score (-1 to 1)
+  - `finbert_label` (text) - FinBERT label (positive, negative, neutral)
+  - `confidence` (numeric) - Confidence score (0-1)
+  - `positive_probability` (numeric) - Probability of positive sentiment
+  - `negative_probability` (numeric) - Probability of negative sentiment
+  - `neutral_probability` (numeric) - Probability of neutral sentiment
+  - `sentiment_magnitude` (numeric) - Strength of sentiment (0-1)
+  - `analyzed_at` (timestamptz) - When sentiment analysis was performed
+  - `model_version` (text) - FinBERT model version used
+  - `created_at` (timestamptz) - Record creation timestamp
+
+  ### `options_sentiment_scores`
+  Aggregated sentiment scores mapped to specific liquid options contracts
+  - `id` (uuid, primary key) - Unique identifier
+  - `ticker` (text) - Underlying ticker symbol
+  - `option_ticker` (text) - Specific option contract ticker
+  - `date` (date) - Date of sentiment calculation
+  - `overall_sentiment_score` (numeric) - Weighted aggregate sentiment (-100 to 100)
+  - `finbert_sentiment_score` (numeric) - FinBERT-based sentiment score
+  - `news_count` (integer) - Number of news articles analyzed
+  - `positive_count` (integer) - Number of positive articles
+  - `negative_count` (integer) - Number of negative articles
+  - `neutral_count` (integer) - Number of neutral articles
+  - `sentiment_momentum` (numeric) - Rate of sentiment change
+  - `sentiment_trend` (text) - Trend direction (rising, falling, stable)
+  - `high_impact_news_count` (integer) - Count of high-impact news items
+  - `average_confidence` (numeric) - Average confidence of sentiment analysis
+  - `created_at` (timestamptz) - Record creation timestamp
+  - Unique constraint on (option_ticker, date)
+
+  ### `sentiment_trends`
+  Historical sentiment trends for charting and analysis
+  - `id` (uuid, primary key) - Unique identifier
+  - `ticker` (text) - Stock ticker symbol
+  - `date` (date) - Trend date
+  - `hour` (integer) - Hour of day (0-23) for intraday trends
+  - `sentiment_score` (numeric) - Sentiment score at this time
+  - `sentiment_category` (text) - Category (very_positive, positive, neutral, negative, very_negative)
+  - `volume` (integer) - Number of articles in this period
+  - `momentum` (numeric) - Sentiment momentum indicator
+  - `created_at` (timestamptz) - Record creation timestamp
+  - Unique constraint on (ticker, date, hour)
+
+  ### `news_feed_sources`
+  Configuration and tracking for news feed API sources
+  - `id` (uuid, primary key) - Unique identifier
+  - `provider` (text, unique) - Provider name (polygon, alphavantage, finnhub, eodhd)
+  - `api_endpoint` (text) - API endpoint URL
+  - `is_active` (boolean) - Whether source is currently active
+  - `priority` (integer) - Priority order (lower = higher priority)
+  - `rate_limit_per_minute` (integer) - Rate limit
+  - `rate_limit_per_day` (integer) - Daily rate limit
+  - `last_fetch_at` (timestamptz) - Last successful fetch
+  - `total_articles_fetched` (integer) - Total articles fetched
+  - `error_count` (integer) - Count of errors
+  - `last_error` (text) - Last error message
+  - `created_at` (timestamptz) - Record creation timestamp
+
+  ## 2. Security
+  All tables have RLS enabled with policies for authenticated users
+
+  ## 3. Indexes
+  Optimized indexes for common queries on ticker symbols, dates, and sentiment scores
+
+  ## 4. Notes
+  - All sentiment scores are normalized to consistent scales for comparison
+  - Deduplication is handled via unique constraints on article URLs
+  - Sentiment momentum tracks rate of change to identify acceleration/deceleration
+  - Historical data retention can be managed via scheduled cleanup jobs
+*/
+
+-- Create news_articles table
+CREATE TABLE IF NOT EXISTS news_articles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticker text NOT NULL,
+  headline text NOT NULL,
+  summary text,
+  content text,
+  source text NOT NULL,
+  author text,
+  url text UNIQUE,
+  published_at timestamptz NOT NULL,
+  fetched_at timestamptz DEFAULT now(),
+  provider text NOT NULL,
+  relevance_score numeric DEFAULT 50 CHECK (relevance_score >= 0 AND relevance_score <= 100),
+  keywords text[],
+  entities jsonb,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create sentiment_analysis table
+CREATE TABLE IF NOT EXISTS sentiment_analysis (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  article_id uuid REFERENCES news_articles(id) ON DELETE CASCADE,
+  ticker text NOT NULL,
+  finbert_score numeric NOT NULL CHECK (finbert_score >= -1 AND finbert_score <= 1),
+  finbert_label text NOT NULL CHECK (finbert_label IN ('positive', 'negative', 'neutral')),
+  confidence numeric NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+  positive_probability numeric CHECK (positive_probability >= 0 AND positive_probability <= 1),
+  negative_probability numeric CHECK (negative_probability >= 0 AND negative_probability <= 1),
+  neutral_probability numeric CHECK (neutral_probability >= 0 AND neutral_probability <= 1),
+  sentiment_magnitude numeric CHECK (sentiment_magnitude >= 0 AND sentiment_magnitude <= 1),
+  analyzed_at timestamptz DEFAULT now(),
+  model_version text DEFAULT 'ProsusAI/finbert',
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create options_sentiment_scores table
+CREATE TABLE IF NOT EXISTS options_sentiment_scores (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticker text NOT NULL,
+  option_ticker text NOT NULL,
+  date date NOT NULL,
+  overall_sentiment_score numeric DEFAULT 0 CHECK (overall_sentiment_score >= -100 AND overall_sentiment_score <= 100),
+  finbert_sentiment_score numeric DEFAULT 0,
+  news_count integer DEFAULT 0,
+  positive_count integer DEFAULT 0,
+  negative_count integer DEFAULT 0,
+  neutral_count integer DEFAULT 0,
+  sentiment_momentum numeric DEFAULT 0,
+  sentiment_trend text CHECK (sentiment_trend IN ('rising', 'falling', 'stable')),
+  high_impact_news_count integer DEFAULT 0,
+  average_confidence numeric,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(option_ticker, date)
+);
+
+-- Create sentiment_trends table
+CREATE TABLE IF NOT EXISTS sentiment_trends (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticker text NOT NULL,
+  date date NOT NULL,
+  hour integer CHECK (hour >= 0 AND hour <= 23),
+  sentiment_score numeric DEFAULT 0,
+  sentiment_category text CHECK (sentiment_category IN ('very_positive', 'positive', 'neutral', 'negative', 'very_negative')),
+  volume integer DEFAULT 0,
+  momentum numeric DEFAULT 0,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(ticker, date, hour)
+);
+
+-- Create news_feed_sources table
+CREATE TABLE IF NOT EXISTS news_feed_sources (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider text UNIQUE NOT NULL,
+  api_endpoint text,
+  is_active boolean DEFAULT true,
+  priority integer DEFAULT 10,
+  rate_limit_per_minute integer,
+  rate_limit_per_day integer,
+  last_fetch_at timestamptz,
+  total_articles_fetched integer DEFAULT 0,
+  error_count integer DEFAULT 0,
+  last_error text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_news_articles_ticker ON news_articles(ticker);
+CREATE INDEX IF NOT EXISTS idx_news_articles_published_at ON news_articles(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_news_articles_ticker_published ON news_articles(ticker, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_news_articles_provider ON news_articles(provider);
+
+CREATE INDEX IF NOT EXISTS idx_sentiment_analysis_article_id ON sentiment_analysis(article_id);
+CREATE INDEX IF NOT EXISTS idx_sentiment_analysis_ticker ON sentiment_analysis(ticker);
+CREATE INDEX IF NOT EXISTS idx_sentiment_analysis_score ON sentiment_analysis(finbert_score);
+CREATE INDEX IF NOT EXISTS idx_sentiment_analysis_analyzed_at ON sentiment_analysis(analyzed_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_options_sentiment_ticker ON options_sentiment_scores(ticker);
+CREATE INDEX IF NOT EXISTS idx_options_sentiment_option_ticker ON options_sentiment_scores(option_ticker);
+CREATE INDEX IF NOT EXISTS idx_options_sentiment_date ON options_sentiment_scores(date DESC);
+CREATE INDEX IF NOT EXISTS idx_options_sentiment_score ON options_sentiment_scores(overall_sentiment_score);
+
+CREATE INDEX IF NOT EXISTS idx_sentiment_trends_ticker ON sentiment_trends(ticker);
+CREATE INDEX IF NOT EXISTS idx_sentiment_trends_date ON sentiment_trends(date DESC);
+CREATE INDEX IF NOT EXISTS idx_sentiment_trends_ticker_date ON sentiment_trends(ticker, date DESC);
+
+-- Enable Row Level Security
+ALTER TABLE news_articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sentiment_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE options_sentiment_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sentiment_trends ENABLE ROW LEVEL SECURITY;
+ALTER TABLE news_feed_sources ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for news_articles
+CREATE POLICY "Anyone can view news articles"
+  ON news_articles FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert news articles"
+  ON news_articles FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Create RLS policies for sentiment_analysis
+CREATE POLICY "Anyone can view sentiment analysis"
+  ON sentiment_analysis FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert sentiment analysis"
+  ON sentiment_analysis FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Create RLS policies for options_sentiment_scores
+CREATE POLICY "Anyone can view options sentiment scores"
+  ON options_sentiment_scores FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert options sentiment scores"
+  ON options_sentiment_scores FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can update options sentiment scores"
+  ON options_sentiment_scores FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Create RLS policies for sentiment_trends
+CREATE POLICY "Anyone can view sentiment trends"
+  ON sentiment_trends FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert sentiment trends"
+  ON sentiment_trends FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Create RLS policies for news_feed_sources
+CREATE POLICY "Anyone can view news feed sources"
+  ON news_feed_sources FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can update news feed sources"
+  ON news_feed_sources FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Insert default news feed sources
+INSERT INTO news_feed_sources (provider, api_endpoint, is_active, priority, rate_limit_per_minute, rate_limit_per_day)
+VALUES 
+  ('polygon', 'https://api.polygon.io/v2/reference/news', true, 1, 5, 500),
+  ('alphavantage', 'https://www.alphavantage.co/query', true, 2, 5, 500),
+  ('finnhub', 'https://finnhub.io/api/v1/news', true, 3, 60, 10000),
+  ('newsapi', 'https://newsapi.org/v2/everything', true, 4, 2, 100)
+ON CONFLICT (provider) DO NOTHING;
