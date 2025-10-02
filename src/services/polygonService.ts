@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { OptionsContract, OptionsChainData, HistoricalData } from '../types/options'
- 
+import { generateComprehensiveOptionsChain, getUnderlyingPrice } from './optionsChainGenerator'
+
 // Lazy load environment variables
 const getEnvVars = () => ({
   POLYGON_API_KEY: import.meta.env.VITE_POLYGON_API_KEY || 'demo_api_key',
@@ -9,114 +10,11 @@ const getEnvVars = () => ({
   ENABLE_REAL_TIME_DATA: import.meta.env.VITE_ENABLE_REAL_TIME_DATA === 'true'
 })
 
-// Top 5 most liquid options contracts (simulated data based on typical market leaders)
-const TOP_LIQUID_OPTIONS: OptionsContract[] = [
-  {
-    contract_type: 'call',
-    exercise_style: 'american',
-    expiration_date: '2024-03-15',
-    shares_per_contract: 100,
-    strike_price: 580,
-    ticker: 'SPY240315C00580000',
-    underlying_ticker: 'SPY',
-    bid: 29.05,
-    ask: 29.15,
-    last: 29.10,
-    volume: 15234,
-    open_interest: 45678,
-    implied_volatility: 0.25,
-    delta: 0.65,
-    gamma: 0.02,
-    theta: -0.15,
-    vega: 0.30,
-    intrinsic_value: 0,
-    time_value: 29.10
-  },
-  {
-    contract_type: 'call',
-    exercise_style: 'american',
-    expiration_date: '2024-03-15',
-    shares_per_contract: 100,
-    strike_price: 500,
-    ticker: 'QQQ240315C00500000',
-    underlying_ticker: 'QQQ',
-    bid: 15.20,
-    ask: 15.30,
-    last: 15.25,
-    volume: 12456,
-    open_interest: 38901,
-    implied_volatility: 0.28,
-    delta: 0.58,
-    gamma: 0.025,
-    theta: -0.12,
-    vega: 0.35,
-    intrinsic_value: 0,
-    time_value: 15.25
-  },
-  {
-    contract_type: 'call',
-    exercise_style: 'american',
-    expiration_date: '2024-03-15',
-    shares_per_contract: 100,
-    strike_price: 230,
-    ticker: 'AAPL240315C00230000',
-    underlying_ticker: 'AAPL',
-    bid: 8.45,
-    ask: 8.55,
-    last: 8.50,
-    volume: 9876,
-    open_interest: 25432,
-    implied_volatility: 0.32,
-    delta: 0.42,
-    gamma: 0.03,
-    theta: -0.08,
-    vega: 0.28,
-    intrinsic_value: 0,
-    time_value: 8.50
-  },
-  {
-    contract_type: 'call',
-    exercise_style: 'american',
-    expiration_date: '2024-03-15',
-    shares_per_contract: 100,
-    strike_price: 1000,
-    ticker: 'TSLA240315C01000000',
-    underlying_ticker: 'TSLA',
-    bid: 45.80,
-    ask: 46.20,
-    last: 46.00,
-    volume: 7654,
-    open_interest: 18765,
-    implied_volatility: 0.55,
-    delta: 0.35,
-    gamma: 0.015,
-    theta: -0.25,
-    vega: 0.45,
-    intrinsic_value: 0,
-    time_value: 46.00
-  },
-  {
-    contract_type: 'call',
-    exercise_style: 'american',
-    expiration_date: '2024-03-15',
-    shares_per_contract: 100,
-    strike_price: 1400,
-    ticker: 'NVDA240315C01400000',
-    underlying_ticker: 'NVDA',
-    bid: 125.50,
-    ask: 126.50,
-    last: 126.00,
-    volume: 5432,
-    open_interest: 12345,
-    implied_volatility: 0.48,
-    delta: 0.68,
-    gamma: 0.008,
-    theta: -0.35,
-    vega: 0.52,
-    intrinsic_value: 0,
-    time_value: 126.00
-  }
-]
+// Generate comprehensive options chain with 20 strikes per expiration
+const COMPREHENSIVE_OPTIONS_CHAIN = generateComprehensiveOptionsChain()
+
+// Legacy top 5 for backwards compatibility
+const TOP_LIQUID_OPTIONS: OptionsContract[] = COMPREHENSIVE_OPTIONS_CHAIN.slice(0, 10)
 
 export class PolygonService {
   static async fetchOptionsChain(underlying: string): Promise<OptionsChainData> {
@@ -147,7 +45,7 @@ export class PolygonService {
   }
 
   private static getSimulatedOptionsChain(underlying: string): OptionsChainData {
-    const contracts = TOP_LIQUID_OPTIONS.filter(contract => 
+    const contracts = COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
       contract.underlying_ticker === underlying
     )
 
@@ -156,6 +54,16 @@ export class PolygonService {
       contracts,
       lastUpdated: new Date()
     }
+  }
+
+  static getAllOptionsContracts(): OptionsContract[] {
+    return [...COMPREHENSIVE_OPTIONS_CHAIN]
+  }
+
+  static getOptionsChainForUnderlying(underlying: string): OptionsContract[] {
+    return COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
+      contract.underlying_ticker === underlying
+    )
   }
 
   private static transformPolygonData(polygonData: any): OptionsChainData {

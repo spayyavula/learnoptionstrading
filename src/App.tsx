@@ -16,7 +16,7 @@ import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
 import Login from './pages/Login'
 import OptionsChain from './pages/OptionsChain'
-import Trading from './components/Trading'
+import EnhancedTrading from './components/EnhancedTrading'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -135,7 +135,7 @@ function AppContent() {
                 <Route path="agent" element={<AgentDashboard />} />
                 <Route path="demo" element={<Demo />} />
                 <Route path="portfolio" element={<OptionsPortfolio />} />
-                <Route path="trading" element={<Trading />} />
+                <Route path="trading" element={<EnhancedTrading />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="optionschain" element={<OptionsChain />} />
                 <Route path="regime" element={<RegimeAnalysis />} />
