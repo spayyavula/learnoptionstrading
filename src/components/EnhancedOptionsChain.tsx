@@ -50,9 +50,11 @@ export const EnhancedOptionsChain: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true)
-    setShowMockDataNotice(false)
 
     try {
+      const status = liveOptionsDataService.getStatus()
+      setServiceStatus(status)
+
       const [price, expiryData] = await Promise.all([
         liveOptionsDataService.getUnderlyingPrice(selectedTicker),
         liveOptionsDataService.fetchExpiriesForTicker(selectedTicker)
@@ -62,14 +64,17 @@ export const EnhancedOptionsChain: React.FC = () => {
       setExpiries(expiryData)
 
       if (expiryData.length > 0) {
-        setShowMockDataNotice(!serviceStatus?.hasApiKey)
+        setShowMockDataNotice(!status.hasApiKey)
         if (!selectedExpiryDate) {
           const defaultExpiry = expiryData.find(e => e.expiry_type === 'Weekly') || expiryData[0]
           setSelectedExpiryDate(defaultExpiry.expiration_date)
         }
+      } else {
+        setShowMockDataNotice(true)
       }
     } catch (error) {
       console.error('Error loading data:', error)
+      setShowMockDataNotice(true)
     } finally {
       setLoading(false)
     }
@@ -207,7 +212,14 @@ export const EnhancedOptionsChain: React.FC = () => {
   return (
     <div className="enhanced-options-chain">
       <div className="chain-header">
-        <h1 className="chain-title">Live Options Chain</h1>
+        <div className="header-left">
+          <h1 className="chain-title">Live Options Chain</h1>
+          {serviceStatus && (
+            <span className={`data-source-badge ${serviceStatus.hasApiKey ? 'live' : 'demo'}`}>
+              {serviceStatus.hasApiKey ? '🟢 Live Data Available' : '⚠️ Demo Data Only'}
+            </span>
+          )}
+        </div>
         <button
           className="sync-button"
           onClick={syncData}
@@ -224,9 +236,14 @@ export const EnhancedOptionsChain: React.FC = () => {
           <div className="notice-content">
             <strong>Showing Demo Data</strong>
             <p>
-              You're viewing sample options data. To fetch live data from markets, add your Polygon API key to the environment:
-              <code>VITE_POLYGON_API_KEY=your_api_key</code>
+              You're viewing sample options data. To fetch live data from markets, you need to:
             </p>
+            <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+              <li>Get a free API key from Polygon.io</li>
+              <li>Add it to your <code>.env</code> file as <code>VITE_POLYGON_API_KEY=your_api_key</code></li>
+              <li>Restart the development server</li>
+              <li>Click the "Sync Data" button to load live options data</li>
+            </ol>
             <a
               href="https://polygon.io/dashboard/signup"
               target="_blank"
@@ -235,6 +252,11 @@ export const EnhancedOptionsChain: React.FC = () => {
             >
               Get a free API key from Polygon.io →
             </a>
+            {serviceStatus && (
+              <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#78350f' }}>
+                <strong>Status:</strong> {serviceStatus.message}
+              </p>
+            )}
           </div>
           <button className="notice-close" onClick={() => setShowMockDataNotice(false)}>✕</button>
         </div>
@@ -418,11 +440,41 @@ export const EnhancedOptionsChain: React.FC = () => {
           margin-bottom: 2rem;
         }
 
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
         .chain-title {
           font-size: 2rem;
           font-weight: 700;
           color: #1f2937;
           margin: 0;
+        }
+
+        .data-source-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .data-source-badge.live {
+          background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+          color: #065f46;
+          border: 1px solid #10b981;
+        }
+
+        .data-source-badge.demo {
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          color: #92400e;
+          border: 1px solid #f59e0b;
         }
 
         .sync-button {

@@ -63,13 +63,17 @@ export class LiveOptionsDataService {
   private constructor() {}
 
   getStatus(): DataServiceStatus {
-    const hasApiKey = !!POLYGON_API_KEY && POLYGON_API_KEY !== 'demo_api_key'
+    const hasApiKey = !!POLYGON_API_KEY &&
+                      POLYGON_API_KEY.trim() !== '' &&
+                      POLYGON_API_KEY !== 'demo_api_key' &&
+                      POLYGON_API_KEY !== 'undefined' &&
+                      POLYGON_API_KEY !== 'null'
     return {
       hasApiKey,
       isConfigured: hasApiKey,
       message: hasApiKey
-        ? 'Polygon API configured'
-        : 'Polygon API key not configured. Add VITE_POLYGON_API_KEY to your environment variables to fetch live data.'
+        ? 'Polygon API configured - Live data available'
+        : 'No API key configured. Add VITE_POLYGON_API_KEY to your .env file to enable live data sync from Polygon.io'
     }
   }
 
