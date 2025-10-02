@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
-import { supabase } from '../supabaseClient'
+import { supabase } from '../lib/supabase'
 
 export default function Login() {
   const { user, signIn, signUp, resetPassword, loading } = useAuth()

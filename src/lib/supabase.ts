@@ -1,19 +1,28 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-// Validate configuration
-const isValidConfig = supabaseUrl !== 'https://demo.supabase.co' && 
-                     supabaseAnonKey !== 'demo-key' &&
-                     supabaseUrl.includes('supabase.co') &&
-                     supabaseAnonKey.length > 50
+const isValidUrl = supabaseUrl &&
+                   supabaseUrl !== 'https://demo.supabase.co' &&
+                   supabaseUrl.includes('supabase.co')
+
+const isValidKey = supabaseAnonKey &&
+                   supabaseAnonKey !== 'demo-key' &&
+                   supabaseAnonKey.length > 50
+
+const isValidConfig = isValidUrl && isValidKey
 
 if (!isValidConfig) {
-  console.warn('⚠️ Supabase configuration missing or using demo values. Using local storage fallback.')
+  console.warn('⚠️ Supabase configuration missing or invalid.')
+  console.warn('VITE_SUPABASE_URL:', supabaseUrl ? 'Set but invalid' : 'Missing')
+  console.warn('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set but invalid' : 'Missing')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const finalUrl = isValidUrl ? supabaseUrl : 'https://demo.supabase.co'
+const finalKey = isValidKey ? supabaseAnonKey : 'demo-key'
+
+export const supabase = createClient(finalUrl, finalKey)
 
 // Auth service wrapper
 export const auth = {
