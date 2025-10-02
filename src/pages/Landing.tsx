@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react'
-import { 
-  ArrowRight, 
-  TrendingUp, 
-  BookOpen, 
-  Users, 
+import {
+  ArrowRight,
+  TrendingUp,
+  BookOpen,
+  Users,
   Info,
-  Shield, 
-  CheckCircle, 
+  Shield,
+  CheckCircle,
   Bot,
   Play,
   BarChart3,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
+import SeoHelmet from '../components/SeoHelmet'
 
 
 const SYMBOL = 'SPY'; // Change to your desired symbol
@@ -162,7 +163,14 @@ export default function Landing() {
     }
   }
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <SeoHelmet
+        title="Learn Options Trading Academy - Master Options Trading Risk-Free | Free Courses"
+        description="Master options trading with our comprehensive FREE learning platform. Interactive courses on options Greeks, strategies, and risk management. Practice with real market data in our paper trading simulator. Start learning today!"
+        keywords="learn options trading, options trading courses, free options education, options trading academy, paper trading simulator, options greeks, trading strategies, options for beginners, risk-free trading practice, stock options learning"
+        type="website"
+      />
+      <div className="min-h-screen bg-white">
       {/* Free Forever Banner */}
       <div className="bg-green-600 text-white py-3 px-4 text-center text-sm font-bold">
         🎉 ALL FEATURES ARE FREE FOREVER! No Subscription Required. Start Learning Now! 🎉
@@ -528,5 +536,6 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

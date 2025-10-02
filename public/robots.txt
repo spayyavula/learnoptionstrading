@@ -1,7 +1,29 @@
+# Allow all search engines to crawl the site
 User-agent: *
 Allow: /
-Allow: /agent
-Allow: /app
-Allow: /demo
 
-Sitemap: https://optionsworld.trade/sitemap.xml
+# Allow all public pages
+Allow: /app/learning
+Allow: /app/strategies
+Allow: /app/demo
+Allow: /subscription
+Allow: /PrivacyPolicy
+Allow: /TermsAndConditions
+Allow: /DisclaimerDetailed
+
+# Disallow private/user-specific pages from indexing
+Disallow: /app/settings
+Disallow: /app/profile
+Disallow: /app/admin
+Disallow: /success
+Disallow: /app/construction
+
+# Disallow search result pages and API endpoints
+Disallow: /*?*
+Disallow: /api/
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://learnoptionstrading.academy/sitemap.xml

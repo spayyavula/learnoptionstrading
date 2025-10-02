@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { LearningService } from '../services/learningService'
 import type { LearningModule, LearningProgress } from '../types/learning'
+import SeoHelmet from '../components/SeoHelmet'
 
 export default function OptionsLearning() {
   const [modules, setModules] = useState<LearningModule[]>([])
@@ -121,7 +122,14 @@ export default function OptionsLearning() {
 
   if (selectedModule) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <>
+        <SeoHelmet
+          title={`${selectedModule.title} - Options Trading Course | Learn Options Trading Academy`}
+          description={selectedModule.description}
+          keywords={`${selectedModule.title.toLowerCase()}, options trading course, ${selectedModule.difficulty} level, options education`}
+          type="article"
+        />
+        <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           {/* Module Header */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -324,11 +332,19 @@ export default function OptionsLearning() {
           )}
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <SeoHelmet
+        title="Options Trading Courses - Free Interactive Learning | Learn Options Trading Academy"
+        description="Master options trading with our free comprehensive courses. Learn options Greeks, strategies, risk management, and more. Interactive modules with quizzes and real-world examples. Start learning today!"
+        keywords="options trading courses, learn options greeks, options strategies course, options trading education, free trading courses, paper trading, options for beginners"
+        type="website"
+      />
+      <div className="space-y-6">
       {/* Educational Disclaimer */}
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 mb-4 shadow-sm">
         <div className="flex">
@@ -594,6 +610,7 @@ export default function OptionsLearning() {
         </>
       )}
     </div>
+    </>
   )
 }
 

@@ -1,57 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- Landing Page -->
   <url>
-    <loc>https://optionsworld.trade/</loc>
-    <lastmod>2024-06-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://learnoptionstrading.academy/</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- Core App Pages -->
   <url>
-    <loc>https://optionsworld.trade/demo</loc>
-    <lastmod>2024-06-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://optionsworld.trade/agent</loc>
-    <lastmod>2024-06-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://optionsworld.trade/app</loc>
-    <lastmod>2024-06-20</lastmod>
+    <loc>https://learnoptionstrading.academy/app/dashboard</loc>
+    <lastmod>2025-10-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
   <url>
-    <loc>https://optionsworld.trade/app/trading</loc>
-    <lastmod>2024-06-20</lastmod>
+    <loc>https://learnoptionstrading.academy/app/learning</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/strategies</loc>
+    <lastmod>2025-10-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Trading Features -->
   <url>
-    <loc>https://optionsworld.trade/app/portfolio</loc>
-    <lastmod>2024-06-20</lastmod>
+    <loc>https://learnoptionstrading.academy/app/trading</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/optionschain</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/portfolio</loc>
+    <lastmod>2025-10-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
   <url>
-    <loc>https://optionsworld.trade/app/learning</loc>
-    <lastmod>2024-06-20</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://learnoptionstrading.academy/app/orders</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- Analysis Tools -->
   <url>
-    <loc>https://optionsworld.trade/app/strategies</loc>
-    <lastmod>2024-06-20</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://learnoptionstrading.academy/app/analytics</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
-    <loc>https://optionsworld.trade/app/community</loc>
-    <lastmod>2024-06-20</lastmod>
+    <loc>https://learnoptionstrading.academy/app/regime</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/events</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/arbitrage</loc>
+    <lastmod>2025-10-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- Community & Learning -->
+  <url>
+    <loc>https://learnoptionstrading.academy/app/community</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/journal</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Demo & Agent -->
+  <url>
+    <loc>https://learnoptionstrading.academy/app/demo</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/agent</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- User Account -->
+  <url>
+    <loc>https://learnoptionstrading.academy/login</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/settings</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/app/profile</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Subscription -->
+  <url>
+    <loc>https://learnoptionstrading.academy/subscription</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Legal Pages -->
+  <url>
+    <loc>https://learnoptionstrading.academy/PrivacyPolicy</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>quarterly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/TermsAndConditions</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>quarterly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://learnoptionstrading.academy/DisclaimerDetailed</loc>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>quarterly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
 </urlset>

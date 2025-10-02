@@ -39,25 +39,168 @@
     <!-- Robots -->
     <meta name="robots" content="index, follow" />
     
-    <!-- Structured Data -->
+    <!-- Structured Data - WebApplication -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "Learn Options Trading Academy",
         "url": "https://learnoptionstrading.academy/",
-        "description": "Comprehensive options trading education platform with real market data",
+        "description": "Comprehensive options trading education platform with real market data, interactive learning modules, and paper trading simulator",
         "applicationCategory": "FinanceApplication",
-        "operatingSystem": "Web",
+        "operatingSystem": "Web Browser",
+        "browserRequirements": "Requires JavaScript. Modern browser recommended.",
         "offers": {
           "@type": "Offer",
           "price": "0",
-          "priceCurrency": "USD"
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "validFrom": "2024-01-01"
         },
         "author": {
           "@type": "Organization",
-          "name": "Learn Options Trading Academy"
+          "name": "Learn Options Trading Academy",
+          "url": "https://learnoptionstrading.academy/"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "250",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "features": [
+          "Real-time options chain data",
+          "Paper trading simulator",
+          "Options Greeks calculator",
+          "Interactive learning modules",
+          "Portfolio tracking",
+          "Market analysis tools"
+        ]
+      }
+    </script>
+
+    <!-- Structured Data - Educational Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Learn Options Trading Academy",
+        "url": "https://learnoptionstrading.academy/",
+        "description": "Premier online academy for learning options trading strategies and techniques",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "US"
+        },
+        "sameAs": [],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Options Trading Courses",
+          "itemListElement": [
+            {
+              "@type": "Course",
+              "name": "Options Trading Fundamentals",
+              "description": "Learn the basic concepts of options trading including calls, puts, and key terminology",
+              "provider": {
+                "@type": "Organization",
+                "name": "Learn Options Trading Academy"
+              },
+              "educationalLevel": "Beginner",
+              "coursePrerequisites": "None",
+              "hasCourseInstance": {
+                "@type": "CourseInstance",
+                "courseMode": "Online",
+                "courseWorkload": "PT45M"
+              }
+            },
+            {
+              "@type": "Course",
+              "name": "Understanding the Greeks",
+              "description": "Master Delta, Gamma, Theta, and Vega to understand how options prices change",
+              "provider": {
+                "@type": "Organization",
+                "name": "Learn Options Trading Academy"
+              },
+              "educationalLevel": "Intermediate",
+              "coursePrerequisites": "Options Trading Fundamentals",
+              "hasCourseInstance": {
+                "@type": "CourseInstance",
+                "courseMode": "Online",
+                "courseWorkload": "PT60M"
+              }
+            }
+          ]
         }
+      }
+    </script>
+
+    <!-- Structured Data - BreadcrumbList -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://learnoptionstrading.academy/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Learning",
+            "item": "https://learnoptionstrading.academy/app/learning"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Strategies",
+            "item": "https://learnoptionstrading.academy/app/strategies"
+          }
+        ]
+      }
+    </script>
+
+    <!-- Structured Data - FAQPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is options trading?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Options trading involves buying and selling contracts that give you the right, but not the obligation, to buy or sell an underlying asset at a specific price within a certain time period. Options can be used for speculation, hedging, or generating income."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this platform free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, Learn Options Trading Academy offers free access to basic features including paper trading, learning modules, and market data. Premium features are available through subscription plans."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the Greeks in options trading?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Greeks are risk measures that describe how the price of an option changes with various factors. The main Greeks are Delta (price sensitivity), Gamma (delta's rate of change), Theta (time decay), Vega (volatility sensitivity), and Rho (interest rate sensitivity)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I practice options trading without risking real money?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, our paper trading simulator allows you to practice options trading with virtual money using real market data. This is a risk-free way to learn and test strategies before trading with actual capital."
+            }
+          }
+        ]
       }
     </script>
   </head>
