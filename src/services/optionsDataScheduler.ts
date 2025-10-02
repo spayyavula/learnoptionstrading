@@ -7,7 +7,7 @@ import { PolygonOptionsDataService } from './polygonOptionsDataService'
 export class OptionsDataScheduler {
   private static instance: OptionsDataScheduler | null = null
   private schedulerActive = false
-  private currentTimeout: number | null = null
+  private currentTimeout: ReturnType<typeof setTimeout> | null = null
 
   private constructor() {}
 
@@ -32,7 +32,7 @@ export class OptionsDataScheduler {
     this.scheduleNextFetch()
 
     // Run initial fetch after a short delay
-    globalThis.setTimeout(() => {
+    setTimeout(() => {
       this.runDataFetch().catch(error => {
         console.error('Error in initial options data fetch:', error)
       })
@@ -46,9 +46,9 @@ export class OptionsDataScheduler {
     console.log('Stopping options data scheduler...')
     this.schedulerActive = false
     
-    if (this.currentTimeout) {
+    if (this.currentTimeout !== null) {
       try {
-        globalThis.clearTimeout(this.currentTimeout)
+        clearTimeout(this.currentTimeout)
       } catch (error) {
         console.error('Error clearing timeout:', error)
       }
@@ -69,7 +69,7 @@ export class OptionsDataScheduler {
       console.log(`Next options data fetch scheduled for: ${nextFetchTime.toISOString()}`)
       console.log(`Time until next fetch: ${Math.round(timeUntilFetch / 1000 / 60)} minutes`)
 
-      this.currentTimeout = globalThis.setTimeout(() => {
+      this.currentTimeout = setTimeout(() => {
         this.runDataFetch().catch(error => {
           console.error('Error in scheduled options data fetch:', error)
           // Continue scheduling even if this fetch failed
@@ -79,7 +79,7 @@ export class OptionsDataScheduler {
     } catch (error) {
       console.error('Error scheduling next fetch:', error)
       // Fallback: try again in 1 hour
-      this.currentTimeout = globalThis.setTimeout(() => {
+      this.currentTimeout = setTimeout(() => {
         this.scheduleNextFetch()
       }, 60 * 60 * 1000)
     }
