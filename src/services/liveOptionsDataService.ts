@@ -60,14 +60,52 @@ export class LiveOptionsDataService {
   private wsConnection: WebSocket | null = null
   private subscribedTickers: Set<string> = new Set()
 
-  private constructor() {}
+  private constructor() {
+    this.logApiKeyStatus()
+  }
+
+  private logApiKeyStatus(): void {
+    console.log('=== Polygon API Key Detection ===')
+    console.log('Raw API Key Value:', POLYGON_API_KEY ? this.maskApiKey(POLYGON_API_KEY) : 'undefined')
+    console.log('API Key Type:', typeof POLYGON_API_KEY)
+    console.log('API Key Length:', POLYGON_API_KEY?.length || 0)
+
+    const checks = {
+      'Key exists': !!POLYGON_API_KEY,
+      'Not empty after trim': POLYGON_API_KEY?.trim() !== '',
+      'Not "demo_api_key"': POLYGON_API_KEY !== 'demo_api_key',
+      'Not "undefined" string': POLYGON_API_KEY !== 'undefined',
+      'Not "null" string': POLYGON_API_KEY !== 'null',
+      'Not "YOUR_POLYGON_API_KEY_HERE"': POLYGON_API_KEY !== 'YOUR_POLYGON_API_KEY_HERE'
+    }
+
+    console.log('Validation Checks:')
+    Object.entries(checks).forEach(([check, passed]) => {
+      console.log(`  ${passed ? '✓' : '✗'} ${check}`)
+    })
+
+    const hasApiKey = Object.values(checks).every(v => v)
+    console.log(`Final Status: ${hasApiKey ? '✓ API Key Valid' : '✗ API Key Invalid'}`)
+    console.log('=================================')
+  }
+
+  private maskApiKey(key: string): string {
+    if (!key || key.length < 8) return '***'
+    return `${key.substring(0, 4)}...${key.substring(key.length - 4)}`
+  }
 
   getStatus(): DataServiceStatus {
     const hasApiKey = !!POLYGON_API_KEY &&
                       POLYGON_API_KEY.trim() !== '' &&
                       POLYGON_API_KEY !== 'demo_api_key' &&
                       POLYGON_API_KEY !== 'undefined' &&
-                      POLYGON_API_KEY !== 'null'
+                      POLYGON_API_KEY !== 'null' &&
+                      POLYGON_API_KEY !== 'YOUR_POLYGON_API_KEY_HERE'
+
+    if (import.meta.env.DEV) {
+      console.log(`[LiveOptionsDataService] API Key Status: ${hasApiKey ? 'VALID ✓' : 'INVALID ✗'}`)
+    }
+
     return {
       hasApiKey,
       isConfigured: hasApiKey,
