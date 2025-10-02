@@ -203,9 +203,16 @@ export class PolygonOptionsDataService {
     console.log('Generating mock options data...')
 
     try {
-      const topContracts = PolygonService.getTopLiquidOptions()
+      let topContracts
 
-      if (!Array.isArray(topContracts)) {
+      try {
+        topContracts = PolygonService.getTopLiquidOptions()
+      } catch (error) {
+        console.error('Error calling getTopLiquidOptions:', error)
+        return
+      }
+
+      if (!topContracts || !Array.isArray(topContracts)) {
         console.error('getTopLiquidOptions did not return an array:', topContracts)
         return
       }

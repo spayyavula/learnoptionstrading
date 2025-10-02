@@ -51,18 +51,25 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
         const dataPersistenceEnabled = import.meta.env.VITE_ENABLE_DATA_PERSISTENCE === 'true'
         if (!dataPersistenceEnabled) {
           console.warn('⚠️ Data persistence is disabled. Historical data will not be stored.')
-          setError('Data persistence is disabled. Enable VITE_ENABLE_DATA_PERSISTENCE in your .env file.')
         }
 
-        scheduler.start()
-        setError(null)
+        try {
+          scheduler.start()
+          console.log('✓ Scheduler started successfully')
+          setError(null)
+        } catch (schedulerError) {
+          console.error('Failed to start scheduler:', schedulerError)
+          setError('Scheduler initialization failed. The app will continue without automatic data updates.')
+        }
       } catch (err) {
-        console.error('Failed to start options data scheduler:', err)
-        setError(`Failed to start scheduler: ${err instanceof Error ? err.message : 'Unknown error'}`)
+        console.error('Failed to initialize options data context:', err)
+        setError(`Context initialization failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
       }
     }
 
-    startSchedulerSafely()
+    startSchedulerSafely().catch(err => {
+      console.error('Unhandled error in scheduler initialization:', err)
+    })
 
     return () => {
       try {
@@ -77,11 +84,15 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
   // Update scheduler status periodically
   useEffect(() => {
     const updateStatus = () => {
-      setSchedulerStatus(scheduler.getStatus())
+      try {
+        setSchedulerStatus(scheduler.getStatus())
+      } catch (err) {
+        console.error('Error updating scheduler status:', err)
+      }
     }
 
     updateStatus()
-    const interval = setInterval(updateStatus, 60000) // Update every minute
+    const interval = setInterval(updateStatus, 60000)
 
     return () => clearInterval(interval)
   }, [scheduler])
@@ -92,13 +103,24 @@ export function OptionsDataProvider({ children }: { children: React.ReactNode })
   }, [])
 
   const startScheduler = () => {
-    scheduler.start()
-    setSchedulerStatus(scheduler.getStatus())
+    try {
+      scheduler.start()
+      setSchedulerStatus(scheduler.getStatus())
+      setError(null)
+    } catch (err) {
+      console.error('Error starting scheduler:', err)
+      setError(err instanceof Error ? err.message : 'Failed to start scheduler')
+    }
   }
 
   const stopScheduler = () => {
-    scheduler.stop()
-    setSchedulerStatus(scheduler.getStatus())
+    try {
+      scheduler.stop()
+      setSchedulerStatus(scheduler.getStatus())
+    } catch (err) {
+      console.error('Error stopping scheduler:', err)
+      setError(err instanceof Error ? err.message : 'Failed to stop scheduler')
+    }
   }
 
   const triggerManualFetch = async () => {

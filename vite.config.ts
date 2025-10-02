@@ -11,27 +11,33 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'chart-vendor': ['recharts'],
+          'utils': ['axios', 'date-fns', 'jstat']
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
     },
-    // Ensure Netlify can handle the build output
     sourcemap: true,
-    // Improve build performance
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: false, // Keep console logs for now
+        drop_console: false,
         drop_debugger: true
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
-  // Optimize dev experience
   server: {
     port: 5173,
     strictPort: false,
     open: true
   },
-  // Ensure environment variables are properly handled
   envPrefix: 'VITE_',
-  // Improve CSS handling
   css: {
     devSourcemap: true
   }
