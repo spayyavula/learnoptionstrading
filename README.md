@@ -59,14 +59,9 @@ npm install
 
 2. **Environment Configuration:**
 ```bash
-# Copy the example environment file
-cp .env.example .env
-
 # Edit .env with your configuration
 # For real Polygon.io data, add your API key:
 VITE_POLYGON_API_KEY=your_actual_api_key_here
-VITE_ENABLE_REAL_TIME_DATA=true
-VITE_ENABLE_MOCK_DATA=false
 
 # For Supabase integration:
 VITE_SUPABASE_URL=your_supabase_url
@@ -75,6 +70,8 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 # For Stripe integration:
 VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```
+
+**📖 For detailed setup instructions on enabling live options data, see [LIVE_DATA_SETUP.md](./LIVE_DATA_SETUP.md)**
 
 3. **Start the development server:**
 ```bash
