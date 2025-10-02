@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { liveOptionsDataService, LiveOptionsContract, OptionsExpiry } from '../services/liveOptionsDataService'
+import { liveOptionsDataService, LiveOptionsContract, OptionsExpiry, DataServiceStatus } from '../services/liveOptionsDataService'
 import { TickerSelector } from './TickerSelector'
 import { ExpiryFilter } from './ExpiryFilter'
 
@@ -22,8 +22,12 @@ export const EnhancedOptionsChain: React.FC = () => {
   const [minVolume, setMinVolume] = useState(0)
   const [sortBy, setSortBy] = useState<string>('strike')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [serviceStatus, setServiceStatus] = useState<DataServiceStatus | null>(null)
+  const [showMockDataNotice, setShowMockDataNotice] = useState(false)
 
   useEffect(() => {
+    const status = liveOptionsDataService.getStatus()
+    setServiceStatus(status)
     loadData()
   }, [selectedTicker])
 
@@ -46,21 +50,29 @@ export const EnhancedOptionsChain: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true)
+    setShowMockDataNotice(false)
 
-    const [price, expiryData] = await Promise.all([
-      liveOptionsDataService.getUnderlyingPrice(selectedTicker),
-      liveOptionsDataService.fetchExpiriesForTicker(selectedTicker)
-    ])
+    try {
+      const [price, expiryData] = await Promise.all([
+        liveOptionsDataService.getUnderlyingPrice(selectedTicker),
+        liveOptionsDataService.fetchExpiriesForTicker(selectedTicker)
+      ])
 
-    setUnderlyingPrice(price)
-    setExpiries(expiryData)
+      setUnderlyingPrice(price)
+      setExpiries(expiryData)
 
-    if (expiryData.length > 0 && !selectedExpiryDate) {
-      const defaultExpiry = expiryData.find(e => e.expiry_type === 'Weekly') || expiryData[0]
-      setSelectedExpiryDate(defaultExpiry.expiration_date)
+      if (expiryData.length > 0) {
+        setShowMockDataNotice(!serviceStatus?.hasApiKey)
+        if (!selectedExpiryDate) {
+          const defaultExpiry = expiryData.find(e => e.expiry_type === 'Weekly') || expiryData[0]
+          setSelectedExpiryDate(defaultExpiry.expiration_date)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading data:', error)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   const loadOptionsForExpiry = async () => {
@@ -199,11 +211,34 @@ export const EnhancedOptionsChain: React.FC = () => {
         <button
           className="sync-button"
           onClick={syncData}
-          disabled={syncing}
+          disabled={syncing || !serviceStatus?.hasApiKey}
+          title={!serviceStatus?.hasApiKey ? 'API key required for live data sync' : 'Sync live data from Polygon API'}
         >
           {syncing ? '⟳ Syncing...' : '↻ Sync Data'}
         </button>
       </div>
+
+      {showMockDataNotice && (
+        <div className="mock-data-notice">
+          <div className="notice-icon">ℹ️</div>
+          <div className="notice-content">
+            <strong>Showing Demo Data</strong>
+            <p>
+              You're viewing sample options data. To fetch live data from markets, add your Polygon API key to the environment:
+              <code>VITE_POLYGON_API_KEY=your_api_key</code>
+            </p>
+            <a
+              href="https://polygon.io/dashboard/signup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="notice-link"
+            >
+              Get a free API key from Polygon.io →
+            </a>
+          </div>
+          <button className="notice-close" onClick={() => setShowMockDataNotice(false)}>✕</button>
+        </div>
+      )}
 
       <TickerSelector
         selectedTicker={selectedTicker}
@@ -410,6 +445,92 @@ export const EnhancedOptionsChain: React.FC = () => {
         .sync-button:disabled {
           opacity: 0.6;
           cursor: not-allowed;
+        }
+
+        .mock-data-notice {
+          display: flex;
+          align-items: start;
+          gap: 1rem;
+          padding: 1rem 1.5rem;
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          border-radius: 8px;
+          margin-bottom: 1.5rem;
+          border-left: 4px solid #f59e0b;
+          box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+          position: relative;
+        }
+
+        .notice-icon {
+          font-size: 1.5rem;
+          flex-shrink: 0;
+        }
+
+        .notice-content {
+          flex: 1;
+        }
+
+        .notice-content strong {
+          display: block;
+          font-size: 1rem;
+          font-weight: 700;
+          color: #92400e;
+          margin-bottom: 0.5rem;
+        }
+
+        .notice-content p {
+          font-size: 0.9rem;
+          color: #78350f;
+          margin: 0 0 0.75rem 0;
+          line-height: 1.5;
+        }
+
+        .notice-content code {
+          display: block;
+          background: rgba(255, 255, 255, 0.7);
+          padding: 0.5rem;
+          border-radius: 4px;
+          font-family: 'Courier New', monospace;
+          font-size: 0.85rem;
+          color: #92400e;
+          margin: 0.5rem 0;
+        }
+
+        .notice-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.5rem 1rem;
+          background: #f59e0b;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          transition: all 0.2s;
+        }
+
+        .notice-link:hover {
+          background: #d97706;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+        }
+
+        .notice-close {
+          position: absolute;
+          top: 0.75rem;
+          right: 0.75rem;
+          background: none;
+          border: none;
+          font-size: 1.25rem;
+          color: #92400e;
+          cursor: pointer;
+          padding: 0.25rem;
+          line-height: 1;
+          transition: opacity 0.2s;
+        }
+
+        .notice-close:hover {
+          opacity: 0.7;
         }
 
         .underlying-price-banner {
