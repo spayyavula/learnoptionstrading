@@ -1,0 +1,26 @@
+node_modules/
+.env
+dist/
+build/
+.DS_Store
+*.log
+coverage/
+.vscode/# SECURITY - Never commit these files!
+.env
+.env.*
+*.env
+# SECURITY - Never commit these files!
+.env
+.env.*
+*.env
+# SECURITY - NEVER COMMIT ENVIRONMENT FILES!
+.env
+.env.*
+*.env
+.env.production
+.env.development
+.env.local
+.env.staging
+
+# Local Netlify folder
+.netlify

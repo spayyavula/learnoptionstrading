@@ -1,0 +1,652 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Options World Trading API",
+    "description": "API for automated options trading and market data access",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Options World API Support",
+      "url": "https://optionsworld.trade/support",
+      "email": "api@optionsworld.trade"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.optionsworld.trade",
+      "description": "Production API server"
+    },
+    {
+      "url": "https://api-staging.optionsworld.trade",
+      "description": "Staging API server"
+    }
+  ],
+  "paths": {
+    "/api/v1/market/options": {
+      "get": {
+        "summary": "Get options contracts",
+        "description": "Returns a list of options contracts for a given underlying symbol",
+        "operationId": "getOptionsContracts",
+        "parameters": [
+          {
+            "name": "underlying",
+            "in": "query",
+            "description": "Underlying stock symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expiration",
+            "in": "query",
+            "description": "Expiration date (YYYY-MM-DD)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "strike",
+            "in": "query",
+            "description": "Strike price",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "contracts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OptionsContract"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/portfolio": {
+      "get": {
+        "summary": "Get portfolio",
+        "description": "Returns the current portfolio positions and balance",
+        "operationId": "getPortfolio",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Portfolio"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/orders": {
+      "get": {
+        "summary": "Get orders",
+        "description": "Returns a list of orders",
+        "operationId": "getOrders",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by order status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "filled", "cancelled", "rejected"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orders": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Place order",
+        "description": "Places a new order",
+        "operationId": "placeOrder",
+        "requestBody": {
+          "description": "Order details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/orders/{orderId}": {
+      "delete": {
+        "summary": "Cancel order",
+        "description": "Cancels an existing order",
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "Order ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/market/data": {
+      "get": {
+        "summary": "Get market data",
+        "description": "Returns market data for a symbol",
+        "operationId": "getMarketData",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Stock symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeframe",
+            "in": "query",
+            "description": "Timeframe for data",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w", "1mo"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketData"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OptionsContract": {
+        "type": "object",
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "description": "Options contract ticker symbol"
+          },
+          "underlying_ticker": {
+            "type": "string",
+            "description": "Underlying stock symbol"
+          },
+          "strike_price": {
+            "type": "number",
+            "description": "Strike price"
+          },
+          "expiration_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Expiration date"
+          },
+          "contract_type": {
+            "type": "string",
+            "enum": ["call", "put"],
+            "description": "Contract type"
+          },
+          "bid": {
+            "type": "number",
+            "description": "Bid price"
+          },
+          "ask": {
+            "type": "number",
+            "description": "Ask price"
+          },
+          "last": {
+            "type": "number",
+            "description": "Last traded price"
+          },
+          "volume": {
+            "type": "integer",
+            "description": "Trading volume"
+          },
+          "open_interest": {
+            "type": "integer",
+            "description": "Open interest"
+          },
+          "implied_volatility": {
+            "type": "number",
+            "description": "Implied volatility"
+          },
+          "delta": {
+            "type": "number",
+            "description": "Delta greek"
+          },
+          "gamma": {
+            "type": "number",
+            "description": "Gamma greek"
+          },
+          "theta": {
+            "type": "number",
+            "description": "Theta greek"
+          },
+          "vega": {
+            "type": "number",
+            "description": "Vega greek"
+          }
+        }
+      },
+      "Portfolio": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "number",
+            "description": "Cash balance"
+          },
+          "buying_power": {
+            "type": "number",
+            "description": "Available buying power"
+          },
+          "total_value": {
+            "type": "number",
+            "description": "Total portfolio value"
+          },
+          "day_change": {
+            "type": "number",
+            "description": "Day change in value"
+          },
+          "day_change_percent": {
+            "type": "number",
+            "description": "Day change percentage"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Position"
+            }
+          }
+        }
+      },
+      "Position": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Symbol"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity"
+          },
+          "avg_price": {
+            "type": "number",
+            "description": "Average price"
+          },
+          "current_price": {
+            "type": "number",
+            "description": "Current price"
+          },
+          "total_value": {
+            "type": "number",
+            "description": "Total position value"
+          },
+          "unrealized_pnl": {
+            "type": "number",
+            "description": "Unrealized profit/loss"
+          },
+          "unrealized_pnl_percent": {
+            "type": "number",
+            "description": "Unrealized profit/loss percentage"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Order ID"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Symbol"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["buy", "sell"],
+            "description": "Order type"
+          },
+          "order_type": {
+            "type": "string",
+            "enum": ["market", "limit", "stop"],
+            "description": "Order execution type"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price (for limit and stop orders)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "filled", "cancelled", "rejected"],
+            "description": "Order status"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Order timestamp"
+          },
+          "filled_price": {
+            "type": "number",
+            "description": "Filled price (if filled)"
+          },
+          "filled_quantity": {
+            "type": "number",
+            "description": "Filled quantity (if filled)"
+          }
+        }
+      },
+      "OrderRequest": {
+        "type": "object",
+        "required": ["symbol", "quantity", "type", "order_type"],
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Symbol"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["buy", "sell"],
+            "description": "Order type"
+          },
+          "order_type": {
+            "type": "string",
+            "enum": ["market", "limit", "stop"],
+            "description": "Order execution type"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price (required for limit and stop orders)"
+          }
+        }
+      },
+      "OrderResponse": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "description": "Order ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "filled", "cancelled", "rejected"],
+            "description": "Order status"
+          },
+          "message": {
+            "type": "string",
+            "description": "Status message"
+          }
+        }
+      },
+      "MarketData": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Symbol"
+          },
+          "price": {
+            "type": "number",
+            "description": "Current price"
+          },
+          "change": {
+            "type": "number",
+            "description": "Price change"
+          },
+          "change_percent": {
+            "type": "number",
+            "description": "Price change percentage"
+          },
+          "volume": {
+            "type": "integer",
+            "description": "Trading volume"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data timestamp"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "API key authentication. Format: 'Bearer YOUR_API_KEY'"
+      }
+    }
+  }
+}

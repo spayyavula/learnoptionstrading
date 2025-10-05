@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deal Flow Test</title>
+</head>
+<body>
+    <h1>Deal Flow Test</h1>
+    <p>To test the deal claiming success message:</p>
+    
+    <h2>Step 1: Navigate to Subscription Page</h2>
+    <p>Go to: <a href="http://localhost:5173/subscribe" target="_blank">http://localhost:5173/subscribe</a></p>
+    
+    <h2>Step 2: Look for Special Offers Section</h2>
+    <p>You should see a "Special Offers" section with deals like "Black Friday - Monthly" if deals are active.</p>
+    
+    <h2>Step 3: Click "Claim Deal"</h2>
+    <p>Click on any "Claim Deal" button to trigger the deal claiming flow.</p>
+    
+    <h2>Step 4: Complete Mock Checkout</h2>
+    <p>In development mode, you'll see a mock checkout dialog. Click "OK" to proceed.</p>
+    
+    <h2>Step 5: Verify Success Message</h2>
+    <p>You should be redirected back to the subscription page with a green success banner that says:</p>
+    <ul>
+        <li>"Deal Claimed Successfully!" (not "Subscription Activated!")</li>
+        <li>Shows the applied coupon code</li>
+        <li>Displays deal-specific messaging</li>
+    </ul>
+    
+    <h2>Test Direct URL</h2>
+    <p>You can also test directly by visiting:</p>
+    <p><a href="http://localhost:5173/subscribe?subscription=success&plan=monthly&coupon=BLACKFRIDAY50&deal=true" target="_blank">Direct Deal Success Test</a></p>
+    
+    <h2>Expected Result</h2>
+    <p>The success banner should show:</p>
+    <ul>
+        <li>Header: "Deal Claimed Successfully!"</li>
+        <li>Message: "Congratulations! You've successfully claimed your special deal..."</li>
+        <li>Coupon badge showing "Deal Applied: BLACKFRIDAY50"</li>
+        <li>Action buttons: "Start Trading Now" and "View Subscription Details"</li>
+    </ul>
+</body>
+</html>
