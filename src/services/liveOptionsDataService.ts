@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { isContractExpired } from './optionsChainGenerator'
 
 export interface LiveOptionsContract {
   contract_ticker: string
@@ -411,6 +412,8 @@ export class LiveOptionsDataService {
       return this.generateMockOptionsData(ticker, expiryDate)
     }
 
+    let filteredData = (data || []).filter(contract => !isContractExpired(contract.expiration_date))
+
     if (expiryType && !expiryDate) {
       const { data: expiries } = await supabase
         .from('options_expiries')
@@ -420,13 +423,13 @@ export class LiveOptionsDataService {
 
       if (expiries && expiries.length > 0) {
         const expiryDates = expiries.map(e => e.expiration_date)
-        return (data || []).filter(contract =>
+        filteredData = filteredData.filter(contract =>
           expiryDates.includes(contract.expiration_date)
         )
       }
     }
 
-    return data || []
+    return filteredData
   }
 
   async fetchExpiriesForTicker(
@@ -454,7 +457,7 @@ export class LiveOptionsDataService {
       return this.generateMockExpiries(ticker)
     }
 
-    return data || []
+    return (data || []).filter(expiry => !isContractExpired(expiry.expiration_date))
   }
 
   connectWebSocket(tickers: string[], onMessage: (data: any) => void): void {

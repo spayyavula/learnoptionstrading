@@ -4,6 +4,7 @@ import type { OptionsContract } from '../types/options'
 import { StrategyValidationService, type StrategyLeg, type ValidationResult } from '../services/strategyValidationService'
 import InteractivePayoffDiagram from './InteractivePayoffDiagram'
 import { GreeksCalculator } from '../services/greeksCalculator'
+import { isContractExpired } from '../services/optionsChainGenerator'
 
 interface MultiLegStrategyBuilderProps {
   strategyName: string
@@ -29,7 +30,7 @@ export default function MultiLegStrategyBuilder({
   const underlyings = Array.from(new Set(contracts.map(c => c.underlying_ticker)))
 
   const underlyingContracts = contracts.filter(
-    c => c.underlying_ticker === selectedUnderlying
+    c => c.underlying_ticker === selectedUnderlying && !isContractExpired(c.expiration_date)
   )
 
   const availableExpiries = Array.from(
@@ -38,7 +39,8 @@ export default function MultiLegStrategyBuilder({
 
   const expiryContracts = underlyingContracts.filter(
     c => c.expiration_date === selectedExpiry &&
-         (c.open_interest > 0 || c.volume > 0)
+         (c.open_interest > 0 || c.volume > 0) &&
+         !isContractExpired(c.expiration_date)
   )
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { OptionsContract, OptionsChainData, HistoricalData } from '../types/options'
-import { generateComprehensiveOptionsChain, getUnderlyingPrice } from './optionsChainGenerator'
+import { generateComprehensiveOptionsChain, getUnderlyingPrice, filterExpiredContracts, isContractExpired } from './optionsChainGenerator'
 
 // Lazy load environment variables
 const getEnvVars = () => ({
@@ -11,7 +11,7 @@ const getEnvVars = () => ({
 })
 
 // Generate comprehensive options chain with 20 strikes per expiration
-const COMPREHENSIVE_OPTIONS_CHAIN = generateComprehensiveOptionsChain()
+const COMPREHENSIVE_OPTIONS_CHAIN = filterExpiredContracts(generateComprehensiveOptionsChain())
 
 // Legacy top 5 for backwards compatibility
 const TOP_LIQUID_OPTIONS: OptionsContract[] = COMPREHENSIVE_OPTIONS_CHAIN.slice(0, 10)
@@ -45,8 +45,10 @@ export class PolygonService {
   }
 
   private static getSimulatedOptionsChain(underlying: string): OptionsChainData {
-    const contracts = COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
-      contract.underlying_ticker === underlying
+    const contracts = filterExpiredContracts(
+      COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
+        contract.underlying_ticker === underlying
+      )
     )
 
     return {
@@ -57,18 +59,20 @@ export class PolygonService {
   }
 
   static getAllOptionsContracts(): OptionsContract[] {
-    return [...COMPREHENSIVE_OPTIONS_CHAIN]
+    return filterExpiredContracts([...COMPREHENSIVE_OPTIONS_CHAIN])
   }
 
   static getOptionsChainForUnderlying(underlying: string): OptionsContract[] {
-    return COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
-      contract.underlying_ticker === underlying
+    return filterExpiredContracts(
+      COMPREHENSIVE_OPTIONS_CHAIN.filter(contract =>
+        contract.underlying_ticker === underlying
+      )
     )
   }
 
   private static transformPolygonData(polygonData: any): OptionsChainData {
     // Transform Polygon.io API response to our format
-    const contracts: OptionsContract[] = polygonData.results?.map((contract: any) => ({
+    const allContracts: OptionsContract[] = polygonData.results?.map((contract: any) => ({
       contract_type: contract.contract_type,
       exercise_style: contract.exercise_style,
       expiration_date: contract.expiration_date,
@@ -90,6 +94,8 @@ export class PolygonService {
       intrinsic_value: Math.max(0, 580 - contract.strike_price), // Assuming SPY at 580
       time_value: contract.strike_price * 0.055 - Math.max(0, 580 - contract.strike_price)
     })) || []
+
+    const contracts = filterExpiredContracts(allContracts)
 
     return {
       underlying: polygonData.underlying || 'UNKNOWN',
@@ -302,7 +308,7 @@ export class PolygonService {
   }
 
   static getTopLiquidOptions(): OptionsContract[] {
-    return [...TOP_LIQUID_OPTIONS]
+    return filterExpiredContracts([...TOP_LIQUID_OPTIONS])
   }
 
   static async getTopLiquidOptionsFromAPI() {
