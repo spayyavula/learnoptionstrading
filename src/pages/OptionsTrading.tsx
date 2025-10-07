@@ -9,10 +9,12 @@ import KellyCriterion from '../components/KellyCriterion'
 import PayoffDiagram from '../components/PayoffDiagram'
 import InteractivePayoffDiagram from '../components/InteractivePayoffDiagram'
 import ContractSelector from '../components/ContractSelector'
+import MultiLegStrategyBuilder from '../components/MultiLegStrategyBuilder'
 import GreeksPanel from '../components/GreeksPanel'
 import ScenarioAnalysis from '../components/ScenarioAnalysis'
 import GreeksSensitivityGrid from '../components/GreeksSensitivityGrid'
 import type { OptionsContract } from '../types/options'
+import type { StrategyLeg, ValidationResult } from '../services/strategyValidationService'
 import Trading from '../components/Trading'
 import { Route } from 'react-router-dom'
 import { GreeksCalculator } from '../services/greeksCalculator'
@@ -60,6 +62,10 @@ export default function OptionsTrading() {
   const [showScenario, setShowScenario] = useState(false);
   const [showSensitivity, setShowSensitivity] = useState(false);
 
+  // Multi-leg strategy states
+  const [strategyLegs, setStrategyLegs] = useState<StrategyLeg[]>([]);
+  const [strategyValidation, setStrategyValidation] = useState<ValidationResult | null>(null);
+
   useEffect(() => {
     loadOptionsContracts()
     GreeksUpdateService.start()
@@ -75,6 +81,19 @@ export default function OptionsTrading() {
       setUnderlyingPrice(price)
     }
   }, [selectedContractData])
+
+  // Helper function to determine if a strategy requires multiple legs
+  const isMultiLegStrategy = (strategyName: string): boolean => {
+    const multiLegStrategies = [
+      'Bull Call Spread',
+      'Bear Put Spread',
+      'Iron Condor',
+      'Butterfly Spread',
+      'Straddle',
+      'Strangle'
+    ];
+    return multiLegStrategies.includes(strategyName);
+  };
 
   const loadOptionsContracts = async () => {
     try {
@@ -361,28 +380,84 @@ export default function OptionsTrading() {
           >
             Learn more about options strategies
           </a>
-          <div className="mt-6">
-            <ContractSelector
-              contracts={contracts}
-              onSelectContract={(contract) => {
-                setSelectedContract(contract.ticker)
-                setUnderlyingPrice(contract.strike_price)
-              }}
-              selectedContract={selectedContractData}
-              underlyingPrice={underlyingPrice}
-            />
-          </div>
 
-          <div className="flex justify-between mt-6">
-            <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(1)}>Back</button>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-              disabled={!selectedStrategy || !selectedContract}
-              onClick={() => setStep(3)}
-            >
-              Next: Position Sizing
-            </button>
-          </div>
+          {/* Conditional rendering: Multi-leg builder or single contract selector */}
+          {selectedStrategy && isMultiLegStrategy(selectedStrategy) ? (
+            <>
+              <div className="mt-6 bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                <h4 className="font-bold text-blue-900 mb-2 flex items-center">
+                  <Info className="h-5 w-5 mr-2" />
+                  Multi-Leg Strategy Builder
+                </h4>
+                <p className="text-sm text-blue-800">
+                  {selectedStrategy} requires selecting multiple option contracts. Follow the step-by-step builder below to construct your strategy.
+                </p>
+              </div>
+
+              <MultiLegStrategyBuilder
+                strategyName={selectedStrategy}
+                contracts={contracts}
+                onLegsSelected={(legs, validation) => {
+                  setStrategyLegs(legs)
+                  setStrategyValidation(validation)
+                  if (legs.length > 0) {
+                    setSelectedContract(legs[0].contract.ticker)
+                    setUnderlyingPrice(legs[0].contract.strike_price)
+                  }
+                }}
+                onBack={() => setSelectedStrategy(null)}
+              />
+
+              {/* Warning if strategy incomplete */}
+              {strategyLegs.length > 0 && (!strategyValidation || !strategyValidation.isValid) && (
+                <div className="mt-4 bg-red-50 border-2 border-red-400 rounded-lg p-4 shadow-md">
+                  <p className="font-bold text-red-900 flex items-center">
+                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    ⚠️ Strategy Incomplete - Cannot Proceed
+                  </p>
+                  <p className="text-sm text-red-800 mt-2">
+                    {strategyValidation?.errors.join(', ') || `${selectedStrategy} requires all legs to be selected before proceeding.`}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex justify-between mt-6">
+                <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(1)}>Back to Regime</button>
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={!strategyValidation || !strategyValidation.isValid}
+                  onClick={() => setStep(3)}
+                >
+                  {strategyValidation?.isValid ? 'Next: Position Sizing' : 'Complete Strategy First'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-6">
+                <ContractSelector
+                  contracts={contracts}
+                  onSelectContract={(contract) => {
+                    setSelectedContract(contract.ticker)
+                    setUnderlyingPrice(contract.strike_price)
+                  }}
+                  selectedContract={selectedContractData}
+                  underlyingPrice={underlyingPrice}
+                />
+              </div>
+
+              <div className="flex justify-between mt-6">
+                <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(1)}>Back</button>
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  disabled={!selectedStrategy || !selectedContract}
+                  onClick={() => setStep(3)}
+                >
+                  Next: Position Sizing
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

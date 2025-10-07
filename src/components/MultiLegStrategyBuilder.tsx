@@ -47,10 +47,19 @@ export default function MultiLegStrategyBuilder({
     if (legs.length > 0) {
       const validationResult = StrategyValidationService.validateStrategy(strategyName, legs)
       setValidation(validationResult)
+
+      // Always notify parent of current state (complete or incomplete)
+      onLegsSelected(legs, validationResult)
     } else {
       setValidation(null)
+      // Notify parent that we have no legs selected
+      onLegsSelected([], {
+        isValid: false,
+        errors: ['No legs selected'],
+        warnings: []
+      })
     }
-  }, [legs, strategyName])
+  }, [legs, strategyName, onLegsSelected])
 
   const handleUnderlyingChange = (underlying: string) => {
     setSelectedUnderlying(underlying)
@@ -87,13 +96,48 @@ export default function MultiLegStrategyBuilder({
       ? calls.filter(c => c.strike_price > buyLeg.contract.strike_price)
       : []
 
+    // Calculate strategy metrics when both legs are selected
+    const spreadWidth = buyLeg && sellLeg ? sellLeg.contract.strike_price - buyLeg.contract.strike_price : 0
+    const netDebit = buyLeg && sellLeg ? buyLeg.contract.last - sellLeg.contract.last : 0
+    const maxProfit = spreadWidth - netDebit
+    const maxLoss = netDebit
+
     return (
       <div className="space-y-6">
-        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300">
-          <label className="flex items-center text-sm font-bold text-green-800 mb-3">
+        {/* Progress indicator */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg p-4 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-bold">Build Your Bull Call Spread</h3>
+            <div className="bg-white text-blue-900 rounded-lg px-3 py-1 font-bold text-sm">
+              {!buyLeg && !sellLeg && '0 of 2 Legs Selected'}
+              {buyLeg && !sellLeg && '1 of 2 Legs Selected'}
+              {buyLeg && sellLeg && '✓ Complete - 2 of 2 Legs'}
+            </div>
+          </div>
+          <div className="w-full bg-blue-400 rounded-full h-3 overflow-hidden">
+            <div
+              className="h-full bg-green-400 transition-all duration-500 ease-out"
+              style={{ width: `${buyLeg && sellLeg ? 100 : buyLeg ? 50 : 0}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Leg 1: Buy Call */}
+        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300 relative">
+          <div className="absolute -top-3 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+            LEG 1 OF 2
+          </div>
+          <label className="flex items-center text-sm font-bold text-green-800 mb-3 mt-2">
             <TrendingUp className="h-5 w-5 mr-2" />
-            Step 1: Buy Call (Lower Strike) <span className="text-red-500 ml-1">*</span>
+            Buy Call (Lower Strike) <span className="text-red-500 ml-1">*</span>
           </label>
+          {buyLeg && (
+            <div className="mb-3 p-2 bg-green-200 border border-green-400 rounded-md">
+              <p className="text-xs font-bold text-green-900">
+                ✓ Selected: ${buyLeg.contract.strike_price} Call @ ${buyLeg.contract.last.toFixed(2)}
+              </p>
+            </div>
+          )}
           <div className="overflow-x-auto rounded-lg border border-green-200">
             <table className="w-full bg-white">
               <thead className="bg-green-100">
@@ -140,12 +184,34 @@ export default function MultiLegStrategyBuilder({
           </div>
         </div>
 
+        {/* Guide to proceed to Leg 2 */}
+        {buyLeg && !sellLeg && (
+          <div className="flex items-center gap-3 p-4 bg-blue-100 border-2 border-blue-400 rounded-lg animate-pulse">
+            <TrendingDown className="h-6 w-6 text-blue-700" />
+            <div>
+              <p className="font-bold text-blue-900">Great! Now select Leg 2 below ↓</p>
+              <p className="text-sm text-blue-800">Choose a call option with a HIGHER strike price to complete your spread</p>
+            </div>
+          </div>
+        )}
+
+        {/* Leg 2: Sell Call */}
         {buyLeg && (
-          <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-lg p-4 border-2 border-red-300">
-            <label className="flex items-center text-sm font-bold text-red-800 mb-3">
+          <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-lg p-4 border-2 border-red-300 relative">
+            <div className="absolute -top-3 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+              LEG 2 OF 2
+            </div>
+            <label className="flex items-center text-sm font-bold text-red-800 mb-3 mt-2">
               <TrendingDown className="h-5 w-5 mr-2" />
-              Step 2: Sell Call (Higher Strike) <span className="text-red-500 ml-1">*</span>
+              Sell Call (Higher Strike) <span className="text-red-500 ml-1">*</span>
             </label>
+            {sellLeg && (
+              <div className="mb-3 p-2 bg-red-200 border border-red-400 rounded-md">
+                <p className="text-xs font-bold text-red-900">
+                  ✓ Selected: ${sellLeg.contract.strike_price} Call @ ${sellLeg.contract.last.toFixed(2)}
+                </p>
+              </div>
+            )}
             {availableSellCalls.length === 0 ? (
               <div className="bg-white rounded-lg p-4 text-center text-red-700 border border-red-200">
                 <AlertTriangle className="h-5 w-5 mx-auto mb-2" />
@@ -196,6 +262,48 @@ export default function MultiLegStrategyBuilder({
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Strategy Summary - shown when both legs are complete */}
+        {buyLeg && sellLeg && (
+          <div className="bg-gradient-to-r from-green-50 via-green-100 to-green-50 border-3 border-green-500 rounded-lg p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-green-900 flex items-center">
+                <Check className="h-6 w-6 mr-2 bg-green-500 text-white rounded-full p-1" />
+                ✓ Bull Call Spread Complete!
+              </h3>
+              <span className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+                Ready to Trade
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white rounded-lg p-4 border border-green-300">
+              <div className="text-center">
+                <p className="text-xs text-gray-600 font-medium">Spread Width</p>
+                <p className="text-lg font-bold text-gray-900">${spreadWidth.toFixed(2)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-600 font-medium">Net Cost (Debit)</p>
+                <p className="text-lg font-bold text-red-700">${netDebit.toFixed(2)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-600 font-medium">Max Profit</p>
+                <p className="text-lg font-bold text-green-700">${maxProfit.toFixed(2)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-600 font-medium">Max Loss</p>
+                <p className="text-lg font-bold text-red-700">${maxLoss.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-300 rounded-md">
+              <p className="text-sm text-blue-900">
+                <strong>Strategy Summary:</strong> You're buying the ${buyLeg.contract.strike_price} call for ${buyLeg.contract.last.toFixed(2)}
+                and selling the ${sellLeg.contract.strike_price} call for ${sellLeg.contract.last.toFixed(2)}.
+                This creates a bullish spread with limited risk (${maxLoss.toFixed(2)}) and limited profit potential (${maxProfit.toFixed(2)}).
+              </p>
+            </div>
           </div>
         )}
       </div>
