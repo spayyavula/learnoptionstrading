@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { Search, TrendingUp, TrendingDown, Activity, Info } from 'lucide-react'
 import { OptionsContract } from '../types/options'
 import { GreeksCalculator } from '../services/greeksCalculator'
+import { isContractExpired } from '../services/optionsChainGenerator'
 
 interface ContractSelectorProps {
   contracts: OptionsContract[]
@@ -28,6 +29,10 @@ export default function ContractSelector({
 
   const filteredAndSortedContracts = useMemo(() => {
     let filtered = contracts.filter(contract => {
+      if (isContractExpired(contract.expiration_date)) {
+        return false
+      }
+
       if (searchTerm && !contract.ticker.toLowerCase().includes(searchTerm.toLowerCase())) {
         return false
       }

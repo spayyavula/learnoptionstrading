@@ -170,19 +170,13 @@ export class MarketEventsService {
 
       if (error) {
         console.error('Error fetching market events:', error)
-        return this.generateMockEventsForTicker(ticker, daysAhead, daysBack)
-      }
-
-      // If no events found in database, generate mock events
-      if (!data || data.length === 0) {
-        console.log(`No events found in database for ${ticker}, generating mock events`)
-        return this.generateMockEventsForTicker(ticker, daysAhead, daysBack)
+        return []
       }
 
       return data as MarketEvent[]
     } catch (error) {
       console.error('Failed to get market events:', error)
-      return this.generateMockEventsForTicker(ticker, daysAhead, daysBack)
+      return []
     }
   }
 
@@ -328,187 +322,32 @@ export class MarketEventsService {
   }
 
   private static generateMockEarnings(startDate: Date, endDate: Date): EarningsData[] {
-    const tickers = ['SPY', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'QQQ']
+    const tickers = ['SPY', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META']
     const earnings: EarningsData[] = []
 
-    // Generate realistic earnings dates for major tickers
-    const earningsSchedule = [
-      { ticker: 'AAPL', quarter: 'Q4', eps_estimate: 1.89, revenue_estimate: 119.6e9, dayOffset: 7 },
-      { ticker: 'AAPL', quarter: 'Q3', eps_estimate: 1.82, revenue_estimate: 117.2e9, dayOffset: -45 },
-      { ticker: 'MSFT', quarter: 'Q4', eps_estimate: 2.76, revenue_estimate: 61.4e9, dayOffset: 14 },
-      { ticker: 'MSFT', quarter: 'Q3', eps_estimate: 2.65, revenue_estimate: 59.8e9, dayOffset: -38 },
-      { ticker: 'GOOGL', quarter: 'Q4', eps_estimate: 1.52, revenue_estimate: 76.5e9, dayOffset: 10 },
-      { ticker: 'GOOGL', quarter: 'Q3', eps_estimate: 1.45, revenue_estimate: 74.2e9, dayOffset: -52 },
-      { ticker: 'AMZN', quarter: 'Q4', eps_estimate: 1.03, revenue_estimate: 166.2e9, dayOffset: 5 },
-      { ticker: 'AMZN', quarter: 'Q3', eps_estimate: 0.98, revenue_estimate: 162.4e9, dayOffset: -60 },
-      { ticker: 'TSLA', quarter: 'Q4', eps_estimate: 0.73, revenue_estimate: 25.4e9, dayOffset: 21 },
-      { ticker: 'TSLA', quarter: 'Q3', eps_estimate: 0.68, revenue_estimate: 23.8e9, dayOffset: -30 },
-      { ticker: 'NVDA', quarter: 'Q4', eps_estimate: 5.28, revenue_estimate: 32.5e9, dayOffset: 18 },
-      { ticker: 'NVDA', quarter: 'Q3', eps_estimate: 4.92, revenue_estimate: 30.1e9, dayOffset: -42 },
-      { ticker: 'META', quarter: 'Q4', eps_estimate: 4.96, revenue_estimate: 39.2e9, dayOffset: 12 },
-      { ticker: 'META', quarter: 'Q3', eps_estimate: 4.82, revenue_estimate: 38.1e9, dayOffset: -48 },
-    ]
-
-    const today = new Date()
-
-    earningsSchedule.forEach(schedule => {
-      const earningsDate = new Date(today)
-      earningsDate.setDate(earningsDate.getDate() + schedule.dayOffset)
-
-      if (earningsDate >= startDate && earningsDate <= endDate) {
-        const isFuture = schedule.dayOffset > 0
-        const eps_actual = isFuture ? undefined : schedule.eps_estimate * (0.92 + Math.random() * 0.16)
-        const revenue_actual = isFuture ? undefined : schedule.revenue_estimate * (0.95 + Math.random() * 0.1)
+    const currentDate = new Date(startDate)
+    while (currentDate <= endDate) {
+      if (Math.random() > 0.7) {
+        const ticker = tickers[Math.floor(Math.random() * tickers.length)]
+        const eps_estimate = 2 + Math.random() * 3
+        const eps_actual = eps_estimate * (0.9 + Math.random() * 0.2)
 
         earnings.push({
-          ticker: schedule.ticker,
-          quarter: schedule.quarter,
-          fiscal_year: earningsDate.getFullYear(),
+          ticker,
+          quarter: `Q${Math.floor(Math.random() * 4) + 1}`,
+          fiscal_year: currentDate.getFullYear(),
           eps_actual,
-          eps_estimate: schedule.eps_estimate,
-          eps_surprise: eps_actual ? ((eps_actual - schedule.eps_estimate) / schedule.eps_estimate) * 100 : undefined,
-          revenue_actual,
-          revenue_estimate: schedule.revenue_estimate,
-          revenue_surprise: revenue_actual ? ((revenue_actual - schedule.revenue_estimate) / schedule.revenue_estimate) * 100 : undefined,
-          announcement_date: earningsDate.toISOString().split('T')[0]
+          eps_estimate,
+          eps_surprise: ((eps_actual - eps_estimate) / eps_estimate) * 100,
+          revenue_actual: (10 + Math.random() * 50) * 1e9,
+          revenue_estimate: (10 + Math.random() * 50) * 1e9,
+          announcement_date: currentDate.toISOString().split('T')[0]
         })
       }
-    })
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
 
     return earnings
-  }
-
-  private static generateMockEventsForTicker(ticker: string, daysAhead: number, daysBack: number): MarketEvent[] {
-    const events: MarketEvent[] = []
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - daysBack)
-    const endDate = new Date()
-    endDate.setDate(endDate.getDate() + daysAhead)
-
-    // Generate earnings events
-    const earnings = this.generateMockEarnings(startDate, endDate)
-    const tickerEarnings = earnings.filter(e => e.ticker === ticker)
-
-    tickerEarnings.forEach(earning => {
-      const isFuture = new Date(earning.announcement_date) > new Date()
-      let impactSeverity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
-
-      if (earning.eps_surprise !== undefined) {
-        const absSuprise = Math.abs(earning.eps_surprise)
-        if (absSuprise > 20) impactSeverity = 'critical'
-        else if (absSuprise > 10) impactSeverity = 'high'
-        else if (absSuprise > 5) impactSeverity = 'medium'
-        else impactSeverity = 'low'
-      }
-
-      events.push({
-        ticker: earning.ticker,
-        event_type: 'earnings',
-        event_date: earning.announcement_date,
-        event_title: `${earning.ticker} ${earning.quarter} ${earning.fiscal_year} Earnings`,
-        event_description: earning.eps_actual
-          ? `EPS: $${earning.eps_actual.toFixed(2)} (Est: $${earning.eps_estimate?.toFixed(2) || 'N/A'}), Revenue: $${earning.revenue_actual ? (earning.revenue_actual / 1e9).toFixed(2) + 'B' : 'N/A'}`
-          : `Expected EPS: $${earning.eps_estimate?.toFixed(2) || 'N/A'}, Revenue Est: $${earning.revenue_estimate ? (earning.revenue_estimate / 1e9).toFixed(2) + 'B' : 'N/A'}`,
-        impact_severity: impactSeverity,
-        actual_outcome: earning.eps_actual ? {
-          eps: earning.eps_actual,
-          revenue: earning.revenue_actual,
-          eps_surprise: earning.eps_surprise,
-          revenue_surprise: earning.revenue_surprise
-        } : undefined,
-        expected_outcome: {
-          eps: earning.eps_estimate,
-          revenue: earning.revenue_estimate
-        },
-        surprise_factor: earning.eps_surprise,
-        source: 'mock_data',
-        is_future_event: isFuture
-      })
-    })
-
-    // Add additional event types for major tickers
-    const additionalEvents = this.generateAdditionalMockEvents(ticker, startDate, endDate)
-    events.push(...additionalEvents)
-
-    return events.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-  }
-
-  private static generateAdditionalMockEvents(ticker: string, startDate: Date, endDate: Date): MarketEvent[] {
-    const events: MarketEvent[] = []
-    const today = new Date()
-
-    // Product launches and major events for specific companies
-    const companyEvents: Record<string, Array<{type: MarketEvent['event_type'], title: string, description: string, dayOffset: number, severity: MarketEvent['impact_severity']}>> = {
-      'AAPL': [
-        { type: 'product_launch', title: 'iPhone 16 Launch Event', description: 'Annual iPhone and product announcement', dayOffset: -15, severity: 'high' },
-        { type: 'product_launch', title: 'WWDC 2025', description: 'Worldwide Developers Conference', dayOffset: 25, severity: 'medium' },
-      ],
-      'TSLA': [
-        { type: 'product_launch', title: 'Model 2 Unveiling', description: 'Next-generation affordable EV reveal', dayOffset: 35, severity: 'critical' },
-        { type: 'guidance_update', title: 'Production Update', description: 'Q4 vehicle delivery numbers', dayOffset: -5, severity: 'high' },
-      ],
-      'NVDA': [
-        { type: 'product_launch', title: 'RTX 5000 Series Launch', description: 'Next-gen GPU announcement', dayOffset: 20, severity: 'high' },
-        { type: 'regulatory', title: 'AI Export Restrictions Review', description: 'US Commerce Department review of China exports', dayOffset: 15, severity: 'medium' },
-      ],
-      'META': [
-        { type: 'regulatory', title: 'EU Privacy Compliance Deadline', description: 'GDPR compliance review deadline', dayOffset: 12, severity: 'medium' },
-        { type: 'product_launch', title: 'Meta Quest 4 Reveal', description: 'New VR headset announcement', dayOffset: 30, severity: 'medium' },
-      ],
-      'AMZN': [
-        { type: 'other', title: 'Prime Day 2025', description: 'Annual Prime member shopping event', dayOffset: 45, severity: 'high' },
-        { type: 'guidance_update', title: 'AWS Growth Update', description: 'Cloud services revenue update', dayOffset: -8, severity: 'medium' },
-      ],
-      'MSFT': [
-        { type: 'product_launch', title: 'Windows 12 Preview', description: 'Next Windows OS preview release', dayOffset: 28, severity: 'medium' },
-        { type: 'other', title: 'Azure AI Expansion', description: 'New AI datacenter announcements', dayOffset: 22, severity: 'high' },
-      ],
-      'GOOGL': [
-        { type: 'product_launch', title: 'Pixel 10 Launch', description: 'New Pixel phone and hardware event', dayOffset: 18, severity: 'medium' },
-        { type: 'regulatory', title: 'Antitrust Hearing', description: 'DOJ antitrust case proceedings', dayOffset: 10, severity: 'high' },
-      ],
-    }
-
-    const tickerEvents = companyEvents[ticker] || []
-
-    tickerEvents.forEach(event => {
-      const eventDate = new Date(today)
-      eventDate.setDate(eventDate.getDate() + event.dayOffset)
-
-      if (eventDate >= startDate && eventDate <= endDate) {
-        events.push({
-          ticker,
-          event_type: event.type,
-          event_date: eventDate.toISOString().split('T')[0],
-          event_title: event.title,
-          event_description: event.description,
-          impact_severity: event.severity,
-          source: 'mock_data',
-          is_future_event: event.dayOffset > 0
-        })
-      }
-    })
-
-    // Add dividend events for established companies
-    if (['AAPL', 'MSFT', 'GOOGL', 'META'].includes(ticker)) {
-      const dividendDate = new Date(today)
-      dividendDate.setDate(dividendDate.getDate() + 40)
-
-      if (dividendDate >= startDate && dividendDate <= endDate) {
-        events.push({
-          ticker,
-          event_type: 'dividend',
-          event_date: dividendDate.toISOString().split('T')[0],
-          event_title: `${ticker} Quarterly Dividend`,
-          event_description: 'Ex-dividend date for quarterly dividend payment',
-          impact_severity: 'low',
-          source: 'mock_data',
-          is_future_event: true
-        })
-      }
-    }
-
-    return events
   }
 
   static getDaysUntilEvent(eventDate: string): number {

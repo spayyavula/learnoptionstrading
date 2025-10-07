@@ -38,14 +38,7 @@ export default function OptionsStrategies() {
   }, [])
 
   const loadStrategies = () => {
-    const templates = LearningService.getStrategyTemplates()
-    console.log('Loaded strategy templates:', templates)
-    // Find and log Bull Call Spread specifically
-    const bullCallSpread = templates.find(s => s.id === 'bull_call_spread')
-    if (bullCallSpread) {
-      console.log('Bull Call Spread legs:', bullCallSpread.legs)
-    }
-    setStrategies(templates)
+    setStrategies(LearningService.getStrategyTemplates())
   }
 
   const filteredStrategies = strategies.filter(strategy => {
@@ -341,30 +334,20 @@ export default function OptionsStrategies() {
                     </div>
 
                     {/* Strategy Legs */}
-                    <h4 className="font-semibold text-gray-900 mb-3">
-                      Strategy Legs ({selectedStrategy.legs.length} {selectedStrategy.legs.length === 1 ? 'Leg' : 'Legs'})
-                    </h4>
+                    <h4 className="font-semibold text-gray-900 mb-3">Strategy Legs</h4>
                     <div className="space-y-3 mb-6">
                       {selectedStrategy.legs.map((leg, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
-                          <div className="flex items-center gap-4">
-                            <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <span className={`font-medium text-lg ${leg.action === 'buy' ? 'text-green-600' : 'text-red-600'}`}>
-                                {leg.action === 'buy' ? 'BUY' : 'SELL'}
-                              </span>
-                              <span className="mx-2 font-semibold">
-                                {leg.quantity} {leg.optionType.toUpperCase()}
-                              </span>
-                              <span className="text-gray-700 font-medium">
-                                @ ${leg.strike}
-                              </span>
-                              <span className="text-gray-500 ml-2">
-                                ({leg.expiration})
-                              </span>
-                            </div>
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <span className={`font-medium ${leg.action === 'buy' ? 'text-green-600' : 'text-red-600'}`}>
+                              {leg.action === 'buy' ? 'BUY' : 'SELL'}
+                            </span>
+                            <span className="mx-2">
+                              {leg.quantity} {leg.optionType.toUpperCase()}
+                            </span>
+                            <span className="text-gray-500">
+                              @ ${leg.strike} ({leg.expiration})
+                            </span>
                           </div>
                         </div>
                       ))}

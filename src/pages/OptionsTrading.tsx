@@ -12,9 +12,7 @@ import ContractSelector from '../components/ContractSelector'
 import GreeksPanel from '../components/GreeksPanel'
 import ScenarioAnalysis from '../components/ScenarioAnalysis'
 import GreeksSensitivityGrid from '../components/GreeksSensitivityGrid'
-import MultiLegStrategyBuilder from '../components/MultiLegStrategyBuilder'
 import type { OptionsContract } from '../types/options'
-import type { StrategyLeg, ValidationResult } from '../services/strategyValidationService'
 import Trading from '../components/Trading'
 import { Route } from 'react-router-dom'
 import { GreeksCalculator } from '../services/greeksCalculator'
@@ -61,8 +59,6 @@ export default function OptionsTrading() {
   const [showGreeks, setShowGreeks] = useState(false);
   const [showScenario, setShowScenario] = useState(false);
   const [showSensitivity, setShowSensitivity] = useState(false);
-  const [strategyLegs, setStrategyLegs] = useState<StrategyLeg[]>([]);
-  const [strategyValidation, setStrategyValidation] = useState<ValidationResult | null>(null);
 
   useEffect(() => {
     loadOptionsContracts()
@@ -365,118 +361,28 @@ export default function OptionsTrading() {
           >
             Learn more about options strategies
           </a>
-
-          {/* Multi-leg strategies use the MultiLegStrategyBuilder component for proper 2-leg support */}
           <div className="mt-6">
-            {(selectedStrategy === 'Bull Call Spread' ||
-              selectedStrategy === 'Bear Put Spread' ||
-              selectedStrategy === 'Iron Condor' ||
-              selectedStrategy === 'Butterfly Spread' ||
-              selectedStrategy === 'Straddle' ||
-              selectedStrategy === 'Strangle') ? (
-              <MultiLegStrategyBuilder
-                strategyName={selectedStrategy}
-                contracts={contracts}
-                onLegsSelected={(legs, validation) => {
-                  setStrategyLegs(legs)
-                  setStrategyValidation(validation)
-                  // Set the first contract as selected for downstream compatibility
-                  if (legs.length > 0) {
-                    setSelectedContract(legs[0].contract.ticker)
-                    setUnderlyingPrice(legs[0].contract.strike_price)
-                  }
-                }}
-                onBack={() => setStep(1)}
-              />
-            ) : (
-              <ContractSelector
-                contracts={contracts}
-                onSelectContract={(contract) => {
-                  setSelectedContract(contract.ticker)
-                  setUnderlyingPrice(contract.strike_price)
-                }}
-                selectedContract={selectedContractData}
-                underlyingPrice={underlyingPrice}
-              />
-            )}
+            <ContractSelector
+              contracts={contracts}
+              onSelectContract={(contract) => {
+                setSelectedContract(contract.ticker)
+                setUnderlyingPrice(contract.strike_price)
+              }}
+              selectedContract={selectedContractData}
+              underlyingPrice={underlyingPrice}
+            />
           </div>
 
           <div className="flex justify-between mt-6">
-            <button className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-colors" onClick={() => setStep(1)}>
-              Back
-            </button>
+            <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setStep(1)}>Back</button>
             <button
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                (!selectedStrategy || !selectedContract ||
-                  // For multi-leg strategies, require BOTH legs or valid validation
-                  ((selectedStrategy === 'Bull Call Spread' ||
-                    selectedStrategy === 'Bear Put Spread' ||
-                    selectedStrategy === 'Straddle' ||
-                    selectedStrategy === 'Strangle') &&
-                   (!strategyValidation || !strategyValidation.isValid)))
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-              }`}
-              disabled={!selectedStrategy || !selectedContract ||
-                ((selectedStrategy === 'Bull Call Spread' ||
-                  selectedStrategy === 'Bear Put Spread' ||
-                  selectedStrategy === 'Straddle' ||
-                  selectedStrategy === 'Strangle') &&
-                 (!strategyValidation || !strategyValidation.isValid))}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+              disabled={!selectedStrategy || !selectedContract}
               onClick={() => setStep(3)}
-              title={
-                strategyLegs.length === 1
-                  ? 'Complete all required legs before proceeding'
-                  : ''
-              }
             >
-              {(selectedStrategy === 'Bull Call Spread' ||
-                selectedStrategy === 'Bear Put Spread' ||
-                selectedStrategy === 'Straddle' ||
-                selectedStrategy === 'Strangle') &&
-               strategyLegs.length < 2
-                ? `Complete ${2 - strategyLegs.length} More Leg${2 - strategyLegs.length > 1 ? 's' : ''}`
-                : 'Next: Position Sizing'}
+              Next: Position Sizing
             </button>
           </div>
-
-          {/* Validation Message */}
-          {(selectedStrategy === 'Bull Call Spread' ||
-            selectedStrategy === 'Bear Put Spread' ||
-            selectedStrategy === 'Straddle' ||
-            selectedStrategy === 'Strangle') &&
-           strategyLegs.length < 2 && (
-            <div className="mt-4 bg-red-50 border-2 border-red-400 rounded-lg p-4 shadow-md">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-6 h-6 flex-shrink-0 text-red-600" />
-                <div className="text-red-900">
-                  <p className="font-bold text-base mb-1">⚠️ Incomplete Strategy - Cannot Proceed</p>
-                  <p className="text-sm">
-                    {strategyLegs.length === 0
-                      ? `${selectedStrategy} requires 2 legs. You haven't selected any legs yet.`
-                      : `${selectedStrategy} requires 2 legs. You've selected ${strategyLegs.length} of 2.`}
-                  </p>
-                  <p className="text-sm font-semibold mt-2">
-                    → Complete both leg selections above to enable the Next button.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {strategyValidation && !strategyValidation.isValid && (
-            <div className="mt-4 bg-red-50 border border-red-300 rounded-lg p-3">
-              <div className="flex items-start gap-2 text-sm text-red-800">
-                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium mb-1">Strategy Validation Failed</p>
-                  {strategyValidation.errors.map((error, i) => (
-                    <p key={i}>• {error}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -713,26 +619,26 @@ export default function OptionsTrading() {
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => {
-                if (strategyLegs.length > 0) {
+                if (multiLegLegs.length > 0) {
                   dispatch({
                     type: 'PLACE_MULTI_LEG_ORDER',
                     payload: {
-                      legs: strategyLegs,
+                      legs: multiLegLegs,
                       strategyName: selectedStrategy || '',
                       quantity: parseInt(quantity) || 1
                     }
                   })
                   alert(`${selectedStrategy} order placed successfully!`)
                   setStep(1)
-                  setStrategyLegs([])
-                  setStrategyValidation(null)
+                  setMultiLegLegs([])
+                  setMultiLegValidation(null)
                   setSelectedStrategy(null)
                 } else {
                   handlePlaceOrder()
                   setStep(1)
                 }
               }}
-              disabled={(strategyLegs.length === 0 && (!selectedContract || !quantity || parseInt(quantity) <= 0)) || (strategyLegs.length > 0 && (!quantity || parseInt(quantity) <= 0))}
+              disabled={(multiLegLegs.length === 0 && (!selectedContract || !quantity || parseInt(quantity) <= 0)) || (multiLegLegs.length > 0 && (!quantity || parseInt(quantity) <= 0))}
             >
               Place Trade
             </button>

@@ -25,7 +25,6 @@ export default function RegimeAnalysisPage() {
   const [chartInterval, setChartInterval] = useState<string>('D')
   const [selectedStrategy, setSelectedStrategy] = useState<TradingStrategy | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isRealTimeData, setIsRealTimeData] = useState(false)
 
   useEffect(() => {
     loadRegimeAnalysis()
@@ -33,42 +32,14 @@ export default function RegimeAnalysisPage() {
     return () => clearInterval(interval)
   }, [])
 
-  const loadRegimeAnalysis = async () => {
+  const loadRegimeAnalysis = () => {
     setLoading(true)
-    try {
-      // Check if real-time data is enabled
-      const enableRealTime = import.meta.env.VITE_ENABLE_REAL_TIME_DATA === 'true'
-      const hasApiKey = import.meta.env.VITE_POLYGON_API_KEY && import.meta.env.VITE_POLYGON_API_KEY !== 'demo_api_key'
-
-      if (enableRealTime && hasApiKey) {
-        // Try to fetch real-time data
-        const realTimeData = await RegimeAnalysisService.fetchRealTimeMarketData('SPY')
-        const regimeAnalysis = RegimeAnalysisService.analyzeRegime(realTimeData)
-
-        setMarketData(realTimeData)
-        setAnalysis(regimeAnalysis)
-        setIsRealTimeData(true)
-      } else {
-        // Use mock data
-        const mockData = RegimeAnalysisService.generateMockMarketData()
-        const regimeAnalysis = RegimeAnalysisService.analyzeRegime(mockData)
-
-        setMarketData(mockData)
-        setAnalysis(regimeAnalysis)
-        setIsRealTimeData(false)
-      }
-    } catch (error) {
-      console.error('Failed to load regime analysis:', error)
-      // Fallback to mock data
-      const mockData = RegimeAnalysisService.generateMockMarketData()
-      const regimeAnalysis = RegimeAnalysisService.analyzeRegime(mockData)
-
-      setMarketData(mockData)
-      setAnalysis(regimeAnalysis)
-      setIsRealTimeData(false)
-    } finally {
-      setLoading(false)
-    }
+    const mockData = RegimeAnalysisService.generateMockMarketData()
+    const regimeAnalysis = RegimeAnalysisService.analyzeRegime(mockData)
+    
+    setMarketData(mockData)
+    setAnalysis(regimeAnalysis)
+    setLoading(false)
   }
 
   const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
@@ -124,29 +95,6 @@ export default function RegimeAnalysisPage() {
         </div>
       </div>
       
-      {/* Data Source Indicator */}
-      <div className={`rounded-lg p-3 mb-4 border-2 ${
-        isRealTimeData
-          ? 'bg-green-50 border-green-300'
-          : 'bg-yellow-50 border-yellow-300'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${
-              isRealTimeData ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
-            }`}></div>
-            <span className={`font-semibold ${
-              isRealTimeData ? 'text-green-800' : 'text-yellow-800'
-            }`}>
-              {isRealTimeData ? '🟢 Real-Time Market Data (Polygon.io)' : '🟡 Simulated Data (Demo Mode)'}
-            </span>
-          </div>
-          <span className="text-sm text-gray-600">
-            Last updated: {marketData?.timestamp.toLocaleTimeString()}
-          </span>
-        </div>
-      </div>
-
       {/* Current Regime Overview */}
       <div className="card shadow-md border-blue-200">
         <div className="card-header bg-gradient-to-r from-blue-50 to-blue-100">

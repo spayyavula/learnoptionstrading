@@ -15,28 +15,10 @@ export default function EventOptionsAnalysis() {
   const [loading, setLoading] = useState(false)
   const [syncing, setSyncing] = useState(false)
   const [pricingExample, setPricingExample] = useState<any>(null)
-  const [autoPopulated, setAutoPopulated] = useState(false)
-  const [syncMessage, setSyncMessage] = useState('')
-  const [showSyncMessage, setShowSyncMessage] = useState(false)
 
   useEffect(() => {
     loadPricingExample()
-    autoPopulateEvents()
   }, [ticker])
-
-  const autoPopulateEvents = async () => {
-    if (autoPopulated) return
-
-    try {
-      // Auto-populate events for common tickers on first load
-      const popularTickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META']
-      console.log('Auto-populating events for popular tickers...')
-      await MarketEventsService.syncEarningsData(popularTickers)
-      setAutoPopulated(true)
-    } catch (error) {
-      console.error('Error auto-populating events:', error)
-    }
-  }
 
   const loadPricingExample = async () => {
     setLoading(true)
@@ -63,8 +45,6 @@ export default function EventOptionsAnalysis() {
 
   const handleSync = async () => {
     setSyncing(true)
-    setSyncMessage('Syncing market data...')
-    setShowSyncMessage(true)
     try {
       await Promise.all([
         MarketEventsService.syncEarningsData([ticker]),
@@ -72,12 +52,8 @@ export default function EventOptionsAnalysis() {
         AnalystRecommendationsService.syncRecommendations([ticker])
       ])
       await loadPricingExample()
-      setSyncMessage(`✓ Successfully synced data for ${ticker}`)
-      setTimeout(() => setShowSyncMessage(false), 3000)
     } catch (error) {
       console.error('Error syncing data:', error)
-      setSyncMessage('✗ Error syncing data. Using cached/mock data.')
-      setTimeout(() => setShowSyncMessage(false), 5000)
     }
     setSyncing(false)
   }
@@ -132,18 +108,6 @@ export default function EventOptionsAnalysis() {
               Popular tickers: SPY, QQQ, AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA, META
             </span>
           </div>
-
-          {showSyncMessage && (
-            <div className={`mt-4 p-3 rounded-lg text-sm font-medium ${
-              syncMessage.startsWith('✓')
-                ? 'bg-green-100 text-green-800 border border-green-300'
-                : syncMessage.startsWith('✗')
-                ? 'bg-red-100 text-red-800 border border-red-300'
-                : 'bg-blue-100 text-blue-800 border border-blue-300'
-            }`}>
-              {syncMessage}
-            </div>
-          )}
         </div>
 
         {pricingExample && !loading && (
@@ -225,20 +189,6 @@ export default function EventOptionsAnalysis() {
             </div>
           </div>
         )}
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-900">
-              <p className="font-semibold mb-1">Event Data Information</p>
-              <p>
-                Events are automatically populated with realistic mock data for demonstration.
-                Click "Sync Data" to attempt fetching real market events from external APIs.
-                For production use, configure API keys in your .env file (Financial Modeling Prep or Alpha Vantage).
-              </p>
-            </div>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <MarketEventsTimeline

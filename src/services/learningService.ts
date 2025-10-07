@@ -195,45 +195,33 @@ export class LearningService {
       },
       {
         id: 'call_debit_spread',
-        name: 'Call Debit Spread (Bull Call Spread)',
-        description: 'Buy a lower strike call and sell a higher strike call - two-leg vertical spread to reduce cost and define risk',
+        name: 'Call Debit Spread',
+        description: 'Buy a lower strike call and sell a higher strike call to reduce cost and define risk',
         type: 'bullish',
         complexity: 'intermediate',
         legs: [
           {
             action: 'buy',
             optionType: 'call',
-            strike: 100, // Lower strike - long leg
+            strike: 0, // Lower strike
             expiration: '30d',
             quantity: 1
           },
           {
             action: 'sell',
             optionType: 'call',
-            strike: 105, // Higher strike - short leg
+            strike: 0, // Higher strike
             expiration: '30d',
             quantity: 1
           }
         ],
-        maxRisk: 200, // Net debit paid ($2.00 × 100)
-        maxProfit: 300, // (Spread width $5 - debit $2) × 100
-        breakeven: [102], // Lower strike $100 + net debit $2
+        maxRisk: 200, // Net debit paid
+        maxProfit: 300, // Spread width minus net debit
+        breakeven: [0], // Lower strike plus net debit
         bestMarketConditions: ['Moderate bull', 'Low to moderate volatility'],
         worstMarketConditions: ['Bear trending', 'Sideways with time decay'],
         timeDecay: 'negative',
-        volatilityImpact: 'positive',
-        instructions: [
-          "Leg 1: BUY a call option at a lower strike (your long leg)",
-          "Leg 2: SELL a call option at a higher strike with the same expiration (your short leg)",
-          "Both options must have the same expiration date",
-          "The sold call reduces the cost of the bought call",
-          "Maximum profit is limited to the spread width minus the debit paid",
-          "Maximum loss is limited to the net debit paid",
-          "Best used when moderately bullish on a stock"
-        ],
-        examples: [
-          "Stock XYZ is at $100. You BUY the $100 call for $4.00 and SELL the $105 call for $2.00, paying a net debit of $2.00 ($200 per contract). Max risk: $200. Max profit: $300 (if stock closes above $105). Breakeven: $102."
-        ]
+        volatilityImpact: 'positive'
       },
       {
         id: 'put_credit_spread',
@@ -397,45 +385,32 @@ export class LearningService {
       {
         id: 'bull_call_spread',
         name: 'Bull Call Spread',
-        description: 'Buy lower strike call, sell higher strike call - a two-leg strategy for moderate bullish moves with defined risk and reward',
+        description: 'Buy lower strike call, sell higher strike call',
         type: 'bullish',
         complexity: 'intermediate',
         legs: [
           {
             action: 'buy',
             optionType: 'call',
-            strike: 450, // Lower strike - ATM or slightly OTM
+            strike: 0, // ATM or slightly OTM
             expiration: '30d',
             quantity: 1
           },
           {
             action: 'sell',
             optionType: 'call',
-            strike: 460, // Higher strike - sold to cap upside
+            strike: 0, // Higher strike
             expiration: '30d',
             quantity: 1
           }
         ],
-        maxRisk: 400, // Net debit ($4.00 per share × 100)
-        maxProfit: 600, // (Spread width $10 - net debit $4) × 100
-        breakeven: [454], // Lower strike $450 + net debit $4.00
+        maxRisk: 150, // Net debit
+        maxProfit: 350, // Spread width - net debit
+        breakeven: [0], // Lower strike + net debit
         bestMarketConditions: ['Moderate bull', 'Low to moderate volatility'],
         worstMarketConditions: ['Bear trending', 'High volatility'],
         timeDecay: 'neutral',
-        volatilityImpact: 'negative',
-        instructions: [
-          "Leg 1: BUY a call option at or slightly out-of-the-money (this is your long leg)",
-          "Leg 2: SELL a call option at a higher strike price with the SAME expiration date (this is your short leg)",
-          "The difference between strikes defines your maximum profit potential",
-          "The net debit you pay is your maximum risk",
-          "Choose strike spreads of $5-$10 for liquid underlyings like SPY, AAPL",
-          "Aim for 30-45 days until expiration to balance theta decay",
-          "Consider closing at 50-75% of maximum profit to lock in gains",
-          "Both legs must have the same expiration date for this to be a vertical spread"
-        ],
-        examples: [
-          "SPY is trading at $450 and you're moderately bullish. BUY the $450 call for $6.00 and SELL the $460 call for $2.00, creating a net debit of $4.00 ($400 per contract). Your maximum risk is $400, maximum profit is $600 (the $10 spread minus $4 debit), and breakeven is $454 ($450 strike + $4 debit). Profit maximizes if SPY closes at or above $460 at expiration."
-        ]
+        volatilityImpact: 'negative'
       },
       {
         id: 'calendar_spread',

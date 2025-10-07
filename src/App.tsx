@@ -4,6 +4,7 @@ import SeoHelmet from './components/SeoHelmet'
 import ErrorBoundary from './components/ErrorBoundary'
 import Disclaimer from './components/Disclaimer'
 import ErrorDisplay from './components/ErrorDisplay'
+import EnvDebug from './components/EnvDebug'
 import Landing from './pages/Landing'
 import AdminRoute from './components/AdminRoute'
 import { AuthProvider } from './components/AuthProvider'
@@ -112,6 +113,7 @@ function AppContent() {
       {/* Show disclaimer only on app pages, not landing */}
       {!isLandingPage && <Disclaimer variant="banner" />}
       {import.meta.env.DEV && <ErrorDisplay />}
+      <EnvDebug />
       <div className="flex-1">
         <Suspense fallback={<LoadingFallback />}>
           <RequireLandingVisit>

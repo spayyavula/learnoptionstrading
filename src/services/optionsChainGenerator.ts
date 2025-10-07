@@ -4,45 +4,88 @@ interface UnderlyingConfig {
   ticker: string
   currentPrice: number
   volatility: number
-  expirations: string[]
+}
+
+function getThirdFriday(year: number, month: number): Date {
+  const firstDay = new Date(year, month, 1)
+  const firstFriday = firstDay.getDay() <= 5
+    ? 5 - firstDay.getDay() + 1
+    : 12 - firstDay.getDay() + 1
+
+  return new Date(year, month, firstFriday + 14)
+}
+
+function generateFutureExpirationDates(): string[] {
+  const today = new Date()
+  const expirations: string[] = []
+
+  for (let i = 0; i < 12; i++) {
+    const targetDate = new Date(today.getFullYear(), today.getMonth() + i, 1)
+    const thirdFriday = getThirdFriday(targetDate.getFullYear(), targetDate.getMonth())
+
+    if (thirdFriday > today) {
+      const dateStr = thirdFriday.toISOString().split('T')[0]
+      expirations.push(dateStr)
+    }
+  }
+
+  const currentDate = new Date(today)
+  for (let i = 0; i < 8; i++) {
+    currentDate.setDate(currentDate.getDate() + 7)
+    const friday = new Date(currentDate)
+    friday.setDate(friday.getDate() + ((5 - friday.getDay() + 7) % 7))
+
+    const dateStr = friday.toISOString().split('T')[0]
+    if (!expirations.includes(dateStr) && friday > today) {
+      expirations.push(dateStr)
+    }
+  }
+
+  return expirations.sort().slice(0, 12)
+}
+
+export function isContractExpired(expirationDate: string): boolean {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const expiry = new Date(expirationDate)
+  expiry.setHours(0, 0, 0, 0)
+  return expiry < today
+}
+
+export function filterExpiredContracts(contracts: OptionsContract[]): OptionsContract[] {
+  return contracts.filter(contract => !isContractExpired(contract.expiration_date))
 }
 
 const UNDERLYING_CONFIGS: UnderlyingConfig[] = [
   {
     ticker: 'SPY',
     currentPrice: 580,
-    volatility: 0.15,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.15
   },
   {
     ticker: 'QQQ',
     currentPrice: 500,
-    volatility: 0.18,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.18
   },
   {
     ticker: 'AAPL',
     currentPrice: 185,
-    volatility: 0.25,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.25
   },
   {
     ticker: 'TSLA',
     currentPrice: 250,
-    volatility: 0.45,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.45
   },
   {
     ticker: 'NVDA',
     currentPrice: 880,
-    volatility: 0.35,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.35
   },
   {
     ticker: 'MSFT',
     currentPrice: 420,
-    volatility: 0.22,
-    expirations: ['2024-12-20', '2024-12-27', '2025-01-17', '2025-02-21', '2025-03-21']
+    volatility: 0.22
   }
 ]
 
@@ -155,11 +198,12 @@ function calculateVolumeAndOI(
 
 export function generateComprehensiveOptionsChain(): OptionsContract[] {
   const allContracts: OptionsContract[] = []
+  const futureExpirations = generateFutureExpirationDates()
 
   for (const config of UNDERLYING_CONFIGS) {
     const strikes = generateStrikePrices(config.currentPrice, 20)
 
-    for (const expiration of config.expirations) {
+    for (const expiration of futureExpirations) {
       const daysToExpiry = calculateDaysToExpiry(expiration)
       const timeToExpiry = daysToExpiry / 365
 

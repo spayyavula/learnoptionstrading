@@ -739,20 +739,7 @@ export class RegimeAnalysisService {
   }
 
   /**
-   * Fetch real-time market data using Polygon.io API
-   */
-  static async fetchRealTimeMarketData(ticker: string = 'SPY'): Promise<MarketData> {
-    try {
-      const { RealTimeMarketDataService } = await import('./realTimeMarketDataService')
-      return await RealTimeMarketDataService.fetchMarketData(ticker)
-    } catch (error) {
-      console.error('Failed to fetch real-time data, using mock data:', error)
-      return this.generateMockMarketData()
-    }
-  }
-
-  /**
-   * Generate mock market data for demonstration (fallback)
+   * Generate mock market data for demonstration
    */
   static generateMockMarketData(): MarketData {
     const basePrice = 580

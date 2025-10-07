@@ -58,6 +58,55 @@ export default function Dashboard() {
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
     .slice(0, 5)
 
+  const indicesTickerRef = useRef<HTMLDivElement>(null);
+  const stocksTickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Indices ticker
+    if (indicesTickerRef.current && !indicesTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "INDEX:SPX", "title": "S&P 500" },
+          { "proName": "INDEX:IXIC", "title": "NASDAQ" },
+          { "proName": "INDEX:DJI", "title": "Dow 30" },
+          { "proName": "INDEX:RUT", "title": "Russell 2000" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      indicesTickerRef.current.appendChild(script);
+    }
+    // Stocks ticker
+    if (stocksTickerRef.current && !stocksTickerRef.current.querySelector('iframe')) {
+      const script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+      script.type = 'text/javascript';
+      script.async = true;
+      script.innerHTML = JSON.stringify({
+        "symbols": [
+          { "proName": "NASDAQ:AAPL", "title": "Apple" },
+          { "proName": "NASDAQ:MSFT", "title": "Microsoft" },
+          { "proName": "NASDAQ:TSLA", "title": "Tesla" },
+          { "proName": "NASDAQ:NVDA", "title": "Nvidia" },
+          { "proName": "NASDAQ:AMZN", "title": "Amazon" },
+          { "proName": "NASDAQ:QQQ", "title": "QQQ" },
+          { "proName": "AMEX:SPY", "title": "SPY" }
+        ],
+        "colorTheme": "light",
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "locale": "en"
+      });
+      stocksTickerRef.current.appendChild(script);
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
       {termsAccepted && (
@@ -70,6 +119,18 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {/* ...cards unchanged... */}
         {/* (keep all your card code here as in your original) */}
+      </div>
+
+      {/* Market Ticker */}
+      <div className="card shadow-md border-blue-200 mb-6">
+        <div className="card-body">
+          {/* Live ticker of highly liquid stocks */}
+          <div className="w-full my-4">
+            <div className="rounded shadow overflow-hidden">
+              <div ref={stocksTickerRef} />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Portfolio Performance Chart */}
