@@ -4,6 +4,8 @@ import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  root: process.cwd(),
+  envDir: process.cwd(),
   plugins: [react()],
   build: {
     outDir: 'dist',

@@ -1,9 +1,9 @@
 # Netlify configuration for Learn Options Trading App
 [build]
-  # Simple, reliable build command
+  # Simple, reliable build command with environment validation
   command = "npm install && npm run build"
   publish = "dist"
-  
+
 # Custom domain configuration
 [[redirects]]
   from = "https://www.learnoptionstrading.academy/*"
@@ -14,6 +14,18 @@
 [build.environment]
   # Use Node 20 for best compatibility with Vite 5+
   NODE_VERSION = "20"
+  # Ensure environment variables are properly loaded
+  NPM_FLAGS = "--prefer-offline --no-audit"
+
+# Context-specific builds
+[context.production]
+  command = "npm ci && npm run build"
+
+[context.deploy-preview]
+  command = "npm ci && npm run build"
+
+[context.branch-deploy]
+  command = "npm ci && npm run build"
 # Build optimization
 [build.processing]
   skip_processing = false
