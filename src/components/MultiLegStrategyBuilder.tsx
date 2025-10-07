@@ -209,56 +209,116 @@ export default function MultiLegStrategyBuilder({
       : []
 
     return (
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Buy Put (Higher Strike) <span className="text-red-500">*</span>
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300">
+          <label className="flex items-center text-sm font-bold text-green-800 mb-3">
+            <TrendingUp className="h-5 w-5 mr-2" />
+            Step 1: Buy Put (Higher Strike) <span className="text-red-500 ml-1">*</span>
           </label>
-          <select
-            value={buyLeg?.contract.ticker || ''}
-            onChange={(e) => {
-              const contract = puts.find(c => c.ticker === e.target.value)
-              if (contract) addLeg(contract, 'buy', 1)
-            }}
-            className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            disabled={!selectedExpiry}
-          >
-            <option value="">Select buy put...</option>
-            {puts.map(c => (
-              <option key={c.ticker} value={c.ticker}>
-                Strike ${c.strike_price} - Premium ${c.last.toFixed(2)} (Vol: {c.volume})
-              </option>
-            ))}
-          </select>
+          <div className="overflow-x-auto rounded-lg border border-green-200">
+            <table className="w-full bg-white">
+              <thead className="bg-green-100">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Strike</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Premium</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Volume</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">OI</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {puts.map(c => {
+                  const liquidity = getLiquidityIndicator(c)
+                  const isSelected = buyLeg?.contract.ticker === c.ticker
+                  return (
+                    <tr
+                      key={c.ticker}
+                      className={`border-t border-green-100 hover:bg-green-50 cursor-pointer transition-colors ${
+                        isSelected ? 'bg-green-200' : ''
+                      }`}
+                      onClick={() => addLeg(c, 'buy', 1)}
+                    >
+                      <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                      <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                      <td className="px-3 py-2">
+                        {isSelected ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
+                            <Check className="h-3 w-3 mr-1" />Selected
+                          </span>
+                        ) : (
+                          <button className="px-3 py-1 text-xs font-semibold text-green-700 hover:bg-green-500 hover:text-white rounded-md border border-green-300 transition-colors">
+                            Select
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Sell Put (Lower Strike) <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={sellLeg?.contract.ticker || ''}
-            onChange={(e) => {
-              const contract = puts.find(c => c.ticker === e.target.value)
-              if (contract) addLeg(contract, 'sell', 1)
-            }}
-            className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            disabled={!buyLeg}
-          >
-            <option value="">Select sell put...</option>
-            {availableSellPuts.length === 0 && buyLeg && (
-              <option value="" disabled>No lower strikes available</option>
+        {buyLeg && (
+          <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-lg p-4 border-2 border-red-300">
+            <label className="flex items-center text-sm font-bold text-red-800 mb-3">
+              <TrendingDown className="h-5 w-5 mr-2" />
+              Step 2: Sell Put (Lower Strike) <span className="text-red-500 ml-1">*</span>
+            </label>
+            {availableSellPuts.length === 0 ? (
+              <div className="bg-white rounded-lg p-4 text-center text-red-700 border border-red-200">
+                <AlertTriangle className="h-5 w-5 mx-auto mb-2" />
+                <p className="text-sm font-medium">No lower strikes available</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-red-200">
+                <table className="w-full bg-white">
+                  <thead className="bg-red-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Strike</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Premium</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Volume</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">OI</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {availableSellPuts.map(c => {
+                      const isSelected = sellLeg?.contract.ticker === c.ticker
+                      return (
+                        <tr
+                          key={c.ticker}
+                          className={`border-t border-red-100 hover:bg-red-50 cursor-pointer transition-colors ${
+                            isSelected ? 'bg-red-200' : ''
+                          }`}
+                          onClick={() => addLeg(c, 'sell', 1)}
+                        >
+                          <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                          <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                          <td className="px-3 py-2">
+                            {isSelected ? (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
+                                <Check className="h-3 w-3 mr-1" />Selected
+                              </span>
+                            ) : (
+                              <button className="px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-500 hover:text-white rounded-md border border-red-300 transition-colors">
+                                Select
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
-            {availableSellPuts.map(c => (
-              <option key={c.ticker} value={c.ticker}>
-                Strike ${c.strike_price} - Premium ${c.last.toFixed(2)} (Vol: {c.volume})
-              </option>
-            ))}
-          </select>
-          {!buyLeg && (
-            <p className="text-xs text-gray-500 mt-1">Select the buy put first</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -325,53 +385,116 @@ export default function MultiLegStrategyBuilder({
     const availableCalls = putLeg ? calls.filter(c => c.strike_price > putLeg.contract.strike_price) : calls
 
     return (
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Buy Put (Lower Strike) <span className="text-red-500">*</span>
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border-2 border-blue-300">
+          <label className="flex items-center text-sm font-bold text-blue-800 mb-3">
+            <TrendingDown className="h-5 w-5 mr-2" />
+            Step 1: Buy Put (Lower Strike) <span className="text-red-500 ml-1">*</span>
           </label>
-          <select
-            value={putLeg?.contract.ticker || ''}
-            onChange={(e) => {
-              const contract = puts.find(c => c.ticker === e.target.value)
-              if (contract) addLeg(contract, 'buy', 1)
-            }}
-            className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            disabled={!selectedExpiry}
-          >
-            <option value="">Select put...</option>
-            {puts.map(c => (
-              <option key={c.ticker} value={c.ticker}>
-                Strike ${c.strike_price} - Premium ${c.last.toFixed(2)} (Vol: {c.volume})
-              </option>
-            ))}
-          </select>
+          <div className="overflow-x-auto rounded-lg border border-blue-200">
+            <table className="w-full bg-white">
+              <thead className="bg-blue-100">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-blue-800">Strike</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-blue-800">Premium</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-blue-800">Volume</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-blue-800">OI</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-blue-800">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {puts.map(c => {
+                  const liquidity = getLiquidityIndicator(c)
+                  const isSelected = putLeg?.contract.ticker === c.ticker
+                  return (
+                    <tr
+                      key={c.ticker}
+                      className={`border-t border-blue-100 hover:bg-blue-50 cursor-pointer transition-colors ${
+                        isSelected ? 'bg-blue-200' : ''
+                      }`}
+                      onClick={() => addLeg(c, 'buy', 1)}
+                    >
+                      <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                      <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                      <td className="px-3 py-2">
+                        {isSelected ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">
+                            <Check className="h-3 w-3 mr-1" />Selected
+                          </span>
+                        ) : (
+                          <button className="px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-500 hover:text-white rounded-md border border-blue-300 transition-colors">
+                            Select
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Buy Call (Higher Strike) <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={callLeg?.contract.ticker || ''}
-            onChange={(e) => {
-              const contract = calls.find(c => c.ticker === e.target.value)
-              if (contract) addLeg(contract, 'buy', 1)
-            }}
-            className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            disabled={!selectedExpiry}
-          >
-            <option value="">Select call...</option>
-            {availableCalls.map(c => (
-              <option key={c.ticker} value={c.ticker}>
-                Strike ${c.strike_price} - Premium ${c.last.toFixed(2)} (Vol: {c.volume})
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-gray-500 mt-1">
-            Call strike should be higher than put strike
-          </p>
-        </div>
+        {putLeg && (
+          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300">
+            <label className="flex items-center text-sm font-bold text-green-800 mb-3">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Step 2: Buy Call (Higher Strike) <span className="text-red-500 ml-1">*</span>
+            </label>
+            {availableCalls.length === 0 ? (
+              <div className="bg-white rounded-lg p-4 text-center text-green-700 border border-green-200">
+                <AlertTriangle className="h-5 w-5 mx-auto mb-2" />
+                <p className="text-sm font-medium">No higher strikes available</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-green-200">
+                <table className="w-full bg-white">
+                  <thead className="bg-green-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Strike</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Premium</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Volume</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-green-800">OI</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {availableCalls.map(c => {
+                      const isSelected = callLeg?.contract.ticker === c.ticker
+                      return (
+                        <tr
+                          key={c.ticker}
+                          className={`border-t border-green-100 hover:bg-green-50 cursor-pointer transition-colors ${
+                            isSelected ? 'bg-green-200' : ''
+                          }`}
+                          onClick={() => addLeg(c, 'buy', 1)}
+                        >
+                          <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                          <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                          <td className="px-3 py-2">
+                            {isSelected ? (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
+                                <Check className="h-3 w-3 mr-1" />Selected
+                              </span>
+                            ) : (
+                              <button className="px-3 py-1 text-xs font-semibold text-green-700 hover:bg-green-500 hover:text-white rounded-md border border-green-300 transition-colors">
+                                Select
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     )
   }
