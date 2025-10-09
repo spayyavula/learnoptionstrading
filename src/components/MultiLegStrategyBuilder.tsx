@@ -85,8 +85,8 @@ export default function MultiLegStrategyBuilder({
 
   const renderBullCallSpreadBuilder = () => {
     const calls = expiryContracts.filter(c => c.contract_type === 'call').sort((a, b) => a.strike_price - b.strike_price)
-    const buyLeg = legs.find(l => l.action === 'buy')
-    const sellLeg = legs.find(l => l.action === 'sell')
+    const buyLeg = legs.find(l => l.action === 'buy' && l.contract.contract_type === 'call')
+    const sellLeg = legs.find(l => l.action === 'sell' && l.contract.contract_type === 'call')
     const availableSellCalls = buyLeg
       ? calls.filter(c => c.strike_price > buyLeg.contract.strike_price)
       : []
@@ -208,8 +208,8 @@ export default function MultiLegStrategyBuilder({
 
   const renderBearPutSpreadBuilder = () => {
     const puts = expiryContracts.filter(c => c.contract_type === 'put').sort((a, b) => b.strike_price - a.strike_price)
-    const buyLeg = legs.find(l => l.action === 'buy')
-    const sellLeg = legs.find(l => l.action === 'sell')
+    const buyLeg = legs.find(l => l.action === 'buy' && l.contract.contract_type === 'put')
+    const sellLeg = legs.find(l => l.action === 'sell' && l.contract.contract_type === 'put')
     const availableSellPuts = buyLeg
       ? puts.filter(c => c.strike_price < buyLeg.contract.strike_price)
       : []
