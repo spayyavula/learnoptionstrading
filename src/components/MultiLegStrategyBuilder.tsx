@@ -345,6 +345,7 @@ export default function MultiLegStrategyBuilder({
                   Load More Strikes ({Math.min(PAGE_SIZE, availableSellCalls.length - displaySellCalls.length)} more)
                 </button>
               )}
+            </div>
             )}
           </div>
         )}
