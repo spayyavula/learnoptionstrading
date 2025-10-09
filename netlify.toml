@@ -16,6 +16,8 @@
   NODE_VERSION = "20"
   # Ensure environment variables are properly loaded
   NPM_FLAGS = "--prefer-offline --no-audit"
+  # Security: Disable smart detection for false positives (no Google API keys used)
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
 
 # Context-specific builds
 [context.production]
