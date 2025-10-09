@@ -294,58 +294,59 @@ export default function MultiLegStrategyBuilder({
                 <p className="text-sm font-medium">No higher strikes available</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-red-200">
-                <table className="w-full bg-white">
-                  <thead className="bg-red-100">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Strike</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Premium</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Volume</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">OI</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {displaySellCalls.map(c => {
-                      const isSelected = sellLeg?.contract.ticker === c.ticker
-                      return (
-                        <tr
-                          key={c.ticker}
-                          className={`border-t border-red-100 hover:bg-red-50 cursor-pointer transition-colors ${
-                            isSelected ? 'bg-red-200' : ''
-                          }`}
-                          onClick={() => addLeg(c, 'sell', 1)}
-                        >
-                          <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
-                          <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
-                          <td className="px-3 py-2">
-                            {isSelected ? (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
-                                <Check className="h-3 w-3 mr-1" />Selected
-                              </span>
-                            ) : (
-                              <button className="px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-500 hover:text-white rounded-md border border-red-300 transition-colors">
-                                Select
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              {hasMoreLeg2Calls && (
-                <button
-                  onClick={() => startTransition(() => setLeg2Page(prev => prev + 1))}
-                  className="mt-2 w-full px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
-                >
-                  Load More Strikes ({Math.min(PAGE_SIZE, availableSellCalls.length - displaySellCalls.length)} more)
-                </button>
-              )}
-            </div>
+              <>
+                <div className="overflow-x-auto rounded-lg border border-red-200">
+                  <table className="w-full bg-white">
+                    <thead className="bg-red-100">
+                      <tr>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Strike</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Premium</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Volume</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-red-800">OI</th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-red-800">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {displaySellCalls.map(c => {
+                        const isSelected = sellLeg?.contract.ticker === c.ticker
+                        return (
+                          <tr
+                            key={c.ticker}
+                            className={`border-t border-red-100 hover:bg-red-50 cursor-pointer transition-colors ${
+                              isSelected ? 'bg-red-200' : ''
+                            }`}
+                            onClick={() => addLeg(c, 'sell', 1)}
+                          >
+                            <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                            <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
+                            <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                            <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
+                            <td className="px-3 py-2">
+                              {isSelected ? (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
+                                  <Check className="h-3 w-3 mr-1" />Selected
+                                </span>
+                              ) : (
+                                <button className="px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-500 hover:text-white rounded-md border border-red-300 transition-colors">
+                                  Select
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {hasMoreLeg2Calls && (
+                  <button
+                    onClick={() => startTransition(() => setLeg2Page(prev => prev + 1))}
+                    className="mt-2 w-full px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                  >
+                    Load More Strikes ({Math.min(PAGE_SIZE, availableSellCalls.length - displaySellCalls.length)} more)
+                  </button>
+                )}
+              </>
             )}
           </div>
         )}
