@@ -64,7 +64,7 @@ export default function MultiLegStrategyBuilder({
   }
 
   const addLeg = (contract: OptionsContract, action: 'buy' | 'sell', quantity: number = 1) => {
-    const existingIndex = legs.findIndex(l => l.contract.ticker === contract.ticker)
+    const existingIndex = legs.findIndex(l => l.contract.ticker === contract.ticker && l.action === action)
 
     if (existingIndex >= 0) {
       const updatedLegs = [...legs]
@@ -75,8 +75,12 @@ export default function MultiLegStrategyBuilder({
     }
   }
 
-  const removeLeg = (ticker: string) => {
-    setLegs(legs.filter(l => l.contract.ticker !== ticker))
+  const removeLeg = (ticker: string, action?: 'buy' | 'sell') => {
+    if (action) {
+      setLegs(legs.filter(l => !(l.contract.ticker === ticker && l.action === action)))
+    } else {
+      setLegs(legs.filter(l => l.contract.ticker !== ticker))
+    }
   }
 
   const renderBullCallSpreadBuilder = () => {
@@ -655,7 +659,7 @@ export default function MultiLegStrategyBuilder({
                             </div>
                           </div>
                           <button
-                            onClick={() => removeLeg(leg.contract.ticker)}
+                            onClick={() => removeLeg(leg.contract.ticker, leg.action)}
                             className="opacity-0 group-hover:opacity-100 ml-2 p-1.5 hover:bg-red-100 rounded-md transition-all"
                             title="Remove leg"
                           >
