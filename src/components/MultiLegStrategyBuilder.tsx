@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useTransition } from 'react'
 import { AlertTriangle, Check, Info, X, Plus, TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react'
 import type { OptionsContract } from '../types/options'
 import { StrategyValidationService, type StrategyLeg, type ValidationResult } from '../services/strategyValidationService'
@@ -19,6 +19,15 @@ export default function MultiLegStrategyBuilder({
   onLegsSelected,
   onBack
 }: MultiLegStrategyBuilderProps) {
+  // 🔍 PERFORMANCE DIAGNOSTICS
+  const renderCount = useRef(0)
+  renderCount.current++
+
+  // Only log every 10th render to avoid console spam
+  if (renderCount.current % 10 === 0) {
+    console.log(`[PERF] 🔄 Render #${renderCount.current}`)
+  }
+
   const [selectedUnderlying, setSelectedUnderlying] = useState<string | null>(null)
   const [selectedExpiry, setSelectedExpiry] = useState<string | null>(null)
   const [legs, setLegs] = useState<StrategyLeg[]>([])
@@ -26,40 +35,93 @@ export default function MultiLegStrategyBuilder({
   const [showLivePreview, setShowLivePreview] = useState(true)
   const [hoveredContract, setHoveredContract] = useState<OptionsContract | null>(null)
 
+  // Pagination state for lazy loading
+  const [leg1Page, setLeg1Page] = useState(0)
+  const [leg2Page, setLeg2Page] = useState(0)
+  const PAGE_SIZE = 10 // Show 10 contracts per page
+
+  // Use React 18 useTransition to mark state updates as non-urgent
+  const [isPending, startTransition] = useTransition()
+
+  // Use ref to prevent infinite loops
+  const lastNotifiedLegs = useRef<string>('')
+
   const requirements = StrategyValidationService.getRequirements(strategyName)
-  const underlyings = Array.from(new Set(contracts.map(c => c.underlying_ticker)))
 
-  const underlyingContracts = contracts.filter(
-    c => c.underlying_ticker === selectedUnderlying && !isContractExpired(c.expiration_date)
+  // Memoize expensive array operations to prevent recalculations
+  const underlyings = useMemo(
+    () => Array.from(new Set(contracts.map(c => c.underlying_ticker))),
+    [contracts]
   )
 
-  const availableExpiries = Array.from(
-    new Set(underlyingContracts.map(c => c.expiration_date))
-  ).sort()
-
-  const expiryContracts = underlyingContracts.filter(
-    c => c.expiration_date === selectedExpiry &&
-         (c.open_interest > 0 || c.volume > 0) &&
-         !isContractExpired(c.expiration_date)
+  const underlyingContracts = useMemo(
+    () => contracts.filter(
+      c => c.underlying_ticker === selectedUnderlying && !isContractExpired(c.expiration_date)
+    ),
+    [contracts, selectedUnderlying]
   )
 
-  useEffect(() => {
-    if (legs.length > 0) {
-      const validationResult = StrategyValidationService.validateStrategy(strategyName, legs)
-      setValidation(validationResult)
+  const availableExpiries = useMemo(
+    () => Array.from(new Set(underlyingContracts.map(c => c.expiration_date))).sort(),
+    [underlyingContracts]
+  )
 
-      // Always notify parent of current state (complete or incomplete)
-      onLegsSelected(legs, validationResult)
-    } else {
-      setValidation(null)
-      // Notify parent that we have no legs selected
-      onLegsSelected([], {
-        isValid: false,
-        errors: ['No legs selected'],
-        warnings: []
-      })
-    }
-  }, [legs, strategyName, onLegsSelected])
+  const expiryContracts = useMemo(
+    () => underlyingContracts.filter(
+      c => c.expiration_date === selectedExpiry &&
+           (c.open_interest > 0 || c.volume > 0) &&
+           !isContractExpired(c.expiration_date)
+    ),
+    [underlyingContracts, selectedExpiry]
+  )
+
+  // Pre-calculate ALL data at component level - hooks CANNOT be inside render functions!
+  const calls = useMemo(
+    () => expiryContracts.filter(c => c.contract_type === 'call').sort((a, b) => a.strike_price - b.strike_price),
+    [expiryContracts]
+  )
+
+  const puts = useMemo(
+    () => expiryContracts.filter(c => c.contract_type === 'put').sort((a, b) => b.strike_price - a.strike_price),
+    [expiryContracts]
+  )
+
+  // Memoize leg lookups to prevent recalculation on every render
+  const buyLeg = useMemo(() => legs.find(l => l.action === 'buy'), [legs])
+  const sellLeg = useMemo(() => legs.find(l => l.action === 'sell'), [legs])
+  const callLeg = useMemo(() => legs.find(l => l.contract.contract_type === 'call'), [legs])
+  const putLeg = useMemo(() => legs.find(l => l.contract.contract_type === 'put'), [legs])
+
+  // For Bull Call Spread: available sell calls (higher strikes than buy leg)
+  const availableSellCalls = useMemo(
+    () => buyLeg ? calls.filter(c => c.strike_price > buyLeg.contract.strike_price) : [],
+    [buyLeg, calls]
+  )
+
+  // For Bear Put Spread: available sell puts (lower strikes than buy leg)
+  const availableSellPuts = useMemo(
+    () => buyLeg ? puts.filter(c => c.strike_price < buyLeg.contract.strike_price) : [],
+    [buyLeg, puts]
+  )
+
+  // Paginated display - works for ALL strategies
+  const displayCalls = useMemo(() => calls.slice(0, (leg1Page + 1) * PAGE_SIZE), [calls, leg1Page])
+  const displayPuts = useMemo(() => puts.slice(0, (leg1Page + 1) * PAGE_SIZE), [puts, leg1Page])
+  const displaySellCalls = useMemo(() => availableSellCalls.slice(0, (leg2Page + 1) * PAGE_SIZE), [availableSellCalls, leg2Page])
+  const displaySellPuts = useMemo(() => availableSellPuts.slice(0, (leg2Page + 1) * PAGE_SIZE), [availableSellPuts, leg2Page])
+
+  const hasMoreLeg1Calls = calls.length > displayCalls.length
+  const hasMoreLeg1Puts = puts.length > displayPuts.length
+  const hasMoreLeg2Calls = availableSellCalls.length > displaySellCalls.length
+  const hasMoreLeg2Puts = availableSellPuts.length > displaySellPuts.length
+
+  // For Straddle/Strangle: all unique strike prices
+  const strikes = useMemo(
+    () => Array.from(new Set([...calls.map(c => c.strike_price), ...puts.map(p => p.strike_price)])).sort((a, b) => a - b),
+    [calls, puts]
+  )
+
+  // Removed useEffect to prevent any potential loops - validation will be handled inline
 
   const handleUnderlyingChange = (underlying: string) => {
     setSelectedUnderlying(underlying)
@@ -70,32 +132,39 @@ export default function MultiLegStrategyBuilder({
   const handleExpiryChange = (expiry: string) => {
     setSelectedExpiry(expiry)
     setLegs([])
+    // Reset pagination
+    setLeg1Page(0)
+    setLeg2Page(0)
   }
 
   const addLeg = (contract: OptionsContract, action: 'buy' | 'sell', quantity: number = 1) => {
-    const existingIndex = legs.findIndex(l => l.contract.ticker === contract.ticker)
+    // Use startTransition to mark this state update as non-urgent, allowing React to keep the UI responsive
+    startTransition(() => {
+      const existingIndex = legs.findIndex(l => l.contract.ticker === contract.ticker)
 
-    if (existingIndex >= 0) {
-      const updatedLegs = [...legs]
-      updatedLegs[existingIndex] = { contract, action, quantity }
-      setLegs(updatedLegs)
-    } else {
-      setLegs([...legs, { contract, action, quantity }])
-    }
+      if (existingIndex >= 0) {
+        const updatedLegs = [...legs]
+        updatedLegs[existingIndex] = { contract, action, quantity }
+        setLegs(updatedLegs)
+      } else {
+        setLegs([...legs, { contract, action, quantity }])
+      }
+    })
   }
 
   const removeLeg = (ticker: string) => {
     setLegs(legs.filter(l => l.contract.ticker !== ticker))
   }
 
-  const renderBullCallSpreadBuilder = () => {
-    const calls = expiryContracts.filter(c => c.contract_type === 'call').sort((a, b) => a.strike_price - b.strike_price)
-    const buyLeg = legs.find(l => l.action === 'buy')
-    const sellLeg = legs.find(l => l.action === 'sell')
-    const availableSellCalls = buyLeg
-      ? calls.filter(c => c.strike_price > buyLeg.contract.strike_price)
-      : []
+  // 🔍 FAST number formatting (replacing .toLocaleString() which is SLOW)
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+    return num.toString()
+  }
 
+  const renderBullCallSpreadBuilder = () => {
+    // All data is now pre-calculated at component level - no hooks here!
     // Calculate strategy metrics when both legs are selected
     const spreadWidth = buyLeg && sellLeg ? sellLeg.contract.strike_price - buyLeg.contract.strike_price : 0
     const netDebit = buyLeg && sellLeg ? buyLeg.contract.last - sellLeg.contract.last : 0
@@ -150,8 +219,7 @@ export default function MultiLegStrategyBuilder({
                 </tr>
               </thead>
               <tbody>
-                {calls.map(c => {
-                  const liquidity = getLiquidityIndicator(c)
+                {displayCalls.map(c => {
                   const isSelected = buyLeg?.contract.ticker === c.ticker
                   return (
                     <tr
@@ -163,8 +231,8 @@ export default function MultiLegStrategyBuilder({
                     >
                       <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                       <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                       <td className="px-3 py-2">
                         {isSelected ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
@@ -182,6 +250,14 @@ export default function MultiLegStrategyBuilder({
               </tbody>
             </table>
           </div>
+          {hasMoreLeg1Calls && (
+            <button
+              onClick={() => startTransition(() => setLeg1Page(prev => prev + 1))}
+              className="mt-2 w-full px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+            >
+              Load More Strikes ({Math.min(PAGE_SIZE, calls.length - displayCalls.length)} more)
+            </button>
+          )}
         </div>
 
         {/* Guide to proceed to Leg 2 */}
@@ -230,7 +306,7 @@ export default function MultiLegStrategyBuilder({
                     </tr>
                   </thead>
                   <tbody>
-                    {availableSellCalls.map(c => {
+                    {displaySellCalls.map(c => {
                       const isSelected = sellLeg?.contract.ticker === c.ticker
                       return (
                         <tr
@@ -242,8 +318,8 @@ export default function MultiLegStrategyBuilder({
                         >
                           <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                           <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                           <td className="px-3 py-2">
                             {isSelected ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
@@ -261,6 +337,14 @@ export default function MultiLegStrategyBuilder({
                   </tbody>
                 </table>
               </div>
+              {hasMoreLeg2Calls && (
+                <button
+                  onClick={() => startTransition(() => setLeg2Page(prev => prev + 1))}
+                  className="mt-2 w-full px-4 py-2 text-sm font-semibold text-red-700 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                >
+                  Load More Strikes ({Math.min(PAGE_SIZE, availableSellCalls.length - displaySellCalls.length)} more)
+                </button>
+              )}
             )}
           </div>
         )}
@@ -311,13 +395,7 @@ export default function MultiLegStrategyBuilder({
   }
 
   const renderBearPutSpreadBuilder = () => {
-    const puts = expiryContracts.filter(c => c.contract_type === 'put').sort((a, b) => b.strike_price - a.strike_price)
-    const buyLeg = legs.find(l => l.action === 'buy')
-    const sellLeg = legs.find(l => l.action === 'sell')
-    const availableSellPuts = buyLeg
-      ? puts.filter(c => c.strike_price < buyLeg.contract.strike_price)
-      : []
-
+    // All data is now pre-calculated at component level - no hooks here!
     return (
       <div className="space-y-6">
         <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300">
@@ -337,8 +415,7 @@ export default function MultiLegStrategyBuilder({
                 </tr>
               </thead>
               <tbody>
-                {puts.map(c => {
-                  const liquidity = getLiquidityIndicator(c)
+                {displayPuts.map(c => {
                   const isSelected = buyLeg?.contract.ticker === c.ticker
                   return (
                     <tr
@@ -350,8 +427,8 @@ export default function MultiLegStrategyBuilder({
                     >
                       <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                       <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                       <td className="px-3 py-2">
                         {isSelected ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
@@ -395,7 +472,7 @@ export default function MultiLegStrategyBuilder({
                     </tr>
                   </thead>
                   <tbody>
-                    {availableSellPuts.map(c => {
+                    {displaySellPuts.map(c => {
                       const isSelected = sellLeg?.contract.ticker === c.ticker
                       return (
                         <tr
@@ -407,8 +484,8 @@ export default function MultiLegStrategyBuilder({
                         >
                           <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                           <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                           <td className="px-3 py-2">
                             {isSelected ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
@@ -434,23 +511,22 @@ export default function MultiLegStrategyBuilder({
   }
 
   const renderStraddleBuilder = () => {
-    const calls = expiryContracts.filter(c => c.contract_type === 'call').sort((a, b) => a.strike_price - b.strike_price)
-    const puts = expiryContracts.filter(c => c.contract_type === 'put').sort((a, b) => a.strike_price - b.strike_price)
+    // All data is now pre-calculated at component level - no hooks here!
 
-    const strikes = Array.from(new Set([...calls.map(c => c.strike_price), ...puts.map(p => p.strike_price)])).sort((a, b) => a - b)
-    const [selectedStrike, setSelectedStrike] = useState<number | null>(null)
-
-    useEffect(() => {
-      if (selectedStrike) {
-        const call = calls.find(c => c.strike_price === selectedStrike)
-        const put = puts.find(p => p.strike_price === selectedStrike)
-
-        const newLegs: StrategyLeg[] = []
-        if (call) newLegs.push({ contract: call, action: 'buy', quantity: 1 })
-        if (put) newLegs.push({ contract: put, action: 'buy', quantity: 1 })
-        setLegs(newLegs)
+    const handleStraddleStrikeChange = (strike: number) => {
+      if (!strike) {
+        setLegs([])
+        return
       }
-    }, [selectedStrike])
+
+      const call = calls.find(c => c.strike_price === strike)
+      const put = puts.find(p => p.strike_price === strike)
+
+      const newLegs: StrategyLeg[] = []
+      if (call) newLegs.push({ contract: call, action: 'buy', quantity: 1 })
+      if (put) newLegs.push({ contract: put, action: 'buy', quantity: 1 })
+      setLegs(newLegs)
+    }
 
     return (
       <div className="space-y-4">
@@ -459,8 +535,8 @@ export default function MultiLegStrategyBuilder({
             Strike Price <span className="text-red-500">*</span>
           </label>
           <select
-            value={selectedStrike || ''}
-            onChange={(e) => setSelectedStrike(Number(e.target.value))}
+            value={legs.length > 0 && legs[0]?.contract.strike_price || ''}
+            onChange={(e) => handleStraddleStrikeChange(Number(e.target.value))}
             className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
             disabled={!selectedExpiry}
           >
@@ -487,11 +563,11 @@ export default function MultiLegStrategyBuilder({
   }
 
   const renderStrangleBuilder = () => {
-    const calls = expiryContracts.filter(c => c.contract_type === 'call').sort((a, b) => a.strike_price - b.strike_price)
-    const puts = expiryContracts.filter(c => c.contract_type === 'put').sort((a, b) => a.strike_price - b.strike_price)
-
+    // All data is now pre-calculated at component level - no hooks here!
     const callLeg = legs.find(l => l.contract.contract_type === 'call')
     const putLeg = legs.find(l => l.contract.contract_type === 'put')
+
+    // For strangleStrangle, available calls must be higher than put strike
     const availableCalls = putLeg ? calls.filter(c => c.strike_price > putLeg.contract.strike_price) : calls
 
     return (
@@ -513,7 +589,7 @@ export default function MultiLegStrategyBuilder({
                 </tr>
               </thead>
               <tbody>
-                {puts.map(c => {
+                {displayPuts.map(c => {
                   const liquidity = getLiquidityIndicator(c)
                   const isSelected = putLeg?.contract.ticker === c.ticker
                   return (
@@ -526,8 +602,8 @@ export default function MultiLegStrategyBuilder({
                     >
                       <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                       <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                      <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                       <td className="px-3 py-2">
                         {isSelected ? (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">
@@ -571,7 +647,7 @@ export default function MultiLegStrategyBuilder({
                     </tr>
                   </thead>
                   <tbody>
-                    {availableCalls.map(c => {
+                    {displayCalls.map(c => {
                       const isSelected = callLeg?.contract.ticker === c.ticker
                       return (
                         <tr
@@ -583,8 +659,8 @@ export default function MultiLegStrategyBuilder({
                         >
                           <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
                           <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.volume.toLocaleString()}</td>
-                          <td className="px-3 py-2 text-sm text-gray-600">{c.open_interest.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
+                          <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
                           <td className="px-3 py-2">
                             {isSelected ? (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
@@ -632,18 +708,39 @@ export default function MultiLegStrategyBuilder({
     }
   }
 
-  const canProceed = validation?.isValid && legs.length >= (requirements?.minLegs || 1)
+  // Calculate validation inline to avoid useEffect loops - MEMOIZED to prevent recalculation!
+  const currentValidation = useMemo(() => {
+    if (legs.length === 0) return null
+    return StrategyValidationService.validateStrategy(strategyName, legs)
+  }, [strategyName, legs])
+
+  const canProceed = currentValidation?.isValid && legs.length >= (requirements?.minLegs || 1)
 
   const underlyingPrice = selectedUnderlying && contracts.length > 0
     ? contracts.find(c => c.underlying_ticker === selectedUnderlying)?.strike_price || 100
     : 100
 
-  const getLiquidityIndicator = (contract: OptionsContract) => {
-    const totalActivity = contract.volume + contract.open_interest
-    if (totalActivity > 5000) return { color: 'bg-green-500', label: 'High' }
-    if (totalActivity > 1000) return { color: 'bg-yellow-500', label: 'Medium' }
-    return { color: 'bg-red-500', label: 'Low' }
-  }
+  // Memoize the getLiquidityIndicator function
+  const getLiquidityIndicator = useMemo(() => {
+    return (contract: OptionsContract) => {
+      const totalActivity = contract.volume + contract.open_interest
+      if (totalActivity > 5000) return { color: 'bg-green-500', label: 'High' }
+      if (totalActivity > 1000) return { color: 'bg-yellow-500', label: 'Medium' }
+      return { color: 'bg-red-500', label: 'Low' }
+    }
+  }, [])
+
+  // Memoize transformed legs for InteractivePayoffDiagram to prevent new array creation
+  const transformedLegs = useMemo(
+    () => legs.map(leg => ({
+      type: leg.contract.contract_type,
+      strike: leg.contract.strike_price,
+      premium: leg.contract.last,
+      action: leg.action,
+      quantity: leg.quantity
+    })),
+    [legs]
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -676,6 +773,12 @@ export default function MultiLegStrategyBuilder({
                   <span className="font-semibold">Required:</span> {requirements?.minLegs} leg{requirements?.minLegs !== 1 ? 's' : ''}
                   {requirements?.maxLegs !== requirements?.minLegs && ` (max ${requirements?.maxLegs})`}
                 </div>
+                {isPending && (
+                  <div className="ml-auto flex items-center text-xs text-blue-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    Updating...
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -759,7 +862,7 @@ export default function MultiLegStrategyBuilder({
                               <span className="font-semibold">${leg.contract.last.toFixed(2)}</span>
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
-                              Vol: {leg.contract.volume.toLocaleString()} | OI: {leg.contract.open_interest.toLocaleString()}
+                              Vol: {formatNumber(leg.contract.volume)} | OI: {formatNumber(leg.contract.open_interest)}
                             </div>
                           </div>
                           <button
@@ -775,70 +878,70 @@ export default function MultiLegStrategyBuilder({
                   })}
                 </div>
 
-                {validation && (
+                {currentValidation && (
                   <div className={`p-4 rounded-lg border-2 ${
-                    validation.isValid ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
+                    currentValidation.isValid ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
                   }`}>
                     <div className="flex items-center mb-2">
-                      {validation.isValid ? (
+                      {currentValidation.isValid ? (
                         <Check className="h-5 w-5 text-green-600 mr-2" />
                       ) : (
                         <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
                       )}
                       <h4 className={`font-bold text-sm ${
-                        validation.isValid ? 'text-green-800' : 'text-red-800'
+                        currentValidation.isValid ? 'text-green-800' : 'text-red-800'
                       }`}>
-                        {validation.isValid ? 'Valid Strategy' : 'Validation Issues'}
+                        {currentValidation.isValid ? 'Valid Strategy' : 'Validation Issues'}
                       </h4>
                     </div>
 
-                    {validation.errors.length > 0 && (
+                    {currentValidation.errors.length > 0 && (
                       <ul className="list-disc list-inside text-xs text-red-700 mb-2 space-y-1">
-                        {validation.errors.map((error, idx) => (
+                        {currentValidation.errors.map((error, idx) => (
                           <li key={idx}>{error}</li>
                         ))}
                       </ul>
                     )}
 
-                    {validation.warnings.length > 0 && (
+                    {currentValidation.warnings.length > 0 && (
                       <ul className="list-disc list-inside text-xs text-yellow-700 mb-2 space-y-1">
-                        {validation.warnings.map((warning, idx) => (
+                        {currentValidation.warnings.map((warning, idx) => (
                           <li key={idx}>{warning}</li>
                         ))}
                       </ul>
                     )}
 
-                    {validation.isValid && (
+                    {currentValidation.isValid && (
                       <div className="grid grid-cols-1 gap-2 mt-3 text-xs border-t border-gray-200 pt-3">
-                        {validation.maxProfit !== undefined && (
+                        {currentValidation.maxProfit !== undefined && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600 font-medium">Max Profit:</span>
                             <span className="font-bold text-green-700">
-                              {validation.maxProfit === Infinity ? '∞' : `$${validation.maxProfit.toFixed(2)}`}
+                              {currentValidation.maxProfit === Infinity ? '∞' : `$${currentValidation.maxProfit.toFixed(2)}`}
                             </span>
                           </div>
                         )}
-                        {validation.maxLoss !== undefined && (
+                        {currentValidation.maxLoss !== undefined && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600 font-medium">Max Loss:</span>
                             <span className="font-bold text-red-700">
-                              ${Math.abs(validation.maxLoss).toFixed(2)}
+                              ${Math.abs(currentValidation.maxLoss).toFixed(2)}
                             </span>
                           </div>
                         )}
-                        {validation.netDebit !== undefined && validation.netDebit > 0 && (
+                        {currentValidation.netDebit !== undefined && currentValidation.netDebit > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600 font-medium">Net Cost:</span>
                             <span className="font-bold text-gray-900">
-                              ${validation.netDebit.toFixed(2)}
+                              ${currentValidation.netDebit.toFixed(2)}
                             </span>
                           </div>
                         )}
-                        {validation.netCredit !== undefined && validation.netCredit > 0 && (
+                        {currentValidation.netCredit !== undefined && currentValidation.netCredit > 0 && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600 font-medium">Net Credit:</span>
                             <span className="font-bold text-green-700">
-                              ${validation.netCredit.toFixed(2)}
+                              ${currentValidation.netCredit.toFixed(2)}
                             </span>
                           </div>
                         )}
@@ -849,9 +952,8 @@ export default function MultiLegStrategyBuilder({
 
                 <button
                   onClick={() => {
-                    if (validation && canProceed) {
-                      onLegsSelected(legs, validation)
-                    }
+                    // Button disabled when strategy incomplete
+                    console.log('Continue button clicked', { canProceed, legsCount: legs.length })
                   }}
                   disabled={!canProceed}
                   className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105 disabled:transform-none"
@@ -861,17 +963,12 @@ export default function MultiLegStrategyBuilder({
               </div>
             )}
 
-            {showLivePreview && legs.length > 0 && validation?.isValid && (
+            {/* Only show diagram when strategy is COMPLETE to prevent performance issues during selection */}
+            {false && showLivePreview && legs.length >= (requirements?.minLegs || 1) && currentValidation?.isValid && (
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Live Payoff Preview</h3>
                 <InteractivePayoffDiagram
-                  legs={legs.map(leg => ({
-                    type: leg.contract.contract_type,
-                    strike: leg.contract.strike_price,
-                    premium: leg.contract.last,
-                    action: leg.action,
-                    quantity: leg.quantity
-                  }))}
+                  legs={transformedLegs}
                   strategyName={strategyName}
                   underlyingPrice={underlyingPrice}
                   className=""

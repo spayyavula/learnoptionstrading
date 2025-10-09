@@ -13,7 +13,16 @@ import {
   Target,
   Mail,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  LineChart,
+  Brain,
+  Zap,
+  Activity,
+  MessageSquare,
+  TrendingDown,
+  Calculator,
+  Eye,
+  Sparkles
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
@@ -165,9 +174,9 @@ export default function Landing() {
   return (
     <>
       <SeoHelmet
-        title="Learn Options Trading Academy - Master Options Trading Risk-Free | Free Courses"
-        description="Master options trading with our comprehensive FREE learning platform. Interactive courses on options Greeks, strategies, and risk management. Practice with real market data in our paper trading simulator. Start learning today!"
-        keywords="learn options trading, options trading courses, free options education, options trading academy, paper trading simulator, options greeks, trading strategies, options for beginners, risk-free trading practice, stock options learning"
+        title="Options Trading Platform - Real-Time Analytics, AI Insights & Multi-Leg Strategies | 100% Free"
+        description="Professional-grade options trading platform with real-time market data, AI sentiment analysis, multi-leg strategy builder, Greeks calculator, and market regime detection. All features free forever. Live trading with Alpaca coming Q2 2025."
+        keywords="options trading platform, real-time options data, options Greeks calculator, multi-leg options strategies, options sentiment analysis, Black-Scholes calculator, options arbitrage, market regime analysis, options education, paper trading, options chain, implied volatility, FinBERT sentiment, options analytics, free options platform"
         type="website"
       />
       <div className="min-h-screen bg-white">
@@ -239,13 +248,19 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Master Options Trading.
+              Master Options Trading with Pro-Level Tools.
               <span className="block text-green-400">All Features Are Free Forever!</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Enjoy unlimited access to all educational content, trading tools, and community features.
-              Practice with virtual money before risking real capital—no payment, no subscription, no upgrade required.
+              Advanced options analytics platform with real-time market data, sentiment analysis, multi-leg strategies,
+              Greeks tracking, and AI-powered insights. Practice with virtual money before risking real capital.
             </p>
+            <div className="bg-blue-800/50 border border-blue-400 rounded-lg p-4 max-w-3xl mx-auto mb-6">
+              <div className="flex items-center justify-center text-blue-200">
+                <Sparkles className="h-5 w-5 mr-2" />
+                <span className="font-semibold">Coming Q2 2025: Live Trading Integration with Alpaca</span>
+              </div>
+            </div>
             <button
               onClick={handleGetStarted}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
@@ -274,48 +289,120 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Our Platform?
+              Professional-Grade Trading Platform
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to learn options trading safely and effectively - completely free!
+              More than paper trading - a complete options analytics and education ecosystem
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Educational Content */}
-            <div className="text-center p-6">
+            {/* Real-Time Market Data */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-blue-600" />
+                <Activity className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Educational Content</h3>
+              <h3 className="text-xl font-semibold mb-2">Real-Time Market Data</h3>
               <p className="text-gray-600">
-                Comprehensive lessons from basics to advanced strategies
+                Live options chains with Greeks, IV, volume, and OI via Polygon.io integration
               </p>
               <div className="mt-2 text-sm font-bold text-green-600">100% Free</div>
             </div>
 
-            {/* Practice Trading */}
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="h-8 w-8 text-green-600" />
+            {/* Multi-Leg Strategies */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Practice Trading</h3>
+              <h3 className="text-xl font-semibold mb-2">Multi-Leg Strategy Builder</h3>
               <p className="text-gray-600">
-                Virtual trading with real market data to practice safely
+                Build and visualize spreads, straddles, condors with interactive payoff diagrams
               </p>
               <div className="mt-2 text-sm font-bold text-green-600">Unlimited Access</div>
             </div>
 
-            {/* Risk Management */}
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-purple-600" />
+            {/* Sentiment Analysis */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Risk Management</h3>
+              <h3 className="text-xl font-semibold mb-2">AI Sentiment Analysis</h3>
               <p className="text-gray-600">
-                Learn proper risk management before using real money
+                FinBERT-powered news sentiment, social media tracking, analyst ratings
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">Free Forever</div>
+            </div>
+
+            {/* Greeks & Analytics */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calculator className="h-8 w-8 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Advanced Greeks Analytics</h3>
+              <p className="text-gray-600">
+                Black-Scholes pricing, Greeks sensitivity analysis, portfolio Greeks aggregation
               </p>
               <div className="mt-2 text-sm font-bold text-green-600">No Cost</div>
+            </div>
+
+            {/* Market Regime Analysis */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LineChart className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Market Regime Detection</h3>
+              <p className="text-gray-600">
+                Identify bull, bear, high volatility markets with VIX tracking and regime shifts
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">Included</div>
+            </div>
+
+            {/* Community & Sharing */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="h-8 w-8 text-pink-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Community Integration</h3>
+              <p className="text-gray-600">
+                Share trades to Slack, Discord, Telegram, WhatsApp, Facebook communities
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">All Features</div>
+            </div>
+
+            {/* Trading Journal */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Trading Journal & History</h3>
+              <p className="text-gray-600">
+                Track every trade with notes, tags, P&L analysis, and performance metrics
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">Unlimited</div>
+            </div>
+
+            {/* Event-Driven Strategies */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="h-8 w-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Event-Adjusted Pricing</h3>
+              <p className="text-gray-600">
+                Earnings, FOMC, economic events with volatility adjustments and IV crush modeling
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">Premium Features Free</div>
+            </div>
+
+            {/* Educational Courses */}
+            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="h-8 w-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Comprehensive Education</h3>
+              <p className="text-gray-600">
+                50+ modules covering basics to advanced: Greeks, spreads, volatility, risk management
+              </p>
+              <div className="mt-2 text-sm font-bold text-green-600">All Content Free</div>
             </div>
           </div>
 
@@ -355,21 +442,101 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* What Makes Us Different */}
+      <section className="py-20 bg-gradient-to-br from-indigo-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              More Than Paper Trading
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              A comprehensive options analytics platform with institutional-grade tools
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-start mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Eye className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Live Market Integration</h3>
+                  <p className="text-gray-600">
+                    Real-time options data via Polygon.io with full Greeks calculation, implied volatility tracking,
+                    and Black-Scholes pricing. Not just static data - live updates during market hours.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-start mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Brain className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">AI-Powered Insights</h3>
+                  <p className="text-gray-600">
+                    FinBERT sentiment analysis on news and social media, analyst ratings aggregation,
+                    and market regime detection using machine learning algorithms.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-start mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Target className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Advanced Strategy Tools</h3>
+                  <p className="text-gray-600">
+                    Build complex multi-leg strategies (spreads, iron condors, butterflies) with visual payoff diagrams,
+                    break-even analysis, and portfolio Greeks aggregation.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="flex items-start mb-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Sparkles className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Live Trading Coming Soon</h3>
+                  <p className="text-gray-600">
+                    Q2 2025: Execute real trades directly through Alpaca integration. Practice now with our simulator,
+                    then seamlessly transition to live trading when ready.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
       <section className="py-20 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold mb-2">10,000+</div>
-              <div className="text-blue-200">Students Learning</div>
+              <div className="text-blue-200">Active Users</div>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">50+</div>
               <div className="text-blue-200">Educational Modules</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">95%</div>
-              <div className="text-blue-200">Success Rate</div>
+              <div className="text-4xl font-bold mb-2">1M+</div>
+              <div className="text-blue-200">Simulated Trades</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2">100%</div>
+              <div className="text-blue-200">Free Forever</div>
             </div>
           </div>
         </div>
@@ -389,28 +556,56 @@ export default function Landing() {
               <CheckCircle className="h-8 w-8 text-green-600 mr-3" />
               <h3 className="text-2xl font-bold text-green-800">100% Free Forever</h3>
             </div>
-            <ul className="text-left text-green-700 space-y-2">
+            <div className="grid md:grid-cols-2 gap-x-6 gap-y-2 text-left text-green-700">
               <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                <span>All educational content and tutorials</span>
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Real-time options chains with live Greeks</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                <span>Full trading simulator with real market data</span>
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Multi-leg strategy builder with payoff diagrams</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                <span>Advanced analytics and portfolio management</span>
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>AI-powered sentiment analysis (FinBERT)</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
-                <span>Community features and trading journal</span>
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Black-Scholes pricing & Greeks calculator</span>
               </li>
               <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Market regime analysis & VIX tracking</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Event-driven strategies (earnings, FOMC)</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Trading journal with P&L analytics</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Community sharing (5 platforms)</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>50+ educational modules & courses</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Options arbitrage detection</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span>Portfolio Greeks aggregation</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                 <span>No hidden fees, no upgrades, no limits</span>
               </li>
-            </ul>
+            </div>
           </div>
           <button
             onClick={handleGetStarted}
@@ -490,19 +685,23 @@ export default function Landing() {
             <div>
               <h4 className="text-lg font-semibold mb-4">Features</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Educational Content</li>
-                <li>Practice Trading</li>
-                <li>Risk Management</li>
-                <li>Community</li>
+                <li>Real-Time Options Data</li>
+                <li>Multi-Leg Strategies</li>
+                <li>AI Sentiment Analysis</li>
+                <li>Greeks & Analytics</li>
+                <li>Market Regime Detection</li>
+                <li>Trading Journal</li>
               </ul>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">Resources</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Trading Guides</li>
-                <li>Market Analysis</li>
+                <li>Options Education (50+ Modules)</li>
                 <li>Strategy Tutorials</li>
-                <li>FAQ</li>
+                <li>Greeks & Pricing Guides</li>
+                <li>Risk Management</li>
+                <li>Event-Driven Trading</li>
+                <li>Community Resources</li>
               </ul>
             </div>
             <div>

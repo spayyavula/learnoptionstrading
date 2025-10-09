@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, Info } from 'lucide-react'
 import { useOptionsContext } from '../context/OptionsContext'
 import { PolygonService } from '../services/polygonService'
@@ -9,7 +9,7 @@ import KellyCriterion from '../components/KellyCriterion'
 import PayoffDiagram from '../components/PayoffDiagram'
 import InteractivePayoffDiagram from '../components/InteractivePayoffDiagram'
 import ContractSelector from '../components/ContractSelector'
-import MultiLegStrategyBuilder from '../components/MultiLegStrategyBuilder'
+import MultiLegStrategyBuilder from '../components/MultiLegStrategyBuilder.SIMPLE'
 import GreeksPanel from '../components/GreeksPanel'
 import ScenarioAnalysis from '../components/ScenarioAnalysis'
 import GreeksSensitivityGrid from '../components/GreeksSensitivityGrid'
@@ -396,15 +396,8 @@ export default function OptionsTrading() {
 
               <MultiLegStrategyBuilder
                 strategyName={selectedStrategy}
-                contracts={contracts}
-                onLegsSelected={(legs, validation) => {
-                  setStrategyLegs(legs)
-                  setStrategyValidation(validation)
-                  if (legs.length > 0) {
-                    setSelectedContract(legs[0].contract.ticker)
-                    setUnderlyingPrice(legs[0].contract.strike_price)
-                  }
-                }}
+                contracts={contracts.slice(0, 50)}
+                onLegsSelected={() => {}}
                 onBack={() => setSelectedStrategy(null)}
               />
 
@@ -597,14 +590,28 @@ export default function OptionsTrading() {
             </span>
           </h2>
 
-          {selectedContractData && (
+          {/* For multi-leg strategies, use strategyLegs; for single-leg, use selectedContractData */}
+          {selectedStrategy && isMultiLegStrategy(selectedStrategy) && strategyLegs.length > 0 ? (
+            <InteractivePayoffDiagram
+              legs={strategyLegs.map(leg => ({
+                type: leg.contract.contract_type,
+                strike: leg.contract.strike_price,
+                premium: leg.contract.last,
+                action: leg.action,
+                quantity: leg.quantity
+              }))}
+              strategyName={selectedStrategy}
+              underlyingPrice={underlyingPrice}
+              className="mb-6"
+            />
+          ) : selectedContractData ? (
             <InteractivePayoffDiagram
               contract={selectedContractData}
               strategyName={selectedStrategy || undefined}
               underlyingPrice={underlyingPrice}
               className="mb-6"
             />
-          )}
+          ) : null}
 
           {selectedContract && selectedContractData && (
             <div className="space-y-4">

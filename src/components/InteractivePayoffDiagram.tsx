@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, memo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Area, ComposedChart } from 'recharts'
 import { TrendingUp, TrendingDown, Minus, Info, Sliders } from 'lucide-react'
 import { PayoffCalculationService, StrategyPayoff, StrategyLeg } from '../services/payoffCalculationService'
@@ -13,7 +13,35 @@ interface InteractivePayoffDiagramProps {
   legs?: StrategyLeg[]
 }
 
-export default function InteractivePayoffDiagram({
+// Custom comparison function for React.memo
+const arePropsEqual = (prevProps: InteractivePayoffDiagramProps, nextProps: InteractivePayoffDiagramProps) => {
+  // Only re-render if legs array actually changed (deep comparison of values)
+  if (prevProps.legs?.length !== nextProps.legs?.length) return false
+  if (prevProps.strategyName !== nextProps.strategyName) return false
+  if (prevProps.underlyingPrice !== nextProps.underlyingPrice) return false
+  if (prevProps.contract?.ticker !== nextProps.contract?.ticker) return false
+
+  // Deep compare legs
+  if (prevProps.legs && nextProps.legs) {
+    for (let i = 0; i < prevProps.legs.length; i++) {
+      const prev = prevProps.legs[i]
+      const next = nextProps.legs[i]
+      if (
+        prev.type !== next.type ||
+        prev.strike !== next.strike ||
+        prev.premium !== next.premium ||
+        prev.action !== next.action ||
+        prev.quantity !== next.quantity
+      ) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
+function InteractivePayoffDiagram({
   contract,
   strategyName,
   underlyingPrice,
@@ -26,9 +54,14 @@ export default function InteractivePayoffDiagram({
 
   const [priceAdjustment, setPriceAdjustment] = useState(0)
   const [volatilityAdjustment, setVolatilityAdjustment] = useState(0)
-  const [daysToExpiration, setDaysToExpiration] = useState(
-    contract ? Math.max(1, GreeksCalculator.calculateTimeToExpiry(contract.expiration_date) * 365) : 30
+
+  // Memoize initial days to expiration to prevent recalculation
+  const initialDaysToExpiration = useMemo(
+    () => contract ? Math.max(1, GreeksCalculator.calculateTimeToExpiry(contract.expiration_date) * 365) : 30,
+    [contract]
   )
+
+  const [daysToExpiration, setDaysToExpiration] = useState(initialDaysToExpiration)
 
   const adjustedUnderlyingPrice = useMemo(
     () => underlyingPrice * (1 + priceAdjustment / 100),
@@ -36,12 +69,11 @@ export default function InteractivePayoffDiagram({
   )
 
   const payoffData: StrategyPayoff = useMemo(() => {
-    if (legs) {
+    // If legs are provided, always use them (don't fall back to defaults)
+    if (legs && legs.length > 0) {
       return PayoffCalculationService.calculatePayoff(legs, underlyingPrice, strategyName || 'Custom Strategy')
     }
-    if (strategyName) {
-      return PayoffCalculationService.getStrategyByName(strategyName, underlyingPrice)
-    }
+    // If a single contract is provided, render its payoff
     if (contract) {
       const leg: StrategyLeg = {
         type: contract.contract_type,
@@ -52,6 +84,11 @@ export default function InteractivePayoffDiagram({
       }
       return PayoffCalculationService.calculatePayoff([leg], underlyingPrice, `${contract.contract_type.toUpperCase()} ${contract.strike_price}`)
     }
+    // Only use strategy defaults if explicitly requested with no legs or contract
+    if (strategyName && !legs && !contract) {
+      return PayoffCalculationService.getStrategyByName(strategyName, underlyingPrice)
+    }
+    // Final fallback
     return PayoffCalculationService.getBullCallSpread(underlyingPrice)
   }, [legs, strategyName, contract, underlyingPrice])
 
@@ -135,7 +172,7 @@ export default function InteractivePayoffDiagram({
   const handleReset = () => {
     setPriceAdjustment(0)
     setVolatilityAdjustment(0)
-    setDaysToExpiration(contract ? Math.max(1, GreeksCalculator.calculateTimeToExpiry(contract.expiration_date) * 365) : 30)
+    setDaysToExpiration(initialDaysToExpiration)
   }
 
   return (
@@ -472,3 +509,6 @@ export default function InteractivePayoffDiagram({
     </div>
   )
 }
+
+// Export memoized component
+export default memo(InteractivePayoffDiagram, arePropsEqual)
