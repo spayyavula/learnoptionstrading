@@ -28,8 +28,9 @@
 **Update your `.env.production` file with real values:**
 
 ```bash
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxhcWxjbWVxemdtenpheHF3bHhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4NDc3MDcsImV4cCI6MjA2NjQyMzcwN30.9td3o44Ik42H-QBX2qUBROxIvSd9vhRS9IM4kqM5K0s
-VITE_SUPABASE_URL=https://laqlcmeqzgmzzaxqwlxe.supabase.co
+# 🔴 Get these from your Supabase project dashboard
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 # 🔴 REPLACE WITH YOUR ACTUAL STRIPE KEYS
 VITE_STRIPE_PUBLISHABLE_KEY=pk_live_YOUR_ACTUAL_KEY

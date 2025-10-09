@@ -27,10 +27,11 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Create a table to store the Supabase configuration for cron jobs
+-- SECURITY: Values must be set via environment variables or Supabase dashboard after migration
 CREATE TABLE IF NOT EXISTS cron_config (
   id INTEGER PRIMARY KEY DEFAULT 1,
-  supabase_url TEXT NOT NULL DEFAULT 'https://ldfuxeqhvsuduqezfbpp.supabase.co',
-  supabase_anon_key TEXT NOT NULL DEFAULT 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkZnV4ZXFodnN1ZHVxZXpmYnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MTk1MzIsImV4cCI6MjA3NDk5NTUzMn0.1HbMLrmo7HzAxWpMRLO41cHIgxYpHAakfjrjumJOGFg',
+  supabase_url TEXT NOT NULL DEFAULT '',
+  supabase_anon_key TEXT NOT NULL DEFAULT '',
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT single_row CHECK (id = 1)
 );
@@ -45,14 +46,15 @@ CREATE POLICY "Allow reading cron config"
   TO public
   USING (true);
 
--- Insert the configuration
+-- Insert the configuration with empty defaults
+-- IMPORTANT: After migration, update these values via SQL or Supabase dashboard:
+-- UPDATE cron_config SET
+--   supabase_url = 'YOUR_SUPABASE_URL',
+--   supabase_anon_key = 'YOUR_SUPABASE_ANON_KEY'
+-- WHERE id = 1;
 INSERT INTO cron_config (id, supabase_url, supabase_anon_key)
-VALUES (1, 'https://ldfuxeqhvsuduqezfbpp.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxkZnV4ZXFodnN1ZHVxZXpmYnBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MTk1MzIsImV4cCI6MjA3NDk5NTUzMn0.1HbMLrmo7HzAxWpMRLO41cHIgxYpHAakfjrjumJOGFg')
-ON CONFLICT (id) DO UPDATE
-SET 
-  supabase_url = EXCLUDED.supabase_url,
-  supabase_anon_key = EXCLUDED.supabase_anon_key,
-  updated_at = NOW();
+VALUES (1, '', '')
+ON CONFLICT (id) DO NOTHING;
 
 -- Create a function to invoke the edge function
 CREATE OR REPLACE FUNCTION invoke_load_historical_data()
