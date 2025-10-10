@@ -256,6 +256,10 @@ export default function MultiLegStrategyBuilder({
               <tbody>
                 {displayCalls.map(c => {
                   const isSelected = buyLeg?.contract.ticker === c.ticker
+                  // Debug: Log if we see a PUT in displayCalls (shouldn't happen!)
+                  if (c.contract_type !== 'call') {
+                    console.error('⚠️ BUG: Found PUT in displayCalls!', c)
+                  }
                   return (
                     <tr
                       key={c.ticker}
@@ -265,7 +269,9 @@ export default function MultiLegStrategyBuilder({
                       onClick={() => addLeg(c, 'buy', 1)}
                     >
                       <td className="px-3 py-2 text-sm font-bold text-gray-900">
-                        ${c.strike_price} <span className="text-xs text-green-600 font-bold ml-1">CALL</span>
+                        ${c.strike_price} <span className={`text-xs font-bold ml-1 ${c.contract_type === 'call' ? 'text-green-600' : 'text-red-600'}`}>
+                          {c.contract_type.toUpperCase()}
+                        </span>
                       </td>
                       <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
                       <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
