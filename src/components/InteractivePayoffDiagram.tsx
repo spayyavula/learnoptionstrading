@@ -117,16 +117,20 @@ function InteractivePayoffDiagram({
   }, [contract, underlyingPrice, priceAdjustment, volatilityAdjustment, daysToExpiration, showControls])
 
   const chartData = useMemo(() => {
+    if (!payoffData || !payoffData.points || payoffData.points.length === 0) {
+      return []
+    }
     const baseData = payoffData.points.map((point, idx) => ({
       price: point.price,
       profit: point.profit,
-      scenarioProfit: scenarioPayoffData ? scenarioPayoffData.points[idx]?.profit || 0 : null,
+      scenarioProfit: scenarioPayoffData?.points?.[idx]?.profit || null,
       zero: 0
     }))
     return baseData
   }, [payoffData, scenarioPayoffData])
 
   const formatCurrency = (value: number) => {
+    if (!isFinite(value)) return 'N/A'
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -136,6 +140,7 @@ function InteractivePayoffDiagram({
   }
 
   const formatPrice = (value: number) => {
+    if (!isFinite(value)) return 'N/A'
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -358,7 +363,7 @@ function InteractivePayoffDiagram({
               <span className="text-xs font-medium text-purple-700">Break-Even</span>
             </div>
             <p className="text-sm font-bold text-purple-700">
-              {payoffData.breakEvenPoints.length === 0
+              {!payoffData?.breakEvenPoints || payoffData.breakEvenPoints.length === 0
                 ? 'N/A'
                 : payoffData.breakEvenPoints.length === 1
                 ? formatPrice(payoffData.breakEvenPoints[0])
@@ -441,7 +446,7 @@ function InteractivePayoffDiagram({
               />
             )}
 
-            {showBreakEvens && payoffData.breakEvenPoints.map((point, idx) => (
+            {showBreakEvens && payoffData?.breakEvenPoints?.map((point, idx) => (
               <ReferenceLine
                 key={idx}
                 x={point}
@@ -482,7 +487,7 @@ function InteractivePayoffDiagram({
         </ResponsiveContainer>
       </div>
 
-      {payoffData.breakEvenPoints.length > 0 && (
+      {payoffData?.breakEvenPoints && payoffData.breakEvenPoints.length > 0 && (
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h4 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
             <Info className="h-4 w-4 mr-2" />
