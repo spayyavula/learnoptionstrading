@@ -44,7 +44,9 @@ export class OptionsChainFilterService {
   static filterATMContracts(
     contracts: OptionsContract[],
     underlyingPrice: number,
-    contractType?: 'call' | 'put'
+    contractType?: 'call' | 'put',
+    numAbove: number = 10,
+    numBelow: number = 10
   ): ATMFilterResult {
     let filteredByType = contracts
 
@@ -62,7 +64,7 @@ export class OptionsChainFilterService {
 
     const uniqueStrikes = [...new Set(filteredByType.map(c => c.strike_price))].sort((a, b) => a - b)
     const atmStrike = this.identifyATMStrike(underlyingPrice, uniqueStrikes)
-    const selectedStrikes = this.getStrikesAroundATM(atmStrike, uniqueStrikes, 10, 10)
+    const selectedStrikes = this.getStrikesAroundATM(atmStrike, uniqueStrikes, numAbove, numBelow)
 
     const filteredContracts = filteredByType
       .filter(c => selectedStrikes.includes(c.strike_price))

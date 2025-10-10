@@ -7,6 +7,7 @@ import { KellyCriterionService, MultiLegKellyInput, KellyCalculationResult } fro
 import { TradingHistoryService, UserTradingMetrics } from '../services/tradingHistoryService'
 import QuantitySelector from './QuantitySelector'
 import StrategyMetrics from './StrategyMetrics'
+import InteractivePayoffDiagram from './InteractivePayoffDiagram'
 
 interface MultiLegStrategyBuilderProps {
   strategyName: string
@@ -35,10 +36,14 @@ export default function MultiLegStrategyBuilder({
   const [metrics, setMetrics] = useState<UserTradingMetrics | null>(null)
   const [showKellyInfo, setShowKellyInfo] = useState(false)
 
+  const callContracts = contracts.filter(c => c.contract_type === 'call')
+
   const filteredResult = OptionsChainFilterService.filterATMContracts(
-    contracts.filter(c => c.contract_type === 'call'),
+    callContracts,
     underlyingPrice,
-    'call'
+    'call',
+    5,
+    5
   )
 
   const calls = filteredResult.filteredContracts
@@ -139,7 +144,7 @@ export default function MultiLegStrategyBuilder({
             <div className="flex items-center">
               <Info className="h-5 w-5 text-blue-600 mr-2" />
               <p className="text-sm text-blue-800">
-                Showing <strong>{calls.length} ATM-centered contracts</strong> (±10 strikes from ${filteredResult.atmStrike})
+                Showing <strong>{calls.length} ATM-centered CALL contracts</strong> (±5 strikes from ${filteredResult.atmStrike})
               </p>
             </div>
           </div>
@@ -277,7 +282,17 @@ export default function MultiLegStrategyBuilder({
               underlyingPrice={underlyingPrice}
             />
 
-            <div className="border-t-2 border-gray-300 pt-6">
+            <InteractivePayoffDiagram
+              legs={[
+                { type: buyContract.contract_type, strike: buyContract.strike_price, premium: buyContract.last, action: 'buy', quantity: 1 },
+                { type: sellContract.contract_type, strike: sellContract.strike_price, premium: sellContract.last, action: 'sell', quantity: 1 }
+              ]}
+              strategyName={strategyName}
+              underlyingPrice={underlyingPrice}
+              className="mt-6"
+            />
+
+            <div className="border-t-2 border-gray-300 pt-6 mt-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Position Sizing</h3>
 
               <QuantitySelector

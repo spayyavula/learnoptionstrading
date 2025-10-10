@@ -622,7 +622,59 @@ export default function OptionsTrading() {
             />
           ) : null}
 
-          {selectedContract && selectedContractData && (
+          {strategyLegs.length > 0 ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-white border rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-3">Multi-Leg Strategy Summary</h3>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-600">Strategy:</span>
+                      <span className="ml-2 font-medium">{selectedStrategy}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Quantity:</span>
+                      <span className="ml-2 font-medium">{quantity || 0} contracts</span>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Legs:</h4>
+                    {strategyLegs.map((leg, idx) => (
+                      <div key={idx} className="text-sm p-2 bg-gray-50 rounded mb-2">
+                        <span className={leg.action === 'buy' ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+                          {leg.action.toUpperCase()}
+                        </span>
+                        {' '}{leg.contract.contract_type.toUpperCase()} @ ${leg.contract.strike_price}
+                        {' '}for ${leg.contract.last.toFixed(2)}
+                      </div>
+                    ))}
+                  </div>
+                  {strategyValidation && (
+                    <div className="grid grid-cols-2 gap-3 text-sm mt-3 pt-3 border-t">
+                      <div>
+                        <span className="text-gray-600">Max Profit:</span>
+                        <span className="ml-2 font-medium text-green-600">
+                          {strategyValidation.maxProfit !== undefined ? formatCurrency(strategyValidation.maxProfit) : 'Unlimited'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Max Loss:</span>
+                        <span className="ml-2 font-medium text-red-600">
+                          {strategyValidation.maxLoss !== undefined ? formatCurrency(strategyValidation.maxLoss) : 'Unlimited'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Net Debit:</span>
+                        <span className="ml-2 font-medium">
+                          {strategyValidation.netDebit !== undefined ? formatCurrency(strategyValidation.netDebit * (parseInt(quantity) || 1)) : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : selectedContract && selectedContractData ? (
             <div className="space-y-4">
               <div className="p-4 bg-white border rounded-lg">
                 <h3 className="font-semibold text-gray-900 mb-3">Trade Summary</h3>
@@ -665,30 +717,32 @@ export default function OptionsTrading() {
                 )}
               </div>
 
-              <div className="p-4 bg-white border rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Adjust Quantity</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                      placeholder="Enter quantity"
-                    />
+              {!isMultiLegStrategy(selectedStrategy || '') && (
+                <div className="p-4 bg-white border rounded-lg">
+                  <h3 className="font-semibold text-gray-900 mb-3">Adjust Quantity</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        placeholder="Enter quantity"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setQuantity(kellyRecommendedQuantity.toString())}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Use Kelly Recommended: {kellyRecommendedQuantity} contracts
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setQuantity(kellyRecommendedQuantity.toString())}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Use Kelly Recommended: {kellyRecommendedQuantity} contracts
-                  </button>
                 </div>
-              </div>
+              )}
             </div>
-          )}
+          ) : null}
 
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
