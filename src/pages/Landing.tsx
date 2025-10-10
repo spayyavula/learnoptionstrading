@@ -794,12 +794,12 @@ export default function Landing() {
               <div className="flex items-center mb-6">
                 <img
                   src="https://i.pravatar.cc/150?img=33"
-                  alt="Robert Wilson"
+                  alt="James Parker"
                   className="w-16 h-16 rounded-full object-cover border-4 border-indigo-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Robert Wilson</div>
-                  <div className="text-sm text-gray-500">Retired Engineer, Age 62</div>
+                  <div className="font-bold text-lg text-gray-900">James Parker</div>
+                  <div className="text-sm text-gray-500">IT Consultant, Age 38</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -808,7 +808,7 @@ export default function Landing() {
                 ))}
               </div>
               <p className="text-gray-700 leading-relaxed mb-4">
-                "At 62, I thought I was too old to learn options. This platform proved me wrong. The educational modules are crystal clear, and practicing with paper money gave me confidence. Now I supplement my retirement income with weekly credit spreads."
+                "After watching my 401k stagnate for years, I decided to learn active trading. The educational modules are crystal clear, and practicing with paper money gave me confidence. Now I'm building wealth through strategic options trades while keeping my day job."
               </p>
               <div className="text-sm text-blue-600 font-semibold">
                 ✓ Verified Trader
