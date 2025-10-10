@@ -40,6 +40,13 @@ const STRATEGY_REQUIREMENTS: Record<string, StrategyRequirement> = {
     requiresSameExpiration: true,
     description: 'Requires buying a put at higher strike and selling a put at lower strike'
   },
+  'Bull Put Spread': {
+    minLegs: 2,
+    maxLegs: 2,
+    requiredTypes: ['put', 'put'],
+    requiresSameExpiration: true,
+    description: 'Requires selling a put at higher strike and buying a put at lower strike'
+  },
   'Straddle': {
     minLegs: 2,
     maxLegs: 2,
@@ -82,12 +89,54 @@ const STRATEGY_REQUIREMENTS: Record<string, StrategyRequirement> = {
     requiresSameExpiration: true,
     description: 'Requires buying 1 lower strike, selling 2 middle strike, buying 1 higher strike'
   },
+  'Bull Butterfly': {
+    minLegs: 3,
+    maxLegs: 4,
+    requiredTypes: ['call', 'call', 'call'],
+    requiresSameExpiration: true,
+    description: 'Requires buying 1 lower strike, selling 2 middle strike, buying 1 higher strike'
+  },
   'Iron Butterfly': {
     minLegs: 4,
     maxLegs: 4,
     requiredTypes: ['put', 'put', 'call', 'call'],
     requiresSameExpiration: true,
     description: 'Requires 4 legs at 3 strikes with center ATM'
+  },
+  'Call Ratio Back Spread': {
+    minLegs: 2,
+    maxLegs: 3,
+    requiredTypes: ['call', 'call'],
+    requiresSameExpiration: true,
+    description: 'Sell lower strike calls, buy more higher strike calls'
+  },
+  'Long Calendar with Calls': {
+    minLegs: 2,
+    maxLegs: 2,
+    requiredTypes: ['call', 'call'],
+    requiresSameExpiration: false,
+    description: 'Sell near-term call, buy longer-term call at same strike'
+  },
+  'Bull Condor': {
+    minLegs: 4,
+    maxLegs: 4,
+    requiredTypes: ['call', 'call', 'call', 'call'],
+    requiresSameExpiration: true,
+    description: 'Four-leg spread with defined risk and profit zone'
+  },
+  'Range Forward': {
+    minLegs: 2,
+    maxLegs: 2,
+    requiredTypes: ['call', 'put'],
+    requiresSameExpiration: true,
+    description: 'Buy call and sell put to create defined range'
+  },
+  'Long Synthetic Future': {
+    minLegs: 2,
+    maxLegs: 2,
+    requiredTypes: ['call', 'put'],
+    requiresSameExpiration: true,
+    description: 'Buy call and sell put at same strike to replicate long stock'
   }
 }
 
@@ -502,6 +551,7 @@ export class StrategyValidationService {
       case 'Bull Call Spread':
         return this.validateBullCallSpread(legs)
       case 'Bear Put Spread':
+      case 'Bull Put Spread':
         return this.validateBearPutSpread(legs)
       case 'Straddle':
       case 'Long Straddle':
@@ -512,9 +562,17 @@ export class StrategyValidationService {
       case 'Iron Condor':
         return this.validateIronCondor(legs)
       case 'Butterfly Spread':
+      case 'Bull Butterfly':
         return this.validateButterflySpread(legs)
+      case 'Call Ratio Back Spread':
+      case 'Long Calendar with Calls':
+      case 'Bull Condor':
+      case 'Range Forward':
+      case 'Long Synthetic Future':
+        return this.validateGenericMultiLeg(strategyName, legs)
       case 'Long Call':
       case 'Long Put':
+      case 'Sell Put':
       case 'Cash-Secured Put':
       case 'Covered Call':
         if (legs.length !== 1) {
@@ -539,8 +597,57 @@ export class StrategyValidationService {
     }
   }
 
+  static validateGenericMultiLeg(strategyName: string, legs: StrategyLeg[]): ValidationResult {
+    const errors: string[] = []
+    const warnings: string[] = []
+    const requirements = this.getRequirements(strategyName)
+
+    if (!requirements) {
+      errors.push(`No requirements defined for ${strategyName}`)
+      return { isValid: false, errors, warnings }
+    }
+
+    if (legs.length < requirements.minLegs || legs.length > requirements.maxLegs) {
+      errors.push(`${strategyName} requires ${requirements.minLegs} to ${requirements.maxLegs} legs`)
+    }
+
+    const underlying = legs[0].contract.underlying_ticker
+    const expiration = legs[0].contract.expiration_date
+
+    for (const leg of legs) {
+      if (leg.contract.underlying_ticker !== underlying) {
+        errors.push('All legs must have the same underlying asset')
+        break
+      }
+      if (requirements.requiresSameExpiration && leg.contract.expiration_date !== expiration) {
+        errors.push('All legs must have the same expiration date')
+        break
+      }
+    }
+
+    const netCost = legs.reduce((sum, leg) => {
+      const sign = leg.action === 'buy' ? -1 : 1
+      return sum + (sign * leg.contract.last * leg.quantity * 100)
+    }, 0)
+
+    const netDebit = netCost < 0 ? Math.abs(netCost) : 0
+    const netCredit = netCost > 0 ? netCost : 0
+
+    if (errors.length > 0) {
+      return { isValid: false, errors, warnings }
+    }
+
+    return {
+      isValid: true,
+      errors: [],
+      warnings,
+      netDebit,
+      netCredit
+    }
+  }
+
   static isSingleLegStrategy(strategyName: string): boolean {
-    return ['Long Call', 'Long Put', 'Cash-Secured Put', 'Covered Call'].includes(strategyName)
+    return ['Long Call', 'Long Put', 'Sell Put', 'Cash-Secured Put', 'Covered Call'].includes(strategyName)
   }
 
   static isMultiLegStrategy(strategyName: string): boolean {

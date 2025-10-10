@@ -543,6 +543,420 @@ export class LearningService {
         examples: [
           "AAPL is trading at $180 and you expect it to be at $185 in 30 days. Buy the $175 call, sell two $185 calls, and buy the $195 call for a net debit of $3.00. Max profit of $7.00 occurs if AAPL is exactly at $185 at expiration."
         ]
+      },
+      {
+        id: 'sell_put',
+        name: 'Sell Put',
+        description: 'Sell a put option to collect premium with obligation to buy stock if assigned',
+        type: 'bullish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 0,
+        maxProfit: 100,
+        breakeven: [0],
+        bestMarketConditions: ['Bullish', 'Neutral', 'Decreasing volatility'],
+        worstMarketConditions: ['Strong bearish', 'Increasing volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Select a stock you want to own at a lower price",
+          "Sell a put at the price you're willing to pay",
+          "Collect the premium regardless of outcome",
+          "Be prepared to buy the stock if assigned",
+          "Best used with cash-secured margin"
+        ],
+        examples: [
+          "AAPL is at $180 and you want to buy it at $175. Sell the $175 put for $3.00 premium. If AAPL stays above $175, you keep the $300 premium. If it drops below, you buy AAPL at an effective price of $172 ($175 - $3 premium)."
+        ]
+      },
+      {
+        id: 'bull_put_spread',
+        name: 'Bull Put Spread',
+        description: 'Sell a higher strike put and buy a lower strike put to collect credit with defined risk',
+        type: 'bullish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 400,
+        maxProfit: 100,
+        breakeven: [0],
+        bestMarketConditions: ['Bullish', 'Neutral', 'Decreasing volatility'],
+        worstMarketConditions: ['Bearish', 'Increasing volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Identify support level on the underlying",
+          "Sell put at or just below support",
+          "Buy lower strike put for protection",
+          "Target 30-45 days to expiration",
+          "Take profits at 50% of max profit"
+        ],
+        examples: [
+          "SPY at $580 with support at $575. Sell $575 put for $3.00, buy $570 put for $1.50. Net credit $1.50. Max profit $150, max loss $350 if SPY drops below $570."
+        ]
+      },
+      {
+        id: 'call_ratio_back_spread',
+        name: 'Call Ratio Back Spread',
+        description: 'Sell lower strike calls and buy more higher strike calls for limited risk with unlimited profit potential',
+        type: 'bullish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 2
+          }
+        ],
+        maxRisk: 200,
+        maxProfit: Infinity,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Strong bullish breakout', 'Increasing volatility'],
+        worstMarketConditions: ['Sideways', 'At short strike at expiration'],
+        timeDecay: 'negative',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Look for potential breakout setups",
+          "Sell 1 ATM or slightly ITM call",
+          "Buy 2 OTM calls at higher strike",
+          "Can be established for credit or small debit",
+          "Profits from strong upward moves"
+        ],
+        examples: [
+          "Stock at $100. Sell 1x $100 call for $5, buy 2x $110 calls for $2 each. Net credit $1. Max risk occurs at $110 (lose $9). Unlimited profit above $119."
+        ]
+      },
+      {
+        id: 'long_calendar_calls',
+        name: 'Long Calendar with Calls',
+        description: 'Sell near-term call and buy longer-term call at same strike to profit from time decay differential',
+        type: 'neutral',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '60d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 250,
+        maxProfit: 350,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Sideways', 'At strike at front month expiration'],
+        worstMarketConditions: ['Strong moves away from strike', 'Volatility collapse'],
+        timeDecay: 'positive',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Select a stock expected to stay near current price",
+          "Choose strike at or near current price",
+          "Sell front month, buy back month at same strike",
+          "Maximum profit at strike when front expires",
+          "Manage position as front month approaches expiration"
+        ],
+        examples: [
+          "AAPL at $180. Sell 30-day $180 call for $5, buy 60-day $180 call for $8. Net debit $3 ($300). Profit if AAPL stays near $180 as front month decays faster than back month."
+        ]
+      },
+      {
+        id: 'bull_condor',
+        name: 'Bull Condor',
+        description: 'Four-leg spread expecting moderate bullish move with defined risk and reward',
+        type: 'bullish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 200,
+        maxProfit: 300,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Moderate bullish', 'Low volatility'],
+        worstMarketConditions: ['Strong bearish', 'High volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Use when expecting price to move into a range",
+          "Structure with wider profit zone on upside",
+          "All strikes should have equal distance",
+          "Target 30-45 DTE for optimal theta decay",
+          "Close at 50-75% of max profit"
+        ],
+        examples: [
+          "Stock at $100. Buy $95 call, sell $100 call, sell $105 call, buy $115 call. Profits if stock moves toward $100-$105 range."
+        ]
+      },
+      {
+        id: 'bull_butterfly',
+        name: 'Bull Butterfly',
+        description: 'Three-strike strategy with weighted middle leg expecting limited upside move',
+        type: 'bullish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 2
+          },
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 100,
+        maxProfit: 400,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Precise upside target', 'Low volatility'],
+        worstMarketConditions: ['Moves beyond wings', 'High volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Identify a specific price target above current price",
+          "Buy ITM call, sell 2 ATM calls at target, buy OTM call",
+          "Keep strikes equidistant",
+          "Max profit at middle strike at expiration",
+          "Exit early if approaching max profit"
+        ],
+        examples: [
+          "Stock at $95, expecting move to $100. Buy $95 call, sell 2x $100 calls, buy $105 call. Max profit if stock exactly at $100 at expiration."
+        ]
+      },
+      {
+        id: 'range_forward',
+        name: 'Range Forward',
+        description: 'Combination strategy using calls and puts to create a defined profit range',
+        type: 'neutral',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 500,
+        maxProfit: Infinity,
+        breakeven: [0],
+        bestMarketConditions: ['Range-bound with upside bias', 'Moderate volatility'],
+        worstMarketConditions: ['Strong downward moves', 'Very high volatility'],
+        timeDecay: 'neutral',
+        volatilityImpact: 'neutral',
+        instructions: [
+          "Used to lock in a future price range",
+          "Buy call for upside participation",
+          "Sell put to collect premium and define floor",
+          "Common in hedging strategies",
+          "Popular for commodity and forex positions"
+        ],
+        examples: [
+          "Stock at $100. Buy $105 call for $3, sell $95 put for $3. Zero cost structure. Profit above $105, obligation to buy at $95, range-bound P&L between."
+        ]
+      },
+      {
+        id: 'long_synthetic_future',
+        name: 'Long Synthetic Future',
+        description: 'Buy call and sell put at same strike to replicate long stock position using options',
+        type: 'bullish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 0,
+        maxProfit: Infinity,
+        breakeven: [0],
+        bestMarketConditions: ['Strong bullish', 'Any volatility'],
+        worstMarketConditions: ['Bearish', 'Large downward moves'],
+        timeDecay: 'neutral',
+        volatilityImpact: 'neutral',
+        instructions: [
+          "Replicates owning 100 shares of stock",
+          "Buy ATM call and sell ATM put at same strike",
+          "Usually done for near zero cost",
+          "Same profit/loss profile as owning stock",
+          "Uses less capital than buying stock outright"
+        ],
+        examples: [
+          "Stock at $100. Buy $100 call for $5, sell $100 put for $5. Net zero cost. Behaves like owning stock at $100 with unlimited upside and downside to zero."
+        ]
+      },
+      {
+        id: 'straddle',
+        name: 'Straddle',
+        description: 'Buy call and put at same strike to profit from large moves in either direction',
+        type: 'volatility',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 400,
+        maxProfit: Infinity,
+        breakeven: [0, 0],
+        bestMarketConditions: ['High volatility expected', 'Before earnings or events'],
+        worstMarketConditions: ['Sideways', 'Volatility decrease'],
+        timeDecay: 'negative',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Use before major announcements or events",
+          "Buy ATM call and ATM put at same strike",
+          "Needs significant move to profit",
+          "Breakevens are strike +/- total premium",
+          "Consider selling after volatility spike"
+        ],
+        examples: [
+          "Stock at $100 before earnings. Buy $100 call for $4, buy $100 put for $4. Total cost $8 ($800). Profit if stock moves below $92 or above $108."
+        ]
+      },
+      {
+        id: 'strangle',
+        name: 'Strangle',
+        description: 'Buy OTM call and OTM put to profit from large moves with lower cost than straddle',
+        type: 'volatility',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 300,
+        maxProfit: Infinity,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Extremely high volatility expected', 'Uncertain direction'],
+        worstMarketConditions: ['Sideways', 'Low volatility'],
+        timeDecay: 'negative',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Cheaper alternative to straddle",
+          "Buy OTM call and OTM put at different strikes",
+          "Requires larger move to profit",
+          "Best before major binary events",
+          "Exit after volatility expansion"
+        ],
+        examples: [
+          "Stock at $100. Buy $110 call for $2, buy $90 put for $2. Total cost $4 ($400). Profit if stock moves below $86 or above $114."
+        ]
       }
     ]
   }
