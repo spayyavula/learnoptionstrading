@@ -6,6 +6,16 @@ export interface KellyCalculationInput {
   contractPrice: number
 }
 
+export interface MultiLegKellyInput {
+  winRate: number
+  averageWin: number
+  averageLoss: number
+  accountBalance: number
+  buyLegPremium: number
+  sellLegPremium?: number
+  netDebit: number
+}
+
 export interface KellyCalculationResult {
   kellyPercentage: number
   fullKellySize: number
@@ -199,6 +209,86 @@ export class KellyCriterionService {
     return {
       isValid: errors.length === 0,
       errors
+    }
+  }
+
+  static calculateMultiLegPositionSize(input: MultiLegKellyInput): KellyCalculationResult {
+    const warnings: string[] = []
+
+    const winLossRatio = this.calculateWinLossRatio(
+      input.averageWin,
+      input.averageLoss
+    )
+
+    if (winLossRatio === 0) {
+      warnings.push('Invalid win/loss ratio. Using conservative defaults.')
+    }
+
+    const kellyPercentage = this.calculateKellyPercentage(
+      input.winRate,
+      winLossRatio
+    )
+
+    if (kellyPercentage <= 0) {
+      warnings.push(
+        'Kelly Criterion suggests no position. Your win rate or win/loss ratio may be too low.'
+      )
+    }
+
+    const fullKellyDollars = input.accountBalance * kellyPercentage
+    const halfKellyDollars = fullKellyDollars * 0.5
+    const quarterKellyDollars = fullKellyDollars * 0.25
+
+    const contractMultiplier = 100
+
+    const fullKellyContracts = Math.floor(
+      fullKellyDollars / (input.buyLegPremium * contractMultiplier)
+    )
+    const halfKellyContracts = Math.floor(
+      halfKellyDollars / (input.buyLegPremium * contractMultiplier)
+    )
+    const quarterKellyContracts = Math.floor(
+      quarterKellyDollars / (input.buyLegPremium * contractMultiplier)
+    )
+
+    let riskLevel: 'conservative' | 'moderate' | 'aggressive' | 'excessive' = 'conservative'
+
+    if (kellyPercentage >= 0.20) {
+      riskLevel = 'excessive'
+      warnings.push(
+        'Warning: Kelly percentage is very high. Consider using Half Kelly or Quarter Kelly for safety.'
+      )
+    } else if (kellyPercentage >= 0.10) {
+      riskLevel = 'aggressive'
+    } else if (kellyPercentage >= 0.05) {
+      riskLevel = 'moderate'
+    }
+
+    if (fullKellyDollars > input.accountBalance * 0.25) {
+      warnings.push(
+        'Position size exceeds 25% of account. Consider reducing to manage risk.'
+      )
+    }
+
+    const actualNetDebitForFullKelly = input.netDebit * fullKellyContracts * contractMultiplier
+    if (actualNetDebitForFullKelly > input.accountBalance * 0.30) {
+      warnings.push(
+        'Net debit for this spread exceeds 30% of account at Full Kelly. Consider Half or Quarter Kelly.'
+      )
+    }
+
+    return {
+      kellyPercentage,
+      fullKellySize: fullKellyDollars,
+      halfKellySize: halfKellyDollars,
+      quarterKellySize: quarterKellyDollars,
+      recommendedContracts: {
+        full: Math.max(0, fullKellyContracts),
+        half: Math.max(0, halfKellyContracts),
+        quarter: Math.max(0, quarterKellyContracts)
+      },
+      riskLevel,
+      warnings
     }
   }
 }

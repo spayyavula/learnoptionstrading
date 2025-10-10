@@ -17,7 +17,14 @@ interface OptionsState {
 
 type OptionsAction =
   | { type: 'PLACE_OPTIONS_ORDER'; payload: Omit<OptionsOrder, 'id' | 'timestamp'> }
-  | { type: 'PLACE_MULTI_LEG_ORDER'; payload: { legs: StrategyLeg[]; strategyName: string; quantity: number } }
+  | { type: 'PLACE_MULTI_LEG_ORDER'; payload: {
+      legs: StrategyLeg[]
+      strategyName: string
+      quantity: number
+      kellyType?: 'full' | 'half' | 'quarter' | 'custom'
+      kellyRecommendedContracts?: number
+      kellyPercentage?: number
+    } }
   | { type: 'CANCEL_OPTIONS_ORDER'; payload: string }
   | { type: 'FILL_OPTIONS_ORDER'; payload: { orderId: string; filledPrice: number } }
   | { type: 'UPDATE_CONTRACT_PRICES'; payload: OptionsContract[] }
@@ -161,7 +168,14 @@ function optionsReducer(state: OptionsState, action: OptionsAction): OptionsStat
     }
 
     case 'PLACE_MULTI_LEG_ORDER': {
-      const { legs, strategyName, quantity } = action.payload
+      const {
+        legs,
+        strategyName,
+        quantity,
+        kellyType,
+        kellyRecommendedContracts,
+        kellyPercentage
+      } = action.payload
 
       const totalCost = legs.reduce((sum, leg) => {
         const sign = leg.action === 'buy' ? 1 : -1
@@ -204,6 +218,18 @@ function optionsReducer(state: OptionsState, action: OptionsAction): OptionsStat
         theta: 0,
         vega: 0,
         impliedVolatility: 0
+      }
+
+      if (kellyType && kellyRecommendedContracts !== undefined && kellyPercentage !== undefined) {
+        console.log('Kelly Criterion Metadata:', {
+          strategyName,
+          kellyType,
+          recommended: kellyRecommendedContracts,
+          actual: quantity,
+          followedRecommendation: quantity === kellyRecommendedContracts,
+          kellyPercentage: `${(kellyPercentage * 100).toFixed(2)}%`,
+          accountBalance: state.balance
+        })
       }
 
       return {

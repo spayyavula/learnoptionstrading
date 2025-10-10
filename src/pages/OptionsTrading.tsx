@@ -395,15 +395,19 @@ export default function OptionsTrading() {
               </div>
 
               <MultiLegStrategyBuilder
-                key={selectedStrategy} // Force remount when strategy changes
+                key={selectedStrategy}
                 strategyName={selectedStrategy}
-                contracts={contracts.slice(0, 50)}  // Limit to prevent browser freeze
-                onLegsSelected={(legs, validation) => {
-                  console.log('✅ Legs selected:', legs.length, 'validation:', validation.isValid)
+                contracts={contracts}
+                onLegsSelected={(legs, validation, qty, kellyType) => {
+                  console.log('✅ Legs selected:', legs.length, 'validation:', validation.isValid, 'quantity:', qty, 'kellyType:', kellyType)
                   setStrategyLegs(legs)
                   setStrategyValidation(validation)
+                  setQuantity(qty.toString())
                 }}
                 onBack={() => setSelectedStrategy(null)}
+                accountBalance={state.balance}
+                buyingPower={state.buyingPower}
+                underlyingPrice={underlyingPrice}
               />
 
               {/* Warning if strategy incomplete */}
