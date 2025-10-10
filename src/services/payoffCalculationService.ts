@@ -25,6 +25,8 @@ export class PayoffCalculationService {
     underlyingPrice: number,
     strategyName: string
   ): StrategyPayoff {
+    let points: PayoffPoint[] = []
+
     try {
       // Validate inputs
       if (!legs || legs.length === 0) {
@@ -45,7 +47,6 @@ export class PayoffCalculationService {
       const startPrice = Math.max(0, minStrike - range * 0.5)
       const endPrice = maxStrike + range * 0.5
 
-      const points: PayoffPoint[] = []
       const step = (endPrice - startPrice) / 100
 
       // Limit iterations to prevent browser freeze
@@ -61,23 +62,29 @@ export class PayoffCalculationService {
       if (iterations >= MAX_ITERATIONS) {
         console.warn('⚠️ Payoff calculation hit iteration limit')
       }
+
+      // Ensure we have valid points before calculating stats
+      if (points.length === 0) {
+        console.error('🚨 No points generated in payoff calculation')
+        return this.getEmptyPayoff(strategyName, underlyingPrice)
+      }
+
+      const profits = points.map(p => p.profit)
+      const maxProfit = Math.max(...profits)
+      const maxLoss = Math.min(...profits)
+
+      const breakEvenPoints = this.findBreakEvenPoints(points)
+
+      return {
+        points,
+        maxProfit,
+        maxLoss,
+        breakEvenPoints,
+        strategyName
+      }
     } catch (error) {
       console.error('🚨 Error in payoff calculation:', error)
       return this.getEmptyPayoff(strategyName, underlyingPrice)
-    }
-
-    const profits = points.map(p => p.profit)
-    const maxProfit = Math.max(...profits)
-    const maxLoss = Math.min(...profits)
-
-    const breakEvenPoints = this.findBreakEvenPoints(points)
-
-    return {
-      points,
-      maxProfit,
-      maxLoss,
-      breakEvenPoints,
-      strategyName
     }
   }
 
@@ -114,6 +121,26 @@ export class PayoffCalculationService {
     }
 
     return breakEvens
+  }
+
+  private static getEmptyPayoff(strategyName: string, underlyingPrice: number): StrategyPayoff {
+    const range = underlyingPrice * 0.5
+    const startPrice = Math.max(0, underlyingPrice - range)
+    const endPrice = underlyingPrice + range
+    const step = (endPrice - startPrice) / 100
+
+    const points: PayoffPoint[] = []
+    for (let price = startPrice; price <= endPrice; price += step) {
+      points.push({ price, profit: 0 })
+    }
+
+    return {
+      points,
+      maxProfit: 0,
+      maxLoss: 0,
+      breakEvenPoints: [],
+      strategyName
+    }
   }
 
   static getBullCallSpread(

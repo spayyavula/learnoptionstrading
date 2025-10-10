@@ -33,6 +33,12 @@ console.log('🔐 Authentication Configuration Check:')
 console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Missing')
 console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
 
+if (!envValidation.isValid && import.meta.env.PROD) {
+  console.warn('⚠️ Running in production mode with missing environment variables')
+  console.warn('⚠️ Some features may not work correctly')
+  console.warn('⚠️ Please ensure environment variables are set in Netlify dashboard')
+}
+
 console.log('=' .repeat(50))
 console.log('✅ Startup Complete')
 ReactDOM.createRoot(document.getElementById('root')!).render(
