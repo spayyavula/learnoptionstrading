@@ -416,9 +416,9 @@ export default function Landing() {
                   🇺🇸 View US Options Chain
                 </button>
               </Link>
-              <Link to="/optionschain">
+              <Link to="/coming-soon">
                 <button className="bg-gradient-to-r from-orange-600 to-green-600 hover:from-orange-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all">
-                  🇮🇳 View Indian Options Chain
+                  🇮🇳 Indian Trading - Coming Soon
                 </button>
               </Link>
             </div>

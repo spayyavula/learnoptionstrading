@@ -17,6 +17,7 @@ import AppLayout from './components/AppLayout'
 import Login from './pages/Login'
 import OptionsChain from './pages/OptionsChain'
 import EnhancedTrading from './components/EnhancedTrading'
+import ComingSoon from './pages/ComingSoon'
 
 // Lazy load page components
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -119,6 +120,7 @@ function AppContent() {
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/optionschain" element={<OptionsChain />} />
+              <Route path="/coming-soon" element={<ComingSoon />} />
               <Route path="/subscription" element={<SubscriptionPage />} />
               <Route path="/success" element={<Success />} />
               <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
