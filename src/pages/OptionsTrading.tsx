@@ -397,12 +397,21 @@ export default function OptionsTrading() {
               <MultiLegStrategyBuilder
                 key={selectedStrategy}
                 strategyName={selectedStrategy}
-                contracts={contracts}
+                contracts={
+                  selectedStrategy === 'Bull Call Spread'
+                    ? contracts.filter(c => c.contract_type === 'call')
+                    : selectedStrategy === 'Bear Put Spread'
+                    ? contracts.filter(c => c.contract_type === 'put')
+                    : contracts
+                }
                 onLegsSelected={(legs, validation, qty, kellyType) => {
                   console.log('✅ Legs selected:', legs.length, 'validation:', validation.isValid, 'quantity:', qty, 'kellyType:', kellyType)
                   setStrategyLegs(legs)
                   setStrategyValidation(validation)
                   setQuantity(qty.toString())
+                  if (validation.isValid) {
+                    setStep(4)
+                  }
                 }}
                 onBack={() => setSelectedStrategy(null)}
                 accountBalance={state.balance}

@@ -42,8 +42,8 @@ export default function MultiLegStrategyBuilder({
     callContracts,
     underlyingPrice,
     'call',
-    5,
-    5
+    2,
+    1
   )
 
   const calls = filteredResult.filteredContracts
@@ -144,7 +144,7 @@ export default function MultiLegStrategyBuilder({
             <div className="flex items-center">
               <Info className="h-5 w-5 text-blue-600 mr-2" />
               <p className="text-sm text-blue-800">
-                Showing <strong>{calls.length} ATM-centered CALL contracts</strong> (±5 strikes from ${filteredResult.atmStrike})
+                Showing <strong>{calls.length} ATM-centered CALL contracts</strong> (1 below, ATM, 2 above ${filteredResult.atmStrike})
               </p>
             </div>
           </div>
