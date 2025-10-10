@@ -125,6 +125,7 @@ function AppContent() {
               <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
               <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Login />} />
 
               {/* App Routes with nested routing */}
               <Route path="/app" element={
