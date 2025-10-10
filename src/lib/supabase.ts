@@ -33,11 +33,17 @@ export const auth = {
     return await supabase.auth.signInWithPassword({ email, password })
   },
 
-  async signUp(email: string, password: string) {
+  async signUp(email: string, password: string, metadata?: { full_name?: string }) {
     if (!isValidConfig) {
       throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
     }
-    return await supabase.auth.signUp({ email, password })
+    return await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata || {}
+      }
+    })
   },
 
   async resetPasswordForEmail(email: string, options: any) {

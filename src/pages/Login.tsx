@@ -71,7 +71,9 @@ export default function Login() {
     try {
       if (isSignUp) {
         console.log('🔐 Attempting sign up...')
-        const { error } = await signUp(formData.email, formData.password)
+        const { error } = await signUp(formData.email, formData.password, {
+          full_name: formData.fullName
+        })
         if (error) {
           console.error('🔐 Sign up error:', error)
           if (error.message.includes('User already registered')) {
@@ -87,7 +89,7 @@ export default function Login() {
           }
         } else {
           console.log('🔐 Sign up successful')
-          setSuccess('Welcome! Your account has been created successfully. You can now start learning options trading.')
+          setSuccess('Welcome! Your account has been created successfully. Check your email to verify your account.')
           setIsSignUp(false)
         }
       } else {
@@ -481,18 +483,11 @@ export default function Login() {
 
           {/* Back to Landing */}
           <div className="mt-4 text-center">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="text-gray-500 hover:text-gray-700 text-sm"
             >
               ← Back to home
-              <span className="mx-2 text-gray-300">|</span>
-              <Link 
-                to="/app" 
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                Try Demo Mode →
-              </Link>
             </Link>
           </div>
         </div>

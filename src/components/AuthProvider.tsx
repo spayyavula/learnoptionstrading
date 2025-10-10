@@ -5,10 +5,10 @@ import { auth } from '../lib/supabase.ts'
 export type AuthContextType = {
   user: User | null
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>
+  signUp: (email: string, password: string, metadata?: { full_name?: string }) => Promise<{ error: Error | null }>
   resetPassword: (email: string) => Promise<{ error: Error | null }>
   loading: boolean
-  signOut: () => Promise<{ error: Error | null }> // <-- Add this line
+  signOut: () => Promise<{ error: Error | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -18,24 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // Check for demo mode first
-    const demoMode = localStorage.getItem('demo_mode')
-    const demoUser = localStorage.getItem('demo_user')
-    
-    if (demoMode === 'true' && demoUser) {
-      try {
-        const parsedDemoUser = JSON.parse(demoUser)
-        console.log('🔐 Demo mode detected, setting demo user')
-        setUser(parsedDemoUser)
-        setLoading(false)
-        return
-      } catch (error) {
-        console.error('Error parsing demo user:', error)
-        localStorage.removeItem('demo_mode')
-        localStorage.removeItem('demo_user')
-      }
-    }
-    
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -95,24 +77,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, metadata?: { full_name?: string }) => {
     setLoading(true)
     try {
-      console.log('🔐 AuthProvider signUp attempt for:', email)
-      
+      console.log('🔐 AuthProvider signUp attempt for:', email, 'with metadata:', metadata)
+
       // Check if Supabase is properly configured
       const { isValidConfig } = await import('../lib/supabase')
       if (!isValidConfig) {
         throw new Error('Authentication service is not configured. Please check your Supabase settings.')
       }
-      
-      const result = await auth.signUp(email, password)
+
+      const result = await auth.signUp(email, password, metadata)
       console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
       if (result.error) {
         console.error('🔐 SignUp error:', result.error)
         return { error: result.error }
       } else if (result.data?.user) {
-        console.log('🔐 SignUp successful, setting user')
+        console.log('🔐 SignUp successful, setting user with metadata')
         setUser(result.data.user)
       }
       return { error: null }
@@ -157,17 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async (): Promise<{ error: Error | null }> => {
     setLoading(true)
     try {
-      const demoMode = localStorage.getItem('demo_mode')
-      if (demoMode === 'true') {
-        localStorage.removeItem('demo_mode')
-        localStorage.removeItem('demo_user')
-        setUser(null)
-        return { error: null }
-      } else {
-        const { error } = await auth.signOut()
-        setUser(null)
-        return { error: error ?? null }
-      }
+      const { error } = await auth.signOut()
+      setUser(null)
+      return { error: error ?? null }
     } catch (error) {
       return { error: error instanceof Error ? error : new Error('Sign out failed') }
     } finally {
@@ -186,10 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Debugging useEffect inside AuthProvider
   useEffect(() => {
-    const demoMode = localStorage.getItem('demo_mode')
     console.log('AuthProvider: user', user)
     console.log('AuthProvider: loading', loading)
-    console.log('AuthProvider: demoMode', demoMode)
   }, [user, loading])
 
   return (
