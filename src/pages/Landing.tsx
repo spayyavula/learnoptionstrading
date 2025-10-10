@@ -664,12 +664,12 @@ export default function Landing() {
               <div className="flex items-center mb-6">
                 <img
                   src="https://i.pravatar.cc/150?img=47"
-                  alt="Sarah Martinez"
+                  alt="Sarah Mitchell"
                   className="w-16 h-16 rounded-full object-cover border-4 border-blue-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Sarah Martinez</div>
-                  <div className="text-sm text-gray-500">Retail Trader, 2 years</div>
+                  <div className="font-bold text-lg text-gray-900">Sarah Mitchell</div>
+                  <div className="text-sm text-gray-500">Marketing Manager, Age 32</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -689,13 +689,13 @@ export default function Landing() {
             <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow p-8 border border-gray-100">
               <div className="flex items-center mb-6">
                 <img
-                  src="https://i.pravatar.cc/150?img=12"
-                  alt="Michael Chen"
+                  src="https://i.pravatar.cc/150?img=13"
+                  alt="Mike Anderson"
                   className="w-16 h-16 rounded-full object-cover border-4 border-green-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Michael Chen</div>
-                  <div className="text-sm text-gray-500">Software Engineer, New to Trading</div>
+                  <div className="font-bold text-lg text-gray-900">Mike Anderson</div>
+                  <div className="text-sm text-gray-500">Software Engineer, Age 28</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -715,13 +715,13 @@ export default function Landing() {
             <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow p-8 border border-gray-100">
               <div className="flex items-center mb-6">
                 <img
-                  src="https://i.pravatar.cc/150?img=32"
-                  alt="Jessica Williams"
+                  src="https://i.pravatar.cc/150?img=10"
+                  alt="Emily Roberts"
                   className="w-16 h-16 rounded-full object-cover border-4 border-purple-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Jessica Williams</div>
-                  <div className="text-sm text-gray-500">Teacher, Part-Time Trader</div>
+                  <div className="font-bold text-lg text-gray-900">Emily Roberts</div>
+                  <div className="text-sm text-gray-500">Teacher, Age 35</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -741,13 +741,13 @@ export default function Landing() {
             <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow p-8 border border-gray-100">
               <div className="flex items-center mb-6">
                 <img
-                  src="https://i.pravatar.cc/150?img=52"
+                  src="https://i.pravatar.cc/150?img=51"
                   alt="David Thompson"
                   className="w-16 h-16 rounded-full object-cover border-4 border-orange-100 mr-4"
                 />
                 <div>
                   <div className="font-bold text-lg text-gray-900">David Thompson</div>
-                  <div className="text-sm text-gray-500">Small Business Owner</div>
+                  <div className="text-sm text-gray-500">Small Business Owner, Age 42</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -763,17 +763,17 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Testimonial 5 - Priya */}
+            {/* Testimonial 5 - Jennifer */}
             <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow p-8 border border-gray-100">
               <div className="flex items-center mb-6">
                 <img
-                  src="https://i.pravatar.cc/150?img=45"
-                  alt="Priya Patel"
+                  src="https://i.pravatar.cc/150?img=5"
+                  alt="Jennifer Blake"
                   className="w-16 h-16 rounded-full object-cover border-4 border-pink-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Priya Patel</div>
-                  <div className="text-sm text-gray-500">Financial Analyst, Active Trader</div>
+                  <div className="font-bold text-lg text-gray-900">Jennifer Blake</div>
+                  <div className="text-sm text-gray-500">Financial Analyst, Age 29</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
@@ -793,13 +793,13 @@ export default function Landing() {
             <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow p-8 border border-gray-100">
               <div className="flex items-center mb-6">
                 <img
-                  src="https://i.pravatar.cc/150?img=60"
-                  alt="Robert Johnson"
+                  src="https://i.pravatar.cc/150?img=33"
+                  alt="Robert Wilson"
                   className="w-16 h-16 rounded-full object-cover border-4 border-indigo-100 mr-4"
                 />
                 <div>
-                  <div className="font-bold text-lg text-gray-900">Robert Johnson</div>
-                  <div className="text-sm text-gray-500">Retired, Learning Options</div>
+                  <div className="font-bold text-lg text-gray-900">Robert Wilson</div>
+                  <div className="text-sm text-gray-500">Retired Engineer, Age 62</div>
                 </div>
               </div>
               <div className="flex text-yellow-400 mb-4">
