@@ -1020,7 +1020,7 @@ export default function Landing() {
               <h4 className="text-lg font-semibold mb-4">Contact</h4>
               <div className="flex items-center text-gray-400 mb-2">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>support@learnoptions.com</span>
+                <span>support@learnoptionstrading.academy</span>
               </div>
             </div>
           </div>
