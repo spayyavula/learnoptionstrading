@@ -334,7 +334,401 @@ export class LearningService {
         bestMarketConditions: ['Bearish', 'Neutral', 'Decreasing volatility'],
         worstMarketConditions: ['Bullish', 'Increasing volatility'],
         timeDecay: 'positive',
-        volatilityImpact: 'negative'
+        volatilityImpact: 'negative',
+        instructions: [
+          "Also known as Bear Call Spread",
+          "Identify resistance level on the underlying",
+          "Sell call at or just above resistance",
+          "Buy higher strike call for protection",
+          "Target 30-45 days to expiration",
+          "Take profits at 50% of max profit"
+        ],
+        examples: [
+          "SPY at $580 with resistance at $585. Sell $585 call for $3.00, buy $590 call for $1.50. Net credit $1.50. Max profit $150, max loss $350 if SPY rises above $590."
+        ]
+      },
+      {
+        id: 'sell_call',
+        name: 'Sell Call',
+        description: 'Sell a call option to collect premium with unlimited risk if stock rises',
+        type: 'bearish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: Infinity,
+        maxProfit: 100,
+        breakeven: [0],
+        bestMarketConditions: ['Bearish', 'Neutral', 'Decreasing volatility'],
+        worstMarketConditions: ['Strong bullish', 'Increasing volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "WARNING: Unlimited risk strategy - use with extreme caution",
+          "Best combined with stock ownership (covered call)",
+          "Select strike above strong resistance",
+          "Monitor position closely for adverse moves",
+          "Consider rolling or buying back if underlying rallies",
+          "Maintain adequate margin and risk management"
+        ],
+        examples: [
+          "Stock at $100 with strong resistance at $110. Sell $110 call for $2.00. Keep $200 premium if stock stays below $110. Loses $1 for every $1 above $112 breakeven."
+        ]
+      },
+      {
+        id: 'bear_call_spread',
+        name: 'Bear Call Spread',
+        description: 'Sell a lower strike call and buy a higher strike call to profit from bearish moves with defined risk',
+        type: 'bearish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 400,
+        maxProfit: 100,
+        breakeven: [0],
+        bestMarketConditions: ['Bearish', 'Sideways', 'High implied volatility'],
+        worstMarketConditions: ['Strong bullish', 'Low volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Identify key resistance level",
+          "Sell call at or above resistance",
+          "Buy higher strike call as protection",
+          "Collect net credit upfront",
+          "Maximum profit if stock stays below short strike",
+          "Exit at 50-75% of max profit"
+        ],
+        examples: [
+          "AAPL at $180. Sell $185 call for $4, buy $190 call for $2. Net credit $2 ($200). Max profit $200 if AAPL below $185. Max loss $300 if above $190."
+        ]
+      },
+      {
+        id: 'bear_put_spread',
+        name: 'Bear Put Spread',
+        description: 'Buy a higher strike put and sell a lower strike put to reduce cost while maintaining defined risk',
+        type: 'bearish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 200,
+        maxProfit: 300,
+        breakeven: [0],
+        bestMarketConditions: ['Moderate bearish', 'Support breakdown expected'],
+        worstMarketConditions: ['Bullish', 'Strong sideways'],
+        timeDecay: 'negative',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Identify key support level likely to break",
+          "Buy put at or near current price",
+          "Sell lower strike put as partial financing",
+          "Pay net debit for the spread",
+          "Maximum profit if stock drops to or below lower strike",
+          "Consider closing at 50-75% of max profit"
+        ],
+        examples: [
+          "Stock at $100 expecting drop to $90. Buy $100 put for $5, sell $90 put for $2. Net debit $3 ($300). Max profit $7 ($700) if stock at or below $90. Breakeven at $97."
+        ]
+      },
+      {
+        id: 'put_ratio_back_spread',
+        name: 'Put Ratio Back Spread',
+        description: 'Sell higher strike puts and buy more lower strike puts for limited risk with substantial profit potential',
+        type: 'bearish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 2
+          }
+        ],
+        maxRisk: 200,
+        maxProfit: 10000,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Strong bearish breakdown', 'Increasing volatility'],
+        worstMarketConditions: ['Sideways', 'At short strike at expiration'],
+        timeDecay: 'negative',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Look for potential breakdown setups",
+          "Sell 1 ATM or slightly ITM put",
+          "Buy 2 OTM puts at lower strike",
+          "Can be established for credit or small debit",
+          "Profits from strong downward moves",
+          "Manage risk if stock stays near short strike"
+        ],
+        examples: [
+          "Stock at $100. Sell 1x $100 put for $5, buy 2x $90 puts for $2 each. Net credit $1. Max risk occurs at $90 (lose $9). Large profit below $81."
+        ]
+      },
+      {
+        id: 'long_calendar_puts',
+        name: 'Long Calendar with Puts',
+        description: 'Sell near-term put and buy longer-term put at same strike to profit from time decay differential',
+        type: 'bearish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '60d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 250,
+        maxProfit: 350,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Gradual bearish', 'At strike at front month expiration'],
+        worstMarketConditions: ['Sharp drops away from strike', 'Volatility collapse'],
+        timeDecay: 'positive',
+        volatilityImpact: 'positive',
+        instructions: [
+          "Select a stock expected to decline gradually",
+          "Choose strike slightly below current price",
+          "Sell front month, buy back month at same strike",
+          "Maximum profit at strike when front expires",
+          "Manage position as front month approaches expiration",
+          "Can roll front month for additional credit"
+        ],
+        examples: [
+          "AAPL at $180 expecting slow decline. Sell 30-day $175 put for $4, buy 60-day $175 put for $7. Net debit $3 ($300). Profit if AAPL near $175 as front decays faster."
+        ]
+      },
+      {
+        id: 'bear_condor',
+        name: 'Bear Condor',
+        description: 'Four-leg spread expecting moderate bearish move with defined risk and reward',
+        type: 'bearish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 200,
+        maxProfit: 300,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Moderate bearish', 'Below key support'],
+        worstMarketConditions: ['Strong bullish', 'High volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Use when expecting price to move into lower range",
+          "Structure with wider profit zone on downside",
+          "All strikes should have equal distance",
+          "Target 30-45 DTE for optimal theta decay",
+          "Close at 50-75% of max profit",
+          "Monitor for early assignment risk"
+        ],
+        examples: [
+          "Stock at $100. Buy $110 put, sell $105 put, sell $95 put, buy $85 put. Profits if stock moves toward $95-$105 range with max profit around $95-$100."
+        ]
+      },
+      {
+        id: 'bear_butterfly',
+        name: 'Bear Butterfly',
+        description: 'Three-strike strategy with weighted middle leg expecting limited downside move',
+        type: 'bearish',
+        complexity: 'advanced',
+        legs: [
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'sell',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 2
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: 100,
+        maxProfit: 400,
+        breakeven: [0, 0],
+        bestMarketConditions: ['Precise downside target', 'Low volatility'],
+        worstMarketConditions: ['Moves beyond wings', 'High volatility'],
+        timeDecay: 'positive',
+        volatilityImpact: 'negative',
+        instructions: [
+          "Identify a specific price target below current price",
+          "Buy OTM put, sell 2 ATM puts at target, buy ITM put",
+          "Keep strikes equidistant",
+          "Max profit at middle strike at expiration",
+          "Exit early if approaching max profit",
+          "Low cost, high precision required"
+        ],
+        examples: [
+          "Stock at $105, expecting move to $100. Buy $110 put, sell 2x $100 puts, buy $90 put. Max profit if stock exactly at $100 at expiration."
+        ]
+      },
+      {
+        id: 'risk_reversal_bearish',
+        name: 'Risk Reversal',
+        description: 'Sell call and buy put to profit from bearish moves while collecting premium',
+        type: 'bearish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: Infinity,
+        maxProfit: 10000,
+        breakeven: [0],
+        bestMarketConditions: ['Strong bearish conviction', 'Moderate volatility'],
+        worstMarketConditions: ['Strong bullish', 'Large upward moves'],
+        timeDecay: 'neutral',
+        volatilityImpact: 'neutral',
+        instructions: [
+          "Establishes a bearish position for low or zero cost",
+          "Sell OTM call to finance purchase of OTM put",
+          "Unlimited risk if stock rallies strongly",
+          "Best used with strong bearish conviction",
+          "Often used in commodity and forex markets",
+          "Monitor position closely for risk management"
+        ],
+        examples: [
+          "Stock at $100. Sell $110 call for $3, buy $90 put for $3. Zero cost structure. Profit below $90, unlimited risk above $110, neutral between."
+        ]
+      },
+      {
+        id: 'short_synthetic_future',
+        name: 'Short Synthetic Future',
+        description: 'Sell call and buy put at same strike to replicate short stock position using options',
+        type: 'bearish',
+        complexity: 'intermediate',
+        legs: [
+          {
+            action: 'sell',
+            optionType: 'call',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          },
+          {
+            action: 'buy',
+            optionType: 'put',
+            strike: 0,
+            expiration: '30d',
+            quantity: 1
+          }
+        ],
+        maxRisk: Infinity,
+        maxProfit: 10000,
+        breakeven: [0],
+        bestMarketConditions: ['Strong bearish', 'Any volatility'],
+        worstMarketConditions: ['Bullish', 'Large upward moves'],
+        timeDecay: 'neutral',
+        volatilityImpact: 'neutral',
+        instructions: [
+          "Replicates shorting 100 shares of stock",
+          "Sell ATM call and buy ATM put at same strike",
+          "Usually done for near zero cost",
+          "Same profit/loss profile as short stock",
+          "Uses less capital than shorting stock",
+          "No borrow costs but has assignment risk"
+        ],
+        examples: [
+          "Stock at $100. Sell $100 call for $5, buy $100 put for $5. Net zero cost. Behaves like short stock at $100 with unlimited risk above and profit below."
+        ]
       },
       {
         id: 'covered_call',
