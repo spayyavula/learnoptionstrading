@@ -362,7 +362,7 @@ export default function OptionsTrading() {
             ))}
           </ul>
 
-          {selectedStrategy && (
+          {selectedStrategy && !isMultiLegStrategy(selectedStrategy) && (
             <div className="mt-6">
               <h4 className="text-md font-semibold text-gray-800 mb-4">Strategy Payoff Preview</h4>
               <PayoffDiagram
@@ -395,9 +395,14 @@ export default function OptionsTrading() {
               </div>
 
               <MultiLegStrategyBuilder
+                key={selectedStrategy} // Force remount when strategy changes
                 strategyName={selectedStrategy}
-                contracts={contracts.slice(0, 50)}
-                onLegsSelected={() => {}}
+                contracts={contracts.slice(0, 50)}  // Limit to prevent browser freeze
+                onLegsSelected={(legs, validation) => {
+                  console.log('✅ Legs selected:', legs.length, 'validation:', validation.isValid)
+                  setStrategyLegs(legs)
+                  setStrategyValidation(validation)
+                }}
                 onBack={() => setSelectedStrategy(null)}
               />
 
@@ -701,26 +706,26 @@ export default function OptionsTrading() {
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => {
-                if (multiLegLegs.length > 0) {
+                if (strategyLegs.length > 0) {
                   dispatch({
                     type: 'PLACE_MULTI_LEG_ORDER',
                     payload: {
-                      legs: multiLegLegs,
+                      legs: strategyLegs,
                       strategyName: selectedStrategy || '',
                       quantity: parseInt(quantity) || 1
                     }
                   })
                   alert(`${selectedStrategy} order placed successfully!`)
                   setStep(1)
-                  setMultiLegLegs([])
-                  setMultiLegValidation(null)
+                  setStrategyLegs([])
+                  setStrategyValidation(null)
                   setSelectedStrategy(null)
                 } else {
                   handlePlaceOrder()
                   setStep(1)
                 }
               }}
-              disabled={(multiLegLegs.length === 0 && (!selectedContract || !quantity || parseInt(quantity) <= 0)) || (multiLegLegs.length > 0 && (!quantity || parseInt(quantity) <= 0))}
+              disabled={(strategyLegs.length === 0 && (!selectedContract || !quantity || parseInt(quantity) <= 0)) || (strategyLegs.length > 0 && (!quantity || parseInt(quantity) <= 0))}
             >
               Place Trade
             </button>

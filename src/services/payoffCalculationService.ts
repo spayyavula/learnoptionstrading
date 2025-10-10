@@ -25,19 +25,45 @@ export class PayoffCalculationService {
     underlyingPrice: number,
     strategyName: string
   ): StrategyPayoff {
-    const minStrike = Math.min(...legs.map(leg => leg.strike))
-    const maxStrike = Math.max(...legs.map(leg => leg.strike))
+    try {
+      // Validate inputs
+      if (!legs || legs.length === 0) {
+        console.warn('⚠️ No legs provided to payoff calculation')
+        return this.getEmptyPayoff(strategyName, underlyingPrice)
+      }
 
-    const range = maxStrike - minStrike
-    const startPrice = Math.max(0, minStrike - range * 0.5)
-    const endPrice = maxStrike + range * 0.5
+      const minStrike = Math.min(...legs.map(leg => leg.strike))
+      const maxStrike = Math.max(...legs.map(leg => leg.strike))
 
-    const points: PayoffPoint[] = []
-    const step = (endPrice - startPrice) / 100
+      // Safety check for infinite loops
+      if (!isFinite(minStrike) || !isFinite(maxStrike)) {
+        console.error('🚨 Invalid strike prices detected')
+        return this.getEmptyPayoff(strategyName, underlyingPrice)
+      }
 
-    for (let price = startPrice; price <= endPrice; price += step) {
-      const profit = this.calculateProfitAtPrice(legs, price)
-      points.push({ price, profit })
+      const range = maxStrike - minStrike
+      const startPrice = Math.max(0, minStrike - range * 0.5)
+      const endPrice = maxStrike + range * 0.5
+
+      const points: PayoffPoint[] = []
+      const step = (endPrice - startPrice) / 100
+
+      // Limit iterations to prevent browser freeze
+      let iterations = 0
+      const MAX_ITERATIONS = 1000
+
+      for (let price = startPrice; price <= endPrice && iterations < MAX_ITERATIONS; price += step) {
+        iterations++
+        const profit = this.calculateProfitAtPrice(legs, price)
+        points.push({ price, profit })
+      }
+
+      if (iterations >= MAX_ITERATIONS) {
+        console.warn('⚠️ Payoff calculation hit iteration limit')
+      }
+    } catch (error) {
+      console.error('🚨 Error in payoff calculation:', error)
+      return this.getEmptyPayoff(strategyName, underlyingPrice)
     }
 
     const profits = points.map(p => p.profit)
