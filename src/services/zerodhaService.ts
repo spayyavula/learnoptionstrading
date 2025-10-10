@@ -74,7 +74,7 @@ export interface ZerodhaOptionsChain {
 class ZerodhaService {
   private config: ZerodhaConfig
   private baseUrl = 'https://api.kite.trade'
-  private isConfigured = false
+  private _isConfigured = false
 
   constructor() {
     const apiKey = import.meta.env.VITE_ZERODHA_API_KEY || ''
@@ -87,9 +87,9 @@ class ZerodhaService {
       accessToken
     }
 
-    this.isConfigured = !!(apiKey && apiSecret && accessToken)
+    this._isConfigured = !!(apiKey && apiSecret && accessToken)
 
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       console.warn('⚠️ Zerodha API not configured. Add credentials to .env file.')
     } else {
       console.log('✅ Zerodha API configured')
@@ -100,7 +100,14 @@ class ZerodhaService {
    * Check if Zerodha API is properly configured
    */
   isAvailable(): boolean {
-    return this.isConfigured
+    return this._isConfigured
+  }
+
+  /**
+   * Check if Zerodha API is properly configured
+   */
+  isConfigured(): boolean {
+    return this._isConfigured
   }
 
   /**
@@ -150,7 +157,7 @@ class ZerodhaService {
    * This is a large file (~30-40 MB), cache it locally
    */
   async getInstruments(exchange: 'NSE' | 'NFO' | 'BSE' | 'BFO' = 'NFO'): Promise<ZerodhaInstrument[]> {
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       throw new Error('Zerodha API not configured')
     }
 
@@ -211,7 +218,7 @@ class ZerodhaService {
    * Get real-time quote for instruments
    */
   async getQuote(instruments: string[]): Promise<Record<string, ZerodhaQuote>> {
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       throw new Error('Zerodha API not configured')
     }
 
@@ -240,7 +247,7 @@ class ZerodhaService {
    * Get LTP (Last Traded Price) for multiple instruments
    */
   async getLTP(instruments: string[]): Promise<Record<string, { instrument_token: number; last_price: number }>> {
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       throw new Error('Zerodha API not configured')
     }
 
@@ -281,7 +288,7 @@ class ZerodhaService {
     close: number
     volume: number
   }>> {
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       throw new Error('Zerodha API not configured')
     }
 
