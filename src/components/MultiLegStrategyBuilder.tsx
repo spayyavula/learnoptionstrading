@@ -264,7 +264,9 @@ export default function MultiLegStrategyBuilder({
                       }`}
                       onClick={() => addLeg(c, 'buy', 1)}
                     >
-                      <td className="px-3 py-2 text-sm font-bold text-gray-900">${c.strike_price}</td>
+                      <td className="px-3 py-2 text-sm font-bold text-gray-900">
+                        ${c.strike_price} <span className="text-xs text-green-600 font-bold ml-1">CALL</span>
+                      </td>
                       <td className="px-3 py-2 text-sm font-semibold text-gray-700">${c.last.toFixed(2)}</td>
                       <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.volume)}</td>
                       <td className="px-3 py-2 text-sm text-gray-600">{formatNumber(c.open_interest)}</td>
