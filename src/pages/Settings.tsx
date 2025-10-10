@@ -3,7 +3,6 @@ import { Save, RefreshCw, Download, Upload, AlertTriangle, Database, Activity, C
 import { useTradingContext } from '../context/TradingContext'
 import { StripeService } from '../services/stripeService'
 import { ConstantContactService } from '../services/constantContactService'
-import PageViewCounter from './PageViewCounter'
 import SubscriptionStatus from '../components/SubscriptionStatus'
 
 export default function Settings() {
@@ -517,15 +516,6 @@ export default function Settings() {
       </div>
 
       {/* Site Statistics */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="text-lg font-medium text-gray-900">Site Statistics</h3>
-        </div>
-        <div className="card-body">
-          <PageViewCounter />
-        </div>
-      </div>
-
       {/* Save Settings */}
       <div className="flex justify-end">
         <button onClick={saveSettings} className="btn btn-primary">
