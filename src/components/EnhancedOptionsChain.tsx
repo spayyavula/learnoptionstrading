@@ -37,6 +37,7 @@ export const EnhancedOptionsChain: React.FC = () => {
   useEffect(() => {
     if (market === 'INDIA') {
       setSelectedTicker('NIFTY')
+      setLoading(false) // Indian trading coming soon, don't show loading
       // Connect to Zerodha WebSocket if configured
       const apiKey = import.meta.env.VITE_ZERODHA_API_KEY
       const accessToken = import.meta.env.VITE_ZERODHA_ACCESS_TOKEN
@@ -65,7 +66,11 @@ export const EnhancedOptionsChain: React.FC = () => {
     setServiceStatus(status)
     console.log('[EnhancedOptionsChain] Service Status:', status)
     console.log('[EnhancedOptionsChain] API Key Configured:', status.hasApiKey ? 'YES ✓' : 'NO ✗')
-    loadData()
+
+    // Skip loading data for Indian markets (coming soon)
+    if (market !== 'INDIA') {
+      loadData()
+    }
   }, [selectedTicker, market])
 
   useEffect(() => {
@@ -381,7 +386,43 @@ export const EnhancedOptionsChain: React.FC = () => {
         </button>
       </div>
 
-      {showMockDataNotice && (
+      {market === 'INDIA' && (
+        <div className="coming-soon-banner">
+          <div className="coming-soon-icon">🇮🇳</div>
+          <div className="coming-soon-content">
+            <h2 className="coming-soon-title">Indian Markets Trading - Coming Soon!</h2>
+            <p className="coming-soon-text">
+              Live options trading on NSE & BSE through Zerodha Kite Connect integration is currently in development.
+              <br />
+              <strong>Expected Launch: Q2 2025</strong>
+            </p>
+            <div className="coming-soon-features">
+              <div className="feature-item">✓ NIFTY, BANKNIFTY, FINNIFTY Options</div>
+              <div className="feature-item">✓ NSE/BSE Stock Options (20+ Stocks)</div>
+              <div className="feature-item">✓ Real-Time Market Data via Zerodha</div>
+              <div className="feature-item">✓ Indian Greeks Calculator</div>
+            </div>
+            <div className="coming-soon-actions">
+              <a
+                href="/coming-soon"
+                className="coming-soon-button primary"
+              >
+                Learn More About Indian Trading
+              </a>
+              <a
+                href="https://www.nseindia.com/option-chain"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="coming-soon-button secondary"
+              >
+                Visit NSE India Website
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showMockDataNotice && market !== 'INDIA' && (
         <div className="mock-data-notice">
           <div className="notice-icon">ℹ️</div>
           <div className="notice-content">
@@ -446,29 +487,31 @@ export const EnhancedOptionsChain: React.FC = () => {
         </div>
       )}
 
-      <TickerSelector
-        selectedTicker={selectedTicker}
-        onTickerChange={setSelectedTicker}
-      />
+      {market !== 'INDIA' && (
+        <>
+          <TickerSelector
+            selectedTicker={selectedTicker}
+            onTickerChange={setSelectedTicker}
+          />
 
-      {underlyingPrice && (
-        <div className="underlying-price-banner">
-          <span className="price-label">Underlying Price:</span>
-          <span className="price-value">
-            {market === 'INDIA' ? '₹' : '$'}{underlyingPrice.toFixed(2)}
-          </span>
-        </div>
-      )}
+          {underlyingPrice && (
+            <div className="underlying-price-banner">
+              <span className="price-label">Underlying Price:</span>
+              <span className="price-value">
+                {market === 'INDIA' ? '₹' : '$'}{underlyingPrice.toFixed(2)}
+              </span>
+            </div>
+          )}
 
-      <ExpiryFilter
-        expiries={expiries}
-        selectedExpiryType={selectedExpiryType}
-        selectedExpiryDate={selectedExpiryDate || ''}
-        onExpiryTypeChange={setSelectedExpiryType}
-        onExpiryDateChange={setSelectedExpiryDate}
-      />
+          <ExpiryFilter
+            expiries={expiries}
+            selectedExpiryType={selectedExpiryType}
+            selectedExpiryDate={selectedExpiryDate || ''}
+            onExpiryTypeChange={setSelectedExpiryType}
+            onExpiryDateChange={setSelectedExpiryDate}
+          />
 
-      <div className="chain-controls">
+          <div className="chain-controls">
         <div className="control-group">
           <label>Min Volume:</label>
           <input
@@ -609,6 +652,8 @@ export const EnhancedOptionsChain: React.FC = () => {
             </tbody>
           </table>
         </div>
+      )}
+        </>
       )}
 
       <style>{`
@@ -769,6 +814,106 @@ export const EnhancedOptionsChain: React.FC = () => {
 
         .notice-close:hover {
           opacity: 0.7;
+        }
+
+        .coming-soon-banner {
+          display: flex;
+          gap: 2rem;
+          padding: 3rem 2rem;
+          background: linear-gradient(135deg, #ff6600 0%, #ffffff 50%, #138808 100%);
+          border-radius: 12px;
+          margin-bottom: 2rem;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          border: 3px solid #ff6600;
+        }
+
+        .coming-soon-icon {
+          font-size: 5rem;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+
+        .coming-soon-content {
+          flex: 1;
+        }
+
+        .coming-soon-title {
+          font-size: 2.5rem;
+          font-weight: 800;
+          margin: 0 0 1rem 0;
+          background: linear-gradient(135deg, #ff6600 0%, #138808 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .coming-soon-text {
+          font-size: 1.1rem;
+          color: #1f2937;
+          margin: 0 0 1.5rem 0;
+          line-height: 1.6;
+        }
+
+        .coming-soon-text strong {
+          color: #ff6600;
+          font-weight: 700;
+        }
+
+        .coming-soon-features {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 0.75rem;
+          margin-bottom: 2rem;
+        }
+
+        .feature-item {
+          padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 6px;
+          font-weight: 600;
+          color: #1f2937;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .coming-soon-actions {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+
+        .coming-soon-button {
+          padding: 1rem 2rem;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .coming-soon-button.primary {
+          background: linear-gradient(135deg, #ff6600 0%, #ff8533 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3);
+        }
+
+        .coming-soon-button.primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(255, 102, 0, 0.4);
+        }
+
+        .coming-soon-button.secondary {
+          background: white;
+          color: #ff6600;
+          border: 2px solid #ff6600;
+        }
+
+        .coming-soon-button.secondary:hover {
+          background: #fff5f0;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2);
         }
 
         .underlying-price-banner {
