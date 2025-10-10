@@ -2,6 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { liveOptionsDataService, LiveOptionsContract, OptionsExpiry, DataServiceStatus } from '../services/liveOptionsDataService'
 import { TickerSelector } from './TickerSelector'
 import { ExpiryFilter } from './ExpiryFilter'
+import MarketToggle, { type Market } from './MarketToggle'
+import zerodhaService from '../services/zerodhaService'
+import { zerodhaWebSocket } from '../services/zerodhaWebSocketService'
 
 interface StrikeRow {
   strike: number
@@ -10,6 +13,10 @@ interface StrikeRow {
 }
 
 export const EnhancedOptionsChain: React.FC = () => {
+  const [market, setMarket] = useState<Market>(() => {
+    const defaultMarket = import.meta.env.VITE_DEFAULT_MARKET || 'US'
+    return defaultMarket.toUpperCase() as Market
+  })
   const [selectedTicker, setSelectedTicker] = useState('SPY')
   const [underlyingPrice, setUnderlyingPrice] = useState<number | null>(null)
   const [contracts, setContracts] = useState<LiveOptionsContract[]>([])
@@ -24,6 +31,34 @@ export const EnhancedOptionsChain: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [serviceStatus, setServiceStatus] = useState<DataServiceStatus | null>(null)
   const [showMockDataNotice, setShowMockDataNotice] = useState(false)
+  const [zerodhaConnected, setZerodhaConnected] = useState(false)
+
+  // Handle market change
+  useEffect(() => {
+    if (market === 'INDIA') {
+      setSelectedTicker('NIFTY')
+      // Connect to Zerodha WebSocket if configured
+      const apiKey = import.meta.env.VITE_ZERODHA_API_KEY
+      const accessToken = import.meta.env.VITE_ZERODHA_ACCESS_TOKEN
+      if (apiKey && accessToken) {
+        zerodhaWebSocket.connect()
+          .then(() => {
+            setZerodhaConnected(true)
+            console.log('[EnhancedOptionsChain] Connected to Zerodha WebSocket')
+          })
+          .catch(err => {
+            console.error('[EnhancedOptionsChain] Failed to connect to Zerodha WebSocket:', err)
+            setZerodhaConnected(false)
+          })
+      }
+    } else {
+      setSelectedTicker('SPY')
+      if (zerodhaWebSocket.getConnectionStatus()) {
+        zerodhaWebSocket.disconnect()
+        setZerodhaConnected(false)
+      }
+    }
+  }, [market])
 
   useEffect(() => {
     const status = liveOptionsDataService.getStatus()
@@ -31,7 +66,7 @@ export const EnhancedOptionsChain: React.FC = () => {
     console.log('[EnhancedOptionsChain] Service Status:', status)
     console.log('[EnhancedOptionsChain] API Key Configured:', status.hasApiKey ? 'YES ✓' : 'NO ✗')
     loadData()
-  }, [selectedTicker])
+  }, [selectedTicker, market])
 
   useEffect(() => {
     if (selectedExpiryDate) {
@@ -52,32 +87,65 @@ export const EnhancedOptionsChain: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true)
-    console.log(`[EnhancedOptionsChain] Loading data for ticker: ${selectedTicker}`)
+    console.log(`[EnhancedOptionsChain] Loading data for ticker: ${selectedTicker}, market: ${market}`)
 
     try {
-      const status = liveOptionsDataService.getStatus()
-      setServiceStatus(status)
-      console.log('[EnhancedOptionsChain] Data Source:', status.hasApiKey ? 'Live API Data' : 'Mock Data')
+      if (market === 'INDIA') {
+        // Load Indian market data via Zerodha
+        const isConfigured = zerodhaService.isConfigured()
+        console.log('[EnhancedOptionsChain] Zerodha configured:', isConfigured)
 
-      const [price, expiryData] = await Promise.all([
-        liveOptionsDataService.getUnderlyingPrice(selectedTicker),
-        liveOptionsDataService.fetchExpiriesForTicker(selectedTicker)
-      ])
+        if (isConfigured) {
+          // Get Indian options chain
+          const optionsChain = await zerodhaService.getOptionsChain(selectedTicker)
+          console.log(`[EnhancedOptionsChain] Loaded Indian options chain for ${selectedTicker}`)
 
-      console.log(`[EnhancedOptionsChain] Loaded ${expiryData.length} expiries for ${selectedTicker}`)
-      setUnderlyingPrice(price)
-      setExpiries(expiryData)
+          // Set underlying price
+          setUnderlyingPrice(optionsChain.underlying_price)
 
-      if (expiryData.length > 0) {
-        setShowMockDataNotice(!status.hasApiKey)
-        if (!selectedExpiryDate) {
-          const defaultExpiry = expiryData.find(e => e.expiry_type === 'Weekly') || expiryData[0]
-          setSelectedExpiryDate(defaultExpiry.expiration_date)
-          console.log(`[EnhancedOptionsChain] Default expiry selected: ${defaultExpiry.expiration_date}`)
+          // Convert Zerodha expiries to our format
+          const indianExpiries: OptionsExpiry[] = optionsChain.expiries.map(exp => ({
+            expiration_date: exp,
+            expiry_type: 'Monthly', // TODO: Detect weekly vs monthly
+            days_to_expiry: Math.ceil((new Date(exp).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+          }))
+
+          setExpiries(indianExpiries)
+          setShowMockDataNotice(false)
+
+          if (indianExpiries.length > 0 && !selectedExpiryDate) {
+            setSelectedExpiryDate(indianExpiries[0].expiration_date)
+          }
+        } else {
+          setShowMockDataNotice(true)
+          console.warn('[EnhancedOptionsChain] Zerodha not configured, showing notice')
         }
       } else {
-        setShowMockDataNotice(true)
-        console.warn('[EnhancedOptionsChain] No expiry data found, showing mock data notice')
+        // Load US market data via Polygon
+        const status = liveOptionsDataService.getStatus()
+        setServiceStatus(status)
+        console.log('[EnhancedOptionsChain] Data Source:', status.hasApiKey ? 'Live API Data' : 'Mock Data')
+
+        const [price, expiryData] = await Promise.all([
+          liveOptionsDataService.getUnderlyingPrice(selectedTicker),
+          liveOptionsDataService.fetchExpiriesForTicker(selectedTicker)
+        ])
+
+        console.log(`[EnhancedOptionsChain] Loaded ${expiryData.length} expiries for ${selectedTicker}`)
+        setUnderlyingPrice(price)
+        setExpiries(expiryData)
+
+        if (expiryData.length > 0) {
+          setShowMockDataNotice(!status.hasApiKey)
+          if (!selectedExpiryDate) {
+            const defaultExpiry = expiryData.find(e => e.expiry_type === 'Weekly') || expiryData[0]
+            setSelectedExpiryDate(defaultExpiry.expiration_date)
+            console.log(`[EnhancedOptionsChain] Default expiry selected: ${defaultExpiry.expiration_date}`)
+          }
+        } else {
+          setShowMockDataNotice(true)
+          console.warn('[EnhancedOptionsChain] No expiry data found, showing mock data notice')
+        }
       }
     } catch (error) {
       console.error('[EnhancedOptionsChain] Error loading data:', error)
@@ -90,21 +158,85 @@ export const EnhancedOptionsChain: React.FC = () => {
   const loadOptionsForExpiry = async () => {
     if (!selectedExpiryDate) return
 
-    const data = await liveOptionsDataService.fetchOptionsForTicker(
-      selectedTicker,
-      selectedExpiryDate
-    )
-    setContracts(data)
+    if (market === 'INDIA') {
+      // Load Indian options data
+      const optionsChain = await zerodhaService.getOptionsChain(selectedTicker, selectedExpiryDate)
 
-    if (data.length > 0 && underlyingPrice) {
-      const strikes = Array.from(new Set(data.map(c => c.strike_price))).sort((a, b) => a - b)
-      const atmIndex = strikes.findIndex(s => s >= underlyingPrice)
-      const rangeSize = 15
+      // Convert Zerodha options to LiveOptionsContract format
+      const convertedContracts: LiveOptionsContract[] = []
 
-      if (atmIndex >= 0) {
-        const minStrike = strikes[Math.max(0, atmIndex - rangeSize)]
-        const maxStrike = strikes[Math.min(strikes.length - 1, atmIndex + rangeSize)]
-        setStrikeRange({ min: minStrike, max: maxStrike })
+      optionsChain.calls.forEach(call => {
+        convertedContracts.push({
+          contract_type: 'call',
+          strike_price: call.strike,
+          expiration_date: selectedExpiryDate,
+          last: call.last_price,
+          bid: call.bid,
+          ask: call.ask,
+          volume: call.volume,
+          open_interest: call.oi,
+          implied_volatility: call.iv,
+          delta: call.greeks.delta,
+          gamma: call.greeks.gamma,
+          theta: call.greeks.theta,
+          vega: call.greeks.vega,
+          ticker: selectedTicker,
+          underlying_price: optionsChain.underlying_price
+        })
+      })
+
+      optionsChain.puts.forEach(put => {
+        convertedContracts.push({
+          contract_type: 'put',
+          strike_price: put.strike,
+          expiration_date: selectedExpiryDate,
+          last: put.last_price,
+          bid: put.bid,
+          ask: put.ask,
+          volume: put.volume,
+          open_interest: put.oi,
+          implied_volatility: put.iv,
+          delta: put.greeks.delta,
+          gamma: put.greeks.gamma,
+          theta: put.greeks.theta,
+          vega: put.greeks.vega,
+          ticker: selectedTicker,
+          underlying_price: optionsChain.underlying_price
+        })
+      })
+
+      setContracts(convertedContracts)
+
+      // Set strike range
+      if (convertedContracts.length > 0 && underlyingPrice) {
+        const strikes = Array.from(new Set(convertedContracts.map(c => c.strike_price))).sort((a, b) => a - b)
+        const atmIndex = strikes.findIndex(s => s >= underlyingPrice)
+        const rangeSize = 15
+
+        if (atmIndex >= 0) {
+          const minStrike = strikes[Math.max(0, atmIndex - rangeSize)]
+          const maxStrike = strikes[Math.min(strikes.length - 1, atmIndex + rangeSize)]
+          setStrikeRange({ min: minStrike, max: maxStrike })
+        }
+      }
+    } else {
+      // Load US options data
+      const data = await liveOptionsDataService.fetchOptionsForTicker(
+        selectedTicker,
+        selectedExpiryDate
+      )
+      setContracts(data)
+
+      if (data.length > 0 && underlyingPrice) {
+        const strikes = Array.from(new Set(data.map(c => c.strike_price))).sort((a, b) => a - b)
+        const atmIndex = strikes.findIndex(s => s >= underlyingPrice)
+        const rangeSize = 15
+
+        if (atmIndex >= 0) {
+          const minStrike = strikes[Math.max(0, atmIndex - rangeSize)]
+          const maxStrike = strikes[Math.min(strikes.length - 1, atmIndex + rangeSize)]
+          setStrikeRange({ min: minStrike, max: maxStrike })
+        }
       }
     }
   }
@@ -191,6 +323,9 @@ export const EnhancedOptionsChain: React.FC = () => {
 
   const formatPrice = (value: number | null | undefined): string => {
     if (value === null || value === undefined) return '-'
+    if (market === 'INDIA') {
+      return `₹${value.toFixed(2)}`
+    }
     return `$${value.toFixed(2)}`
   }
 
@@ -221,17 +356,26 @@ export const EnhancedOptionsChain: React.FC = () => {
       <div className="chain-header">
         <div className="header-left">
           <h1 className="chain-title">Live Options Chain</h1>
-          {serviceStatus && (
+          <MarketToggle
+            currentMarket={market}
+            onMarketChange={setMarket}
+          />
+          {market === 'US' && serviceStatus && (
             <span className={`data-source-badge ${serviceStatus.hasApiKey ? 'live' : 'demo'}`}>
               {serviceStatus.hasApiKey ? '🟢 Live Data Available' : '⚠️ Demo Data Only'}
+            </span>
+          )}
+          {market === 'INDIA' && (
+            <span className={`data-source-badge ${zerodhaConnected ? 'live' : 'demo'}`}>
+              {zerodhaConnected ? '🟢 Zerodha Connected' : '⚠️ Demo Data Only'}
             </span>
           )}
         </div>
         <button
           className="sync-button"
           onClick={syncData}
-          disabled={syncing || !serviceStatus?.hasApiKey}
-          title={!serviceStatus?.hasApiKey ? 'API key required for live data sync' : 'Sync live data from Polygon API'}
+          disabled={syncing || (market === 'US' && !serviceStatus?.hasApiKey) || (market === 'INDIA' && !zerodhaService.isConfigured())}
+          title={market === 'US' ? 'Sync live data from Polygon API' : 'Sync live data from Zerodha API'}
         >
           {syncing ? '⟳ Syncing...' : '↻ Sync Data'}
         </button>
@@ -242,27 +386,60 @@ export const EnhancedOptionsChain: React.FC = () => {
           <div className="notice-icon">ℹ️</div>
           <div className="notice-content">
             <strong>Showing Demo Data</strong>
-            <p>
-              You're viewing sample options data. To fetch live data from markets, you need to:
-            </p>
-            <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
-              <li>Get a free API key from Polygon.io</li>
-              <li>Add it to your <code>.env</code> file as <code>VITE_POLYGON_API_KEY=your_api_key</code></li>
-              <li>Restart the development server</li>
-              <li>Click the "Sync Data" button to load live options data</li>
-            </ol>
-            <a
-              href="https://polygon.io/dashboard/signup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="notice-link"
-            >
-              Get a free API key from Polygon.io →
-            </a>
-            {serviceStatus && (
-              <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#78350f' }}>
-                <strong>Status:</strong> {serviceStatus.message}
-              </p>
+            {market === 'US' ? (
+              <>
+                <p>
+                  You're viewing sample options data. To fetch live data from US markets, you need to:
+                </p>
+                <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+                  <li>Get a free API key from Polygon.io</li>
+                  <li>Add it to your <code>.env</code> file as <code>VITE_POLYGON_API_KEY=your_api_key</code></li>
+                  <li>Restart the development server</li>
+                  <li>Click the "Sync Data" button to load live options data</li>
+                </ol>
+                <a
+                  href="https://polygon.io/dashboard/signup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="notice-link"
+                >
+                  Get a free API key from Polygon.io →
+                </a>
+                {serviceStatus && (
+                  <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#78350f' }}>
+                    <strong>Status:</strong> {serviceStatus.message}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <p>
+                  You're viewing sample Indian market data. To fetch live data from NSE/BSE, you need to:
+                </p>
+                <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+                  <li>Sign up for Zerodha Kite Connect API</li>
+                  <li>Add credentials to your <code>.env</code> file:
+                    <ul style={{ margin: '0.25rem 0', paddingLeft: '1.5rem' }}>
+                      <li><code>VITE_ZERODHA_API_KEY=your_api_key</code></li>
+                      <li><code>VITE_ZERODHA_API_SECRET=your_api_secret</code></li>
+                      <li><code>VITE_ZERODHA_ACCESS_TOKEN=your_access_token</code></li>
+                    </ul>
+                  </li>
+                  <li>Restart the development server</li>
+                  <li>Click the "Sync Data" button to load live options data</li>
+                </ol>
+                <a
+                  href="https://kite.trade/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="notice-link"
+                >
+                  Get Zerodha Kite Connect API →
+                </a>
+                <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#78350f' }}>
+                  See <code>ZERODHA_SETUP.md</code> for detailed setup instructions.
+                </p>
+              </>
             )}
           </div>
           <button className="notice-close" onClick={() => setShowMockDataNotice(false)}>✕</button>
@@ -277,7 +454,9 @@ export const EnhancedOptionsChain: React.FC = () => {
       {underlyingPrice && (
         <div className="underlying-price-banner">
           <span className="price-label">Underlying Price:</span>
-          <span className="price-value">${underlyingPrice.toFixed(2)}</span>
+          <span className="price-value">
+            {market === 'INDIA' ? '₹' : '$'}{underlyingPrice.toFixed(2)}
+          </span>
         </div>
       )}
 
@@ -398,7 +577,7 @@ export const EnhancedOptionsChain: React.FC = () => {
                       {formatPercent(row.call?.implied_volatility)}
                     </td>
                     <td className="strike-cell">
-                      <strong>${row.strike.toFixed(2)}</strong>
+                      <strong>{market === 'INDIA' ? '₹' : '$'}{row.strike.toFixed(2)}</strong>
                     </td>
                     <td className={`put-cell ${putITM ? 'itm' : 'otm'}`}>
                       {formatPercent(row.put?.implied_volatility)}

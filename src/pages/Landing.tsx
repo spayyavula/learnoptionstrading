@@ -264,16 +264,84 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Add this button below your hero section or wherever you want */}
-      <div className="flex justify-center my-8">
-        <Link to="/optionschain">
-          <button
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-lg font-semibold transition-colors"
-          >
-            View Options Chain (No Login Needed)
-          </button>
-        </Link>
-      </div>
+      {/* Zerodha Indian Markets Integration Banner */}
+      <section className="bg-gradient-to-r from-orange-500 via-white to-green-600 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 border-4 border-orange-500">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <TrendingUp className="h-12 w-12 text-orange-600 mr-3" />
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+                  Now Trading <span className="text-orange-600">Indian Markets</span> 🇮🇳
+                </h2>
+              </div>
+              <p className="text-xl text-gray-700 font-medium">
+                Powered by <strong className="text-orange-600">Zerodha Kite Connect</strong> - India's #1 Trading Platform
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div className="bg-gradient-to-br from-orange-50 to-green-50 rounded-xl p-6 border-2 border-orange-300">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
+                  US Markets (Polygon.io)
+                </h3>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" /> S&P 500, NASDAQ stocks</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" /> SPY, QQQ, IWM options</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" /> Real-time US market data</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" /> Extended hours trading</li>
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-100 to-green-100 rounded-xl p-6 border-2 border-green-600 shadow-lg">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <Sparkles className="h-6 w-6 text-orange-600 mr-2 animate-pulse" />
+                  Indian Markets (Zerodha) 🆕
+                </h3>
+                <ul className="space-y-2 text-gray-700 font-medium">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" /> NIFTY, BANKNIFTY, FINNIFTY</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" /> NSE/BSE stocks options</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" /> Real-time Indian market data</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" /> 20+ liquid stocks (Reliance, TCS, Infy)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 mb-6">
+              <h4 className="text-xl font-bold text-blue-900 mb-3 flex items-center">
+                <Info className="h-6 w-6 mr-2" />
+                Indian-Specific Features
+              </h4>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="flex items-center text-blue-800">
+                  <Calculator className="h-5 w-5 mr-2 text-orange-600" />
+                  <span className="font-semibold">Indian Greeks Calculator</span>
+                </div>
+                <div className="flex items-center text-blue-800">
+                  <Activity className="h-5 w-5 mr-2 text-green-600" />
+                  <span className="font-semibold">Real-time WebSocket</span>
+                </div>
+                <div className="flex items-center text-blue-800">
+                  <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                  <span className="font-semibold">NSE Lot Size Support</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link to="/optionschain">
+                <button className="bg-gradient-to-r from-orange-600 to-green-600 hover:from-orange-700 hover:to-green-700 text-white px-8 py-4 rounded-lg text-lg font-bold shadow-xl hover:shadow-2xl transition-all">
+                  🇮🇳 Try Indian Options Chain Now →
+                </button>
+              </Link>
+              <p className="mt-4 text-sm text-gray-600">
+                No login required • Switch between US & Indian markets anytime
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Features Section */}
       <section className="py-20 bg-gray-50">
