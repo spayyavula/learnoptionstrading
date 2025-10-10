@@ -76,7 +76,7 @@ export default function ComingSoon() {
             <div className="inline-flex items-center bg-yellow-100 border-2 border-yellow-400 rounded-full px-6 py-3 shadow-lg">
               <Clock className="h-5 w-5 text-yellow-700 mr-2" />
               <span className="font-bold text-yellow-900">
-                Expected Launch: Q2 2025
+                Expected Launch: Q1 2026 (Next Quarter)
               </span>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function ComingSoon() {
                   3
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-900">Phase 3: Launch (Q2 2025)</h3>
+                  <h3 className="font-bold text-lg text-gray-900">Phase 3: Launch (Q1 2026)</h3>
                   <p className="text-gray-600">Live trading with Zerodha, multi-leg strategies, real-time portfolio tracking</p>
                 </div>
               </div>

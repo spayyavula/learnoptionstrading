@@ -394,7 +394,7 @@ export const EnhancedOptionsChain: React.FC = () => {
             <p className="coming-soon-text">
               Live options trading on NSE & BSE through Zerodha Kite Connect integration is currently in development.
               <br />
-              <strong>Expected Launch: Q2 2025</strong>
+              <strong>Expected Launch: Q1 2026 (Next Quarter)</strong>
             </p>
             <div className="coming-soon-features">
               <div className="feature-item">✓ NIFTY, BANKNIFTY, FINNIFTY Options</div>
