@@ -34,6 +34,7 @@ export default function MultiLegStrategyBuilder({
   const [validation, setValidation] = useState<ValidationResult | null>(null)
   const [showLivePreview, setShowLivePreview] = useState(true)
   const [hoveredContract, setHoveredContract] = useState<OptionsContract | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   // Pagination state for lazy loading
   const [leg1Page, setLeg1Page] = useState(0)
@@ -138,6 +139,27 @@ export default function MultiLegStrategyBuilder({
   }
 
   const addLeg = (contract: OptionsContract, action: 'buy' | 'sell', quantity: number = 1) => {
+    // Clear any previous validation errors
+    setValidationError(null)
+
+    // Validation: For Bull Call Spread, only allow call options
+    if (strategyName === 'Bull Call Spread' && contract.contract_type !== 'call') {
+      const errorMsg = '⚠️ Bull Call Spread requires CALL options only. Put options are not allowed.'
+      setValidationError(errorMsg)
+      setTimeout(() => setValidationError(null), 5000) // Clear after 5 seconds
+      console.warn(errorMsg)
+      return
+    }
+
+    // Validation: For Bear Put Spread, only allow put options
+    if (strategyName === 'Bear Put Spread' && contract.contract_type !== 'put') {
+      const errorMsg = '⚠️ Bear Put Spread requires PUT options only. Call options are not allowed.'
+      setValidationError(errorMsg)
+      setTimeout(() => setValidationError(null), 5000) // Clear after 5 seconds
+      console.warn(errorMsg)
+      return
+    }
+
     // Use startTransition to mark this state update as non-urgent, allowing React to keep the UI responsive
     startTransition(() => {
       const existingIndex = legs.findIndex(l => l.contract.ticker === contract.ticker)
@@ -191,15 +213,28 @@ export default function MultiLegStrategyBuilder({
           </div>
         </div>
 
-        {/* Leg 1: Buy Call */}
+        {/* Validation Error Display */}
+        {validationError && (
+          <div className="bg-red-100 border-2 border-red-500 text-red-900 px-4 py-3 rounded-lg flex items-center animate-pulse">
+            <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0" />
+            <p className="font-bold text-sm">{validationError}</p>
+          </div>
+        )}
+
+        {/* Leg 1: Buy Call - ONLY CALL OPTIONS */}
         <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border-2 border-green-300 relative">
           <div className="absolute -top-3 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
             LEG 1 OF 2
           </div>
-          <label className="flex items-center text-sm font-bold text-green-800 mb-3 mt-2">
+          <label className="flex items-center text-sm font-bold text-green-800 mb-2 mt-2">
             <TrendingUp className="h-5 w-5 mr-2" />
             Buy Call (Lower Strike) <span className="text-red-500 ml-1">*</span>
           </label>
+          <div className="mb-3 p-2 bg-blue-50 border border-blue-300 rounded-md">
+            <p className="text-xs font-semibold text-blue-900">
+              📞 CALL OPTIONS ONLY - Select any call option to buy (lower strike recommended)
+            </p>
+          </div>
           {buyLeg && (
             <div className="mb-3 p-2 bg-green-200 border border-green-400 rounded-md">
               <p className="text-xs font-bold text-green-900">
@@ -211,7 +246,7 @@ export default function MultiLegStrategyBuilder({
             <table className="w-full bg-white">
               <thead className="bg-green-100">
                 <tr>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Strike</th>
+                  <th className="px-3 py-2 text-left text-xs font-bold text-green-900">Strike (📞 Calls Only)</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Premium</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-green-800">Volume</th>
                   <th className="px-3 py-2 text-left text-xs font-medium text-green-800">OI</th>
