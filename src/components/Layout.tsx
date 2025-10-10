@@ -24,6 +24,7 @@ const menuCategories = [
     items: [
       { name: 'Portfolio', href: '/app/portfolio', icon: Briefcase },
       { name: 'Trading', href: '/app/trading', icon: TrendingUp },
+      { name: 'Strategy Builder', href: '/app/strategy-builder', icon: Calculator },
       { name: 'Option Chain', href: '/app/option-chain', icon: PieChart },
       { name: 'Orders', href: '/app/orders', icon: FileText }
     ]

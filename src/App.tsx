@@ -43,6 +43,7 @@ const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'))
 const DisclaimerDetailed = lazy(() => import('./pages/DisclaimerDetailed'))
 const EventOptionsAnalysis = lazy(() => import('./pages/EventOptionsAnalysis'))
 const SentimentAnalysis = lazy(() => import('./pages/SentimentAnalysis'))
+const StrategyBuilder = lazy(() => import('./pages/StrategyBuilder'))
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -152,6 +153,7 @@ function AppContent() {
                 <Route path="profile" element={<UserProfile />} />
                 <Route path="events" element={<EventOptionsAnalysis />} />
                 <Route path="sentiment" element={<SentimentAnalysis />} />
+                <Route path="strategy-builder" element={<StrategyBuilder />} />
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>
