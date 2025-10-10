@@ -75,7 +75,6 @@ export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = React.useState<string[]>(['Main'])
-  const isDemoMode = localStorage.getItem('demo_mode') === 'true'
   
   // Memoize the active navigation item to prevent unnecessary re-renders
   const activeItem = useMemo(() => {
@@ -109,10 +108,21 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleSignOut = async () => {
     try {
-      await signOut()
-      setUserMenuOpen(false)
+      console.log('🔓 Signing out...')
+      const { error } = await signOut()
+      if (error) {
+        console.error('🔓 Sign out error:', error)
+      } else {
+        console.log('🔓 Sign out successful')
+        // Clear any demo mode remnants
+        localStorage.removeItem('demo_mode')
+        localStorage.removeItem('demo_user')
+        setUserMenuOpen(false)
+        // Redirect to login page
+        window.location.href = '/login'
+      }
     } catch (error) {
-      console.error('Error signing out:', error)
+      console.error('🔓 Error signing out:', error)
     }
   }
 
@@ -332,11 +342,10 @@ export default function Layout({ children }: LayoutProps) {
                     </div>
                     <div className="hidden md:block text-left">
                       <div className="text-sm font-medium">
-                        {isDemoMode ? 'Demo User' : user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                        {isDemoMode && <span className="text-xs text-orange-600 ml-1">(Demo)</span>}
+                        {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {isDemoMode ? 'demo@example.com' : user?.email}
+                        {user?.email}
                       </div>
                     </div>
                     <ChevronDown className={`h-4 w-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
@@ -347,22 +356,13 @@ export default function Layout({ children }: LayoutProps) {
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="text-sm font-medium text-gray-900">
-                          {isDemoMode ? 'Demo User' : user?.user_metadata?.full_name || 'User'}
-                          {isDemoMode && <span className="text-xs text-orange-600 ml-2">(Demo Mode)</span>}
+                          {user?.user_metadata?.full_name || 'User'}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {isDemoMode ? 'demo@example.com' : user?.email}
+                          {user?.email}
                         </div>
                       </div>
-                      
-                      {isDemoMode && (
-                        <div className="px-4 py-2 bg-orange-50 border-b border-orange-100">
-                          <div className="text-xs text-orange-700">
-                            🚀 You're in demo mode! All data is simulated.
-                          </div>
-                        </div>
-                      )}
-                      
+
                       <Link
                         to="/app/profile"
                         onClick={() => setUserMenuOpen(false)}

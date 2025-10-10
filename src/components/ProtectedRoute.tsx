@@ -12,9 +12,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     console.log('ProtectedRoute: location', location.pathname)
   }, [user, loading, location])
 
-  const demoMode = localStorage.getItem('demo_mode') === 'true'
-
   if (loading) return <div>Loading...</div>
-  if (!user && !demoMode) return <Navigate to="/login" replace state={{ from: location }} />
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />
   return <>{children}</>
 }

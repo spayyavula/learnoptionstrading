@@ -52,13 +52,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     try {
       console.log('🔐 AuthProvider signIn attempt for:', email)
-      
+
+      // Clear any demo mode remnants
+      localStorage.removeItem('demo_mode')
+      localStorage.removeItem('demo_user')
+
       // Check if Supabase is properly configured
       const { isValidConfig } = await import('../lib/supabase')
       if (!isValidConfig) {
         throw new Error('Authentication service is not configured. Please check your Supabase settings.')
       }
-      
+
       const result = await auth.signIn(email, password)
       console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
       if (result.error) {
