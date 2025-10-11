@@ -4,7 +4,8 @@ import {
   BarChart3, Briefcase, TrendingUp, FileText, PieChart,
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
-  ShieldCheck, UserCircle, LogOut, User, Layers, TrendingDown
+  ShieldCheck, UserCircle, LogOut, User, Layers, TrendingDown,
+  Trophy, Award, Target, Flame
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
@@ -50,6 +51,16 @@ const menuCategories = [
       { name: 'Strategies', href: '/app/strategies', icon: Lightbulb },
       { name: 'Templates', href: '/app/templates', icon: Layers },
       { name: 'Journal', href: '/app/journal', icon: FileText }
+    ]
+  },
+  {
+    name: 'Gamification',
+    icon: Trophy,
+    items: [
+      { name: 'Demo', href: '/app/gamification/demo', icon: Flame },
+      { name: 'Profile', href: '/app/gamification/profile', icon: Trophy },
+      { name: 'Achievements', href: '/app/gamification/achievements', icon: Award },
+      { name: 'Challenges', href: '/app/gamification/challenges', icon: Target }
     ]
   },
   {

@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { OptionsProvider } from './context/OptionsContext'
 import { TradingProvider } from './context/TradingContext'
 import { OptionsDataProvider } from './context/OptionsDataContext'
+import { GamificationProvider } from './components/gamification'
 import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
@@ -52,6 +53,12 @@ const OptionsScreener = lazyWithRetry(() => import('./pages/OptionsScreener'))
 const LiquidOptionsSentimentHeatMap = lazyWithRetry(() => import('./pages/LiquidOptionsSentimentHeatMap'))
 const BrokerConnections = lazyWithRetry(() => import('./pages/BrokerConnections'))
 const PredictionMarkets = lazyWithRetry(() => import('./pages/PredictionMarkets'))
+
+// Gamification Components
+const ProfileDashboard = lazyWithRetry(() => import('./components/gamification/ProfileDashboard').then(m => ({ default: m.ProfileDashboard })))
+const AchievementPanel = lazyWithRetry(() => import('./components/gamification/AchievementPanel').then(m => ({ default: m.AchievementPanel })))
+const ChallengeDashboard = lazyWithRetry(() => import('./components/gamification/ChallengeDashboard').then(m => ({ default: m.ChallengeDashboard })))
+const GamificationDemo = lazyWithRetry(() => import('./pages/GamificationDemo'))
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -94,10 +101,12 @@ function App() {
           <ErrorBoundary>
             <OptionsProvider>
               <OptionsDataProvider>
-                <Router>
-                  <SeoHelmet />
-                  <AppContent />
-                </Router>
+                <GamificationProvider>
+                  <Router>
+                    <SeoHelmet />
+                    <AppContent />
+                  </Router>
+                </GamificationProvider>
               </OptionsDataProvider>
             </OptionsProvider>
           </ErrorBoundary>
@@ -170,6 +179,11 @@ function AppContent() {
                 <Route path="sentiment-heatmap" element={<LiquidOptionsSentimentHeatMap />} />
                 <Route path="brokers" element={<BrokerConnections />} />
                 <Route path="prediction-markets" element={<PredictionMarkets />} />
+                {/* Gamification Routes */}
+                <Route path="gamification/demo" element={<GamificationDemo />} />
+                <Route path="gamification/profile" element={<ProfileDashboard />} />
+                <Route path="gamification/achievements" element={<AchievementPanel />} />
+                <Route path="gamification/challenges" element={<ChallengeDashboard />} />
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>
