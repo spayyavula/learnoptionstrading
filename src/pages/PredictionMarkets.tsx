@@ -792,3 +792,6 @@ export const PredictionMarkets: React.FC = () => {
     </div>
   )
 }
+
+// Default export for lazy loading
+export default PredictionMarkets
