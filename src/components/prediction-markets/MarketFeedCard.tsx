@@ -1,6 +1,6 @@
 import React from 'react'
 import { TrendingUp, TrendingDown, Users, MessageCircle, Newspaper, Clock, Flame, Zap } from 'lucide-react'
-import { PredictionMarket } from '../../services/kalshiService'
+import { FinFeedMarket as PredictionMarket } from '../../services/finfeedService'
 
 interface MarketFeedCardProps {
   market: PredictionMarket

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { X, TrendingUp, TrendingDown, AlertCircle, Info } from 'lucide-react'
-import { PredictionMarket } from '../../services/kalshiService'
+import { FinFeedMarket as PredictionMarket } from '../../services/finfeedService'
 
 interface QuickTradeModalProps {
   market: PredictionMarket

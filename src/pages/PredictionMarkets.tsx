@@ -308,7 +308,7 @@ export const PredictionMarkets: React.FC = () => {
   }
 
   const handleClosePosition = async (positionId: string) => {
-    // This would need to be implemented in the KalshiService
+    // This would need to be implemented in the FinFeedService
     console.log('Closing position:', positionId)
     // For now, just refresh data
     await loadData()

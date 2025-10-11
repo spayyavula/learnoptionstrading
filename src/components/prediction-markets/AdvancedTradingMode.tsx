@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { X, TrendingUp, TrendingDown, Zap, Clock, DollarSign, AlertCircle, Settings } from 'lucide-react'
-import { PredictionMarket } from '../../services/kalshiService'
+import { FinFeedMarket as PredictionMarket } from '../../services/finfeedService'
 
 interface OrderbookLevel {
   price: number

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { KalshiService } from '../services/kalshiService'
+import { FinFeedService } from '../services/finfeedService'
 import { supabase } from '../lib/supabase'
 
 interface SetupWizardProps {
@@ -25,7 +25,7 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
       setCurrentStep('credentials')
     } else if (currentStep === 'credentials') {
       if (!apiKey.trim()) {
-        setError('Please enter your Kalshi API key')
+        setError('Please enter your FinFeed API key')
         return
       }
       setCurrentStep('verify')
@@ -47,19 +47,19 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
       if (!user) throw new Error('User not authenticated')
 
       // Save credentials
-      const saved = await KalshiService.saveCredentials(user.id, apiKey, environment)
+      const saved = await FinFeedService.saveCredentials(user.id, apiKey, environment)
       if (!saved) {
         throw new Error('Failed to save credentials')
       }
 
       // Validate by fetching account info
-      const isValid = await KalshiService.validateCredentials(user.id, environment)
+      const isValid = await FinFeedService.validateCredentials(user.id, environment)
       if (!isValid) {
-        throw new Error('Invalid credentials - could not authenticate with Kalshi API')
+        throw new Error('Invalid credentials - could not authenticate with FinFeed API')
       }
 
       // Get account details
-      const account = await KalshiService.getAccount(user.id, environment)
+      const account = await FinFeedService.getAccount(user.id, environment)
       setAccountInfo(account)
 
     } catch (err: any) {
@@ -86,7 +86,7 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
           Welcome to Prediction Markets
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Trade on the outcomes of real-world events using Kalshi's prediction markets.
+          Trade on the outcomes of real-world events across multiple prediction markets.
         </p>
       </div>
 
@@ -101,8 +101,8 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
         <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 ml-4 list-disc">
           <li>Trade YES or NO on event outcomes</li>
           <li>Prices reflect market consensus probability</li>
-          <li>CFTC-regulated through KalshiEX LLC</li>
-          <li>Available for US residents only</li>
+          <li>Access markets from Polymarket, Manifold, Metaculus, PredictIt & more</li>
+          <li>Demo mode available for risk-free practice</li>
         </ul>
       </div>
 
@@ -112,19 +112,19 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
           <label className="flex items-start space-x-2">
             <input type="checkbox" className="mt-1" required />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              I have a Kalshi account (sign up at kalshi.com)
+              I want to explore prediction markets across multiple platforms
             </span>
           </label>
           <label className="flex items-start space-x-2">
             <input type="checkbox" className="mt-1" required />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              I have generated API credentials from my Kalshi account settings
+              I understand demo mode is available for practice trading
             </span>
           </label>
           <label className="flex items-start space-x-2">
             <input type="checkbox" className="mt-1" required />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              I am a US resident over 18 years old
+              I am over 18 years old
             </span>
           </label>
         </div>
@@ -148,10 +148,10 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Enter Kalshi API Credentials
+          Configure FinFeed Settings
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Connect your Kalshi account to start trading prediction markets.
+          Set up your FinFeed connection to access multiple prediction markets.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Kalshi API Key
+            FinFeed API Key (optional for demo)
           </label>
           <div className="relative">
             <input
@@ -206,15 +206,14 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
 
       <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-          How to Get Your API Key
+          API Key Information
         </h4>
-        <ol className="text-sm text-gray-700 dark:text-gray-300 space-y-1 ml-4 list-decimal">
-          <li>Log in to your Kalshi account at kalshi.com</li>
-          <li>Navigate to Settings → API Keys</li>
-          <li>Click "Generate New API Key"</li>
-          <li>Copy the API key and paste it here in format: email:api-key</li>
-          <li>Store your API key securely - it cannot be recovered</li>
-        </ol>
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+          FinFeed provides access to multiple prediction markets platforms. For demo mode, no API key is required - you can start trading immediately with simulated data from Polymarket, Manifold, Metaculus, and PredictIt.
+        </p>
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          For live trading, you would need API credentials from individual platforms. Contact FinFeed support for production access.
+        </p>
       </div>
 
       {error && (
@@ -232,14 +231,14 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
           Verifying Credentials
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Please wait while we connect to Kalshi and verify your credentials.
+          Please wait while we connect to FinFeed and verify your settings.
         </p>
       </div>
 
       {isVerifying ? (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <p className="text-gray-600 dark:text-gray-400">Connecting to Kalshi API...</p>
+          <p className="text-gray-600 dark:text-gray-400">Connecting to FinFeed...</p>
         </div>
       ) : error ? (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
@@ -259,7 +258,7 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
               ✓ Credentials Verified Successfully!
             </h4>
             <p className="text-sm text-green-800 dark:text-green-200">
-              Your Kalshi account is now connected.
+              Your FinFeed connection is now active.
             </p>
           </div>
 
@@ -319,7 +318,7 @@ export const PredictionMarketsSetupWizard: React.FC<SetupWizardProps> = ({ onCom
           Setup Complete!
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Your Kalshi prediction markets integration is ready to use.
+          Your FinFeed prediction markets integration is ready to use.
         </p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TrendingUp, TrendingDown, Clock, Award, Target, AlertTriangle, Lightbulb, PieChart } from 'lucide-react'
-import { PredictionMarketPosition } from '../../services/kalshiService'
+import { FinFeedPosition as PredictionMarketPosition } from '../../services/finfeedService'
 
 interface PortfolioStats {
   totalValue: number
