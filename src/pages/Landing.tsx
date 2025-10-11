@@ -567,7 +567,7 @@ export default function Landing() {
               Trade the Future with <span className="text-green-600">Prediction Markets</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Robinhood Prediction Markets integration - bet on real-world events, elections, economic data, and market outcomes
+              FinFeed multi-source integration - bet on real-world events, elections, economic data, and market outcomes across multiple platforms
             </p>
           </div>
 
@@ -582,46 +582,46 @@ export default function Landing() {
               <div className="flex-1">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="text-5xl font-black text-green-600" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                    ROBINHOOD
+                    FinFeed
                   </div>
                 </div>
                 <p className="text-lg text-gray-700 font-semibold mb-4">
-                  Prediction Markets • Event Contracts
+                  Multi-Source Prediction Markets • 5+ Platforms
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-3 mb-6">
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Presidential & congressional elections</span>
+                    <span className="font-medium">Polymarket - Crypto predictions</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Fed interest rate decisions</span>
+                    <span className="font-medium">Manifold - Play-money markets</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Economic data releases (CPI, jobs)</span>
+                    <span className="font-medium">Metaculus - Forecasting platform</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Market milestone events</span>
+                    <span className="font-medium">PredictIt - Political markets</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Sports outcomes & entertainment</span>
+                    <span className="font-medium">Elections, economics, tech & more</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
-                    <span className="font-medium">Tech & crypto developments</span>
+                    <span className="font-medium">Sports, entertainment & crypto</span>
                   </div>
                 </div>
 
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-4">
                   <p className="text-sm text-green-900 font-semibold mb-2">
-                    🎯 Why Prediction Markets?
+                    🎯 Why FinFeed Multi-Source Integration?
                   </p>
                   <p className="text-sm text-green-800">
-                    Prediction markets aggregate collective wisdom to forecast future events. Trade binary outcome contracts based on real-world events with transparent pricing and instant settlement. Perfect complement to your options trading strategy.
+                    Access prediction markets from Polymarket, Manifold, Metaculus, PredictIt, and more through a single unified interface. Trade binary outcome contracts on elections, economics, crypto, sports, and tech events. Compare prices across platforms and diversify your prediction market portfolio.
                   </p>
                 </div>
               </div>
@@ -630,16 +630,16 @@ export default function Landing() {
             <div className="mt-8 pt-8 border-t border-gray-200">
               <div className="grid md:grid-cols-3 gap-6 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-green-600 mb-2">$1-$99</div>
-                  <div className="text-gray-600 text-sm">Contract Price Range</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">5+</div>
+                  <div className="text-gray-600 text-sm">Prediction Market Sources</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-emerald-600 mb-2">24/7</div>
-                  <div className="text-gray-600 text-sm">Trading Available</div>
+                  <div className="text-3xl font-bold text-emerald-600 mb-2">1000+</div>
+                  <div className="text-gray-600 text-sm">Markets to Trade</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-teal-600 mb-2">Instant</div>
-                  <div className="text-gray-600 text-sm">Settlement on Resolution</div>
+                  <div className="text-3xl font-bold text-teal-600 mb-2">Unified</div>
+                  <div className="text-gray-600 text-sm">Single Interface</div>
                 </div>
               </div>
             </div>
