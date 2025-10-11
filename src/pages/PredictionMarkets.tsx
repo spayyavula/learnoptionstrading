@@ -10,7 +10,7 @@ import {
   Zap,
   ChevronDown
 } from 'lucide-react'
-import { KalshiService, PredictionMarket, PredictionMarketPosition, PredictionMarketOrder } from '../services/kalshiService'
+import { FinFeedService, FinFeedMarket as PredictionMarket, FinFeedPosition as PredictionMarketPosition, FinFeedOrder as PredictionMarketOrder } from '../services/finfeedService'
 import { supabase } from '../lib/supabase'
 import { PredictionMarketsSetupWizard } from '../components/PredictionMarketsSetupWizard'
 import { MarketFeedCard } from '../components/prediction-markets/MarketFeedCard'
@@ -50,6 +50,7 @@ export const PredictionMarkets: React.FC = () => {
 
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [sourceFilter, setSourceFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
   // Orderbook state for advanced trading
@@ -126,7 +127,7 @@ export const PredictionMarkets: React.FC = () => {
         return
       }
 
-      const configured = await KalshiService.isConfigured(user.id, environment)
+      const configured = await FinFeedService.isConfigured(user.id, environment)
       setIsConfigured(configured)
 
       if (!configured) {
@@ -145,22 +146,22 @@ export const PredictionMarkets: React.FC = () => {
       if (!user) return
 
       // Load account info
-      const accountData = await KalshiService.getAccount(user.id, environment)
+      const accountData = await FinFeedService.getAccount(user.id, environment)
       setAccount(accountData)
 
       // Load markets
-      const marketsData = await KalshiService.getMarkets(user.id, environment, {
+      const marketsData = await FinFeedService.getMarkets(user.id, environment, {
         status: 'active',
         limit: 100
       })
       setMarkets(marketsData.markets)
 
       // Load positions
-      const positionsData = await KalshiService.getPositions(user.id, environment)
+      const positionsData = await FinFeedService.getPositions(user.id, environment)
       setPositions(positionsData)
 
       // Load orders
-      const ordersData = await KalshiService.getOrders(user.id, environment)
+      const ordersData = await FinFeedService.getOrders(user.id, environment)
       setOrders(ordersData)
 
     } catch (err: any) {
@@ -177,8 +178,8 @@ export const PredictionMarkets: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      await KalshiService.syncMarkets(user.id, environment)
-      await KalshiService.syncPortfolio(user.id, environment)
+      await FinFeedService.syncMarkets(user.id, environment)
+      await FinFeedService.syncPortfolio(user.id, environment)
       await loadData()
     } catch (err: any) {
       setError(err.message)
@@ -201,7 +202,7 @@ export const PredictionMarkets: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const ob = await KalshiService.getMarketOrderbook(user.id, environment, market.ticker)
+      const ob = await FinFeedService.getMarketOrderbook(user.id, environment, market.ticker)
       setOrderbook(ob)
       setShowAdvancedTrade(true)
     } catch (err) {
@@ -236,7 +237,7 @@ export const PredictionMarkets: React.FC = () => {
         time_in_force: 'gtc'
       }
 
-      await KalshiService.placeOrder(user.id, environment, orderRequest)
+      await FinFeedService.placeOrder(user.id, environment, orderRequest)
 
       // Refresh data
       await loadData()
@@ -269,7 +270,7 @@ export const PredictionMarkets: React.FC = () => {
         time_in_force: order.timeInForce
       }
 
-      await KalshiService.placeOrder(user.id, environment, orderRequest)
+      await FinFeedService.placeOrder(user.id, environment, orderRequest)
 
       // Refresh data
       await loadData()
@@ -299,7 +300,7 @@ export const PredictionMarkets: React.FC = () => {
         time_in_force: 'gtc'
       }
 
-      await KalshiService.placeOrder(user.id, environment, orderRequest)
+      await FinFeedService.placeOrder(user.id, environment, orderRequest)
       await loadData()
     } catch (err: any) {
       setError(err.message)
@@ -377,11 +378,13 @@ export const PredictionMarkets: React.FC = () => {
 
   const filteredMarkets = markets.filter(m => {
     if (categoryFilter !== 'all' && m.category !== categoryFilter) return false
+    if (sourceFilter !== 'all' && m.source !== sourceFilter) return false
     if (searchQuery && !m.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
     return true
   })
 
   const categories = ['all', ...Array.from(new Set(markets.map(m => m.category).filter(Boolean)))]
+  const sources = ['all', ...Array.from(new Set(markets.map(m => m.source).filter(Boolean)))]
 
   // Calculate portfolio stats
   const totalPnL = positions.reduce((sum, p) => sum + (p.unrealized_pnl || 0), 0)
@@ -473,7 +476,7 @@ export const PredictionMarkets: React.FC = () => {
                 Prediction Markets
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Powered by Kalshi
+                Powered by FinFeed • Multiple Sources: Polymarket, Manifold, Metaculus, PredictIt & More
               </p>
             </div>
 
@@ -632,6 +635,20 @@ export const PredictionMarkets: React.FC = () => {
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
+
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="all">All Sources</option>
+                <option value="polymarket">Polymarket</option>
+                <option value="manifold">Manifold</option>
+                <option value="metaculus">Metaculus</option>
+                <option value="predictit">PredictIt</option>
+                <option value="kalshi">Kalshi (Offline)</option>
+              </select>
 
               <select
                 value={categoryFilter}
