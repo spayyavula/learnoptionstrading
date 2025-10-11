@@ -44,6 +44,7 @@ const DisclaimerDetailed = lazy(() => import('./pages/DisclaimerDetailed'))
 const EventOptionsAnalysis = lazy(() => import('./pages/EventOptionsAnalysis'))
 const SentimentAnalysis = lazy(() => import('./pages/SentimentAnalysis'))
 const StrategyBuilder = lazy(() => import('./pages/StrategyBuilder'))
+const LiquidOptionsSentimentDashboard = lazy(() => import('./pages/LiquidOptionsSentimentDashboard'))
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -154,6 +155,7 @@ function AppContent() {
                 <Route path="events" element={<EventOptionsAnalysis />} />
                 <Route path="sentiment" element={<SentimentAnalysis />} />
                 <Route path="strategy-builder" element={<StrategyBuilder />} />
+                <Route path="sentiment-heatmap" element={<LiquidOptionsSentimentDashboard />} />
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>
