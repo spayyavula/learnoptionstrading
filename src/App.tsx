@@ -51,6 +51,7 @@ const SentimentAnalysis = lazyWithRetry(() => import('./pages/SentimentAnalysis'
 const OptionsScreener = lazyWithRetry(() => import('./pages/OptionsScreener'))
 const LiquidOptionsSentimentHeatMap = lazyWithRetry(() => import('./pages/LiquidOptionsSentimentHeatMap'))
 const BrokerConnections = lazyWithRetry(() => import('./pages/BrokerConnections'))
+const PredictionMarkets = lazyWithRetry(() => import('./pages/PredictionMarkets'))
 
 // Loading component for Suspense
 const LoadingFallback = () => (
@@ -168,6 +169,7 @@ function AppContent() {
                 <Route path="screener" element={<OptionsScreener />} />
                 <Route path="sentiment-heatmap" element={<LiquidOptionsSentimentHeatMap />} />
                 <Route path="brokers" element={<BrokerConnections />} />
+                <Route path="prediction-markets" element={<PredictionMarkets />} />
                 {/* Admin Routes */}
                 <Route path="admin" element={
                   <AdminRoute>

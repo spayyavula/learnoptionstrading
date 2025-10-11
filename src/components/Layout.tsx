@@ -4,7 +4,7 @@ import {
   BarChart3, Briefcase, TrendingUp, FileText, PieChart,
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
-  ShieldCheck, UserCircle, LogOut, User, Layers
+  ShieldCheck, UserCircle, LogOut, User, Layers, TrendingDown
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
@@ -25,7 +25,8 @@ const menuCategories = [
       { name: 'Portfolio', href: '/app/portfolio', icon: Briefcase },
       { name: 'Trading', href: '/app/trading', icon: TrendingUp },
       { name: 'Option Chain', href: '/app/option-chain', icon: PieChart },
-      { name: 'Orders', href: '/app/orders', icon: FileText }
+      { name: 'Orders', href: '/app/orders', icon: FileText },
+      { name: 'Prediction Markets', href: '/app/prediction-markets', icon: TrendingDown }
     ]
   },
   {
