@@ -50,7 +50,7 @@ export const auth = {
     if (!isValidConfig) {
       throw new Error('Password reset is not available. Authentication service is not configured.')
     }
-    return await supabase.auth.resetPassword({ email, ...options })
+    return await supabase.auth.resetPasswordForEmail(email, options)
   },
 
   async signOut() {

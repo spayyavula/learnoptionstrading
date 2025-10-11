@@ -1,10 +1,10 @@
 import React, { useMemo, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  BarChart3, Briefcase, TrendingUp, FileText, PieChart, 
+import {
+  BarChart3, Briefcase, TrendingUp, FileText, PieChart,
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
-  ShieldCheck, UserCircle, LogOut, User
+  ShieldCheck, UserCircle, LogOut, User, Layers
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
@@ -33,6 +33,9 @@ const menuCategories = [
     icon: PieChart,
     items: [
       { name: 'Analytics', href: '/app/analytics', icon: PieChart },
+      { name: 'Screener', href: '/app/screener', icon: BarChart3 },
+      { name: 'Sentiment Analysis', href: '/app/sentiment', icon: TrendingUp },
+      { name: 'Sentiment HeatMap', href: '/app/sentiment-heatmap', icon: BarChart3 },
       { name: 'Event Analysis', href: '/app/events', icon: TrendingUp },
       { name: 'Regime Analysis', href: '/app/regime', icon: PieChart },
       { name: 'Options Arbitrage', href: '/app/arbitrage', icon: Calculator }
@@ -44,6 +47,7 @@ const menuCategories = [
     items: [
       { name: 'Learning', href: '/app/learning', icon: BookOpen },
       { name: 'Strategies', href: '/app/strategies', icon: Lightbulb },
+      { name: 'Templates', href: '/app/templates', icon: Layers },
       { name: 'Journal', href: '/app/journal', icon: FileText }
     ]
   },
@@ -54,13 +58,20 @@ const menuCategories = [
     ]
   },
   {
-    name: 'System',
+    name: 'Account',
+    icon: UserCircle,
     items: [
       { name: 'My Profile', href: '/app/profile', icon: UserCircle },
+      { name: 'Broker Connections', href: '/app/brokers', icon: CreditCard },
+      { name: 'Settings', href: '/app/settings', icon: Settings }
+    ]
+  },
+  {
+    name: 'System',
+    items: [
       { name: 'Admin', href: '/app/admin', icon: ShieldCheck },
       { name: 'Data Manager', href: '/app/data-manager', icon: Settings },
-      { name: 'Agent API', href: '/agent', icon: Bot },
-      { name: 'Settings', href: '/app/settings', icon: Settings }
+      { name: 'Agent API', href: '/agent', icon: Bot }
     ]
   }
 ]

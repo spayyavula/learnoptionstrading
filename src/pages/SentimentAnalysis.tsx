@@ -7,7 +7,7 @@ import { SentimentSyncScheduler } from '../services/sentimentSyncScheduler'
 import { Newspaper, TrendingUp, RefreshCw, Settings } from 'lucide-react'
 import type { OptionsContract } from '../types/options'
 
-export function SentimentAnalysis() {
+export default function SentimentAnalysis() {
   const [selectedTicker, setSelectedTicker] = useState<string>('SPY')
   const [liquidOptions, setLiquidOptions] = useState<OptionsContract[]>([])
   const [syncing, setSyncing] = useState(false)

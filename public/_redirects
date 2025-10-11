@@ -1,0 +1,11 @@
+# Netlify SPA routing configuration
+# This ensures all routes are handled by the React app
+
+# Redirect www to non-www
+https://www.learnoptionstrading.academy/* https://learnoptionstrading.academy/:splat 301!
+
+# API routes (if you add them in the future)
+/api/*  /api/:splat 200
+
+# All other routes should serve index.html for client-side routing
+/*    /index.html   200

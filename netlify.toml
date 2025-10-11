@@ -44,18 +44,13 @@
 [build.cache]
   paths = ["node_modules"]
 
-# Don't redirect asset files - serve them directly
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
-  force = false
-
-# SPA routing - redirect all paths to index.html
+# SPA routing - redirect all paths to index.html except static files
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  conditions = {Host = ["learnoptionstrading.academy", "www.learnoptionstrading.academy"]}
+  force = false
 
 # Security and performance headers
 [[headers]]
@@ -65,9 +60,9 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    
-    # Performance - cache static assets
-    Cache-Control = "public, max-age=31536000, immutable"
+
+    # Default cache
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 # Don't cache HTML files
 [[headers]]
@@ -87,17 +82,23 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# JS files - long cache with immutable and correct MIME type
+# JS files - moderate cache with revalidation
 [[headers]]
   for = "*.js"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
     Content-Type = "application/javascript; charset=utf-8"
 
 # JS module files in assets directory
 [[headers]]
   for = "/assets/*.js"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
     Content-Type = "application/javascript; charset=utf-8"
     X-Content-Type-Options = "nosniff"
+
+# Static assets (images, fonts) - long cache
+[[headers]]
+  for = "/assets/*.{png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,eot}"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

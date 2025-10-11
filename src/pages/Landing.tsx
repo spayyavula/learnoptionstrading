@@ -174,15 +174,15 @@ export default function Landing() {
   return (
     <>
       <SeoHelmet
-        title="Options Trading Platform - Real-Time Analytics, AI Insights & Multi-Leg Strategies | 100% Free"
-        description="Professional-grade options trading platform with real-time market data, AI sentiment analysis, multi-leg strategy builder, Greeks calculator, market regime detection, event-driven pricing, and 50+ educational modules. All features free forever. Live trading with Alpaca coming in 3 months."
-        keywords="options trading platform, real-time options data, options Greeks calculator, multi-leg options strategies, options sentiment analysis, Black-Scholes calculator, options arbitrage, market regime analysis, options education, paper trading, options chain, implied volatility, FinBERT sentiment, options analytics, free options platform, event-driven options, earnings options, FOMC trading, Alpaca trading"
+        title="Options Trading Platform - Real-Time Analytics, AI Insights & Multi-Leg Strategies | 6 Months Free"
+        description="Professional-grade options trading platform with real-time market data, AI sentiment analysis, multi-leg strategy builder, Greeks calculator, market regime detection, event-driven pricing, and 50+ educational modules. Get 6 months free to master options trading. Live trading with Alpaca Markets launching November 2025 - fully configured with paper trading audit logs, then seamless transition to real money trading."
+        keywords="options trading platform, real-time options data, options Greeks calculator, multi-leg options strategies, options sentiment analysis, Black-Scholes calculator, market regime analysis, options education, paper trading, options chain, implied volatility, FinBERT sentiment, options analytics, free options platform, event-driven options, earnings options, FOMC trading, Alpaca trading, Alpaca Markets, commission-free options, live trading November 2025"
         type="website"
       />
       <div className="min-h-screen bg-white">
-      {/* Free Forever Banner */}
+      {/* Free Trial Banner */}
       <div className="bg-green-600 text-white py-3 px-4 text-center text-sm font-bold">
-        🎉 ALL FEATURES ARE FREE FOREVER! No Subscription Required. Start Learning Now! 🎉
+        🎉 GET 6 MONTHS FREE! Full Access to All Features. Start Learning Now! 🎉
       </div>
 
       {/* Header */}
@@ -190,8 +190,8 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold">Learn Options Trading</h1>
+              <div className="flex-shrink-0 flex items-center">
+                <img src="/logo-dark.svg" alt="Options Academy" className="h-10 md:h-12" />
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -219,7 +219,7 @@ export default function Landing() {
                     to="/signup"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
-                    Get Started Free
+                    Start Free Trial
                   </Link>
                 </>
               )}
@@ -232,31 +232,96 @@ export default function Landing() {
       <section className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
+            <div className="mb-6">
+              <img src="/logo.svg" alt="Options Academy" className="h-20 md:h-28 mx-auto mb-6" />
+            </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Master Options Trading with Pro-Level Tools.
-              <span className="block text-green-400">All Features Are Free Forever!</span>
+              <span className="block text-green-400">Get 6 Months Free Access!</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Advanced options analytics platform with real-time market data, sentiment analysis, multi-leg strategies,
+              Advanced options analytics platform with real-time market data, <span className="font-bold text-yellow-300">50+ pre-built strategy templates</span>, sentiment analysis, multi-leg strategies,
               Greeks tracking, and AI-powered insights. Practice with virtual money before risking real capital.
             </p>
-            <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-2 border-orange-400 rounded-lg p-6 max-w-3xl mx-auto mb-8 shadow-xl">
+            <div className="bg-gradient-to-r from-green-600/40 to-emerald-600/40 border-4 border-green-400 rounded-2xl p-8 max-w-5xl mx-auto mb-8 shadow-2xl backdrop-blur-sm">
               <div className="flex flex-col items-center justify-center">
-                <div className="flex items-center text-orange-100 mb-2">
-                  <Sparkles className="h-6 w-6 mr-2 animate-pulse" />
-                  <span className="font-bold text-xl">Live Trading Integration Coming Soon!</span>
-                  <Sparkles className="h-6 w-6 ml-2 animate-pulse" />
+                <div className="flex items-center text-green-50 mb-4">
+                  <Sparkles className="h-8 w-8 mr-3 animate-pulse" />
+                  <span className="font-black text-2xl md:text-4xl">🎯 Live Trading - November 2025</span>
+                  <Sparkles className="h-8 w-8 ml-3 animate-pulse" />
                 </div>
-                <p className="text-orange-200 text-lg">
-                  Execute real trades through Alpaca integration in ~3 months (thorough testing in progress)
+                <p className="text-green-100 text-xl md:text-2xl font-bold mb-2">
+                  Dual Broker Integration: Alpaca Markets & Interactive Brokers
                 </p>
+                <p className="text-green-200 text-lg mb-6 max-w-3xl text-center">
+                  Choose your preferred broker - we've integrated with both Alpaca Markets (US commission-free) and Interactive Brokers (global access to 150+ markets). Practice with our simulator now, then seamlessly switch to live trading when you're ready.
+                </p>
+
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-6 border-2 border-green-300 max-w-3xl">
+                  <h3 className="text-green-100 font-bold text-xl mb-4 text-center">🚀 Phased Rollout for Your Safety</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-green-500/20 rounded-lg p-4 border border-green-300">
+                      <div className="flex items-center mb-2">
+                        <Shield className="h-6 w-6 text-green-200 mr-2" />
+                        <h4 className="font-bold text-green-100">Phase 1: Paper Trading</h4>
+                      </div>
+                      <ul className="text-sm text-green-200 space-y-1">
+                        <li>• Practice with virtual money</li>
+                        <li>• Full audit log of all trades</li>
+                        <li>• Test strategies risk-free</li>
+                        <li>• Learn both broker interfaces</li>
+                      </ul>
+                    </div>
+                    <div className="bg-green-500/20 rounded-lg p-4 border border-green-300">
+                      <div className="flex items-center mb-2">
+                        <Target className="h-6 w-6 text-green-200 mr-2" />
+                        <h4 className="font-bold text-green-100">Phase 2: Live Trading</h4>
+                      </div>
+                      <ul className="text-sm text-green-200 space-y-1">
+                        <li>• Choose Alpaca or IBKR</li>
+                        <li>• Real money options execution</li>
+                        <li>• Full compliance & security</li>
+                        <li>• Low-cost trading access</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-4xl mb-4">
+                  <div className="bg-green-100/20 backdrop-blur-sm border-2 border-green-300 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-black text-green-100 mb-1">2</div>
+                    <div className="text-xs font-bold text-green-100">Brokers</div>
+                    <div className="text-xs text-green-200">Alpaca + IBKR</div>
+                  </div>
+                  <div className="bg-green-100/20 backdrop-blur-sm border-2 border-green-300 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-black text-green-100 mb-1">🔒</div>
+                    <div className="text-xs font-bold text-green-100">AES-256</div>
+                    <div className="text-xs text-green-200">Encrypted Keys</div>
+                  </div>
+                  <div className="bg-green-100/20 backdrop-blur-sm border-2 border-green-300 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-black text-green-100 mb-1">150+</div>
+                    <div className="text-xs font-bold text-green-100">Markets</div>
+                    <div className="text-xs text-green-200">Global Access</div>
+                  </div>
+                  <div className="bg-green-100/20 backdrop-blur-sm border-2 border-green-300 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-black text-green-100 mb-1">✓</div>
+                    <div className="text-xs font-bold text-green-100">Battle-Tested</div>
+                    <div className="text-xs text-green-200">Fully Configured</div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-400/20 backdrop-blur-sm border-2 border-yellow-300 rounded-lg p-4 max-w-2xl">
+                  <p className="text-yellow-100 text-sm text-center">
+                    <strong>Smart Transition:</strong> Start with paper trading to master the platform. When you're confident, choose Alpaca (US commission-free) or Interactive Brokers (global multi-asset) and switch to live trading. Same interface, same strategies, real money.
+                  </p>
+                </div>
               </div>
             </div>
             <button
               onClick={handleGetStarted}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
             >
-              {user ? 'Go to App' : 'Launch App Now - 100% Free'}
+              {user ? 'Go to App' : 'Start 6-Month Free Trial'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </button>
           </div>
@@ -264,19 +329,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Dual Market Support - US & India */}
+      {/* Multi-Broker Support - Alpaca, IBKR & Zerodha */}
       <section className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Trade Both <span className="text-blue-600">US</span> & <span className="text-orange-600">Indian</span> Markets
+              Trade with <span className="text-blue-600">Alpaca</span>, <span className="text-purple-600">Interactive Brokers</span> & <span className="text-orange-600">Zerodha</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Access real-time options data from world's largest and fastest-growing markets
+              Multi-broker integration with live trading coming November 2025. Practice now, trade later with your preferred broker.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
             {/* US Markets - Alpaca */}
             <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-blue-500 hover:shadow-3xl transition-shadow">
               <div className="flex items-center justify-between mb-6">
@@ -328,10 +393,72 @@ export default function Landing() {
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
                   <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Live Trading Coming Soon!</span>
+                  <span className="font-bold text-orange-900">Live Trading - November 2025!</span>
                 </div>
                 <p className="text-sm text-orange-800">
-                  Execute real trades through Alpaca integration in ~3 months. Currently in thorough testing phase.
+                  Seamless execution through Alpaca Markets integration. Zero commissions, instant fills, and institutional-grade infrastructure.
+                </p>
+              </div>
+            </div>
+
+            {/* US Markets - Interactive Brokers */}
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-purple-500 hover:shadow-3xl transition-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                    <Shield className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Global Access</h3>
+                    <p className="text-sm text-gray-600">150+ Markets Worldwide</p>
+                  </div>
+                </div>
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  NOV 2025
+                </div>
+              </div>
+
+              {/* IBKR Logo Placeholder */}
+              <div className="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-xl p-6 mb-6 border-2 border-purple-300">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl font-black text-purple-900 mb-2" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                      INTERACTIVE
+                    </div>
+                    <div className="text-4xl font-black text-indigo-900 mb-2" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                      BROKERS
+                    </div>
+                    <p className="text-sm text-purple-700 font-semibold">Professional Trading Platform</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-purple-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">150+ markets in 33 countries</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-purple-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Stocks, options, futures, forex & bonds</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-purple-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Institutional-grade execution</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-purple-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Low commissions & tight spreads</span>
+                </li>
+              </ul>
+
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-400 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <Sparkles className="h-5 w-5 text-purple-600 mr-2 animate-pulse" />
+                  <span className="font-bold text-purple-900">Coming November 2025!</span>
+                </div>
+                <p className="text-sm text-purple-800">
+                  Trade globally with IBKR's award-winning platform. Access international options markets with professional tools and deep liquidity.
                 </p>
               </div>
             </div>
@@ -405,10 +532,10 @@ export default function Landing() {
           {/* Call to Action */}
           <div className="text-center bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Try Both Markets Risk-Free
+              Start Practicing Today - Trade Live in November 2025
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Practice with real-time options data from US and Indian markets. Switch between markets instantly.
+              Master options trading with paper trading now. When live trading launches in November 2025, seamlessly connect your Alpaca, Interactive Brokers, or Zerodha account.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/optionschain">
@@ -423,8 +550,307 @@ export default function Landing() {
               </Link>
             </div>
             <p className="mt-4 text-sm text-gray-500">
-              No login required • Switch markets anytime • 100% free forever
+              No login required • Switch markets anytime • 6 months free trial
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Coming Soon - Prediction Markets */}
+      <section className="py-16 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-bold text-sm mb-4 shadow-lg animate-pulse">
+              🚀 COMING SOON • DECEMBER 2025
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Trade the Future with <span className="text-green-600">Prediction Markets</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Robinhood Prediction Markets integration - bet on real-world events, elections, economic data, and market outcomes
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 border-4 border-green-500 max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0">
+                <div className="w-32 h-32 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                  <TrendingUp className="h-16 w-16 text-white" />
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="text-5xl font-black text-green-600" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                    ROBINHOOD
+                  </div>
+                </div>
+                <p className="text-lg text-gray-700 font-semibold mb-4">
+                  Prediction Markets • Event Contracts
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-3 mb-6">
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Presidential & congressional elections</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Fed interest rate decisions</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Economic data releases (CPI, jobs)</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Market milestone events</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Sports outcomes & entertainment</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                    <span className="font-medium">Tech & crypto developments</span>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-4">
+                  <p className="text-sm text-green-900 font-semibold mb-2">
+                    🎯 Why Prediction Markets?
+                  </p>
+                  <p className="text-sm text-green-800">
+                    Prediction markets aggregate collective wisdom to forecast future events. Trade binary outcome contracts based on real-world events with transparent pricing and instant settlement. Perfect complement to your options trading strategy.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <div className="grid md:grid-cols-3 gap-6 text-center">
+                <div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">$1-$99</div>
+                  <div className="text-gray-600 text-sm">Contract Price Range</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-emerald-600 mb-2">24/7</div>
+                  <div className="text-gray-600 text-sm">Trading Available</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-teal-600 mb-2">Instant</div>
+                  <div className="text-gray-600 text-sm">Settlement on Resolution</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">
+              🔔 <strong>Be the first to know when prediction markets go live!</strong>
+            </p>
+            <Link to="/app/settings">
+              <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all">
+                Get Notified • December 2025
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Strategy Templates Section */}
+      <section className="py-20 bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-6 py-2 rounded-full font-black text-sm mb-4 shadow-lg animate-pulse">
+              🎯 NEW FEATURE • 50+ READY-TO-USE TEMPLATES
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black mb-6 leading-tight">
+              Pre-Built Strategy Templates for
+              <span className="block bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                Every Market Condition
+              </span>
+            </h2>
+            <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto font-medium mb-8">
+              Stop guessing. Start with proven strategies optimized for Bull, Bear, Neutral, and High Volatility markets.
+              One-click deployment with pre-calculated Greeks, risk metrics, and breakeven analysis.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 mb-12">
+            {/* Bull Market Strategies */}
+            <div className="bg-white/10 backdrop-blur-lg border-2 border-green-400 rounded-2xl p-6 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center mr-3">
+                  <TrendingUp className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-black text-green-300">Bull Market</h3>
+              </div>
+              <div className="text-5xl font-black text-green-200 mb-2">15+</div>
+              <p className="text-green-100 font-semibold mb-4">Strategies for Rising Markets</p>
+              <ul className="space-y-2 text-sm text-gray-200">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
+                  <span>Bull Call Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
+                  <span>Synthetic Long Stock</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
+                  <span>Cash-Secured Puts</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
+                  <span>Diagonal Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-400 mr-2 flex-shrink-0" />
+                  <span>Covered Calls</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Bear Market Strategies */}
+            <div className="bg-white/10 backdrop-blur-lg border-2 border-red-400 rounded-2xl p-6 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-red-400 to-orange-500 rounded-xl flex items-center justify-center mr-3">
+                  <TrendingDown className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-black text-red-300">Bear Market</h3>
+              </div>
+              <div className="text-5xl font-black text-red-200 mb-2">12+</div>
+              <p className="text-red-100 font-semibold mb-4">Strategies for Falling Markets</p>
+              <ul className="space-y-2 text-sm text-gray-200">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                  <span>Bear Put Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                  <span>Long Puts (Protective)</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                  <span>Bear Call Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                  <span>Ratio Put Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-red-400 mr-2 flex-shrink-0" />
+                  <span>Synthetic Short Stock</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Neutral Market Strategies */}
+            <div className="bg-white/10 backdrop-blur-lg border-2 border-blue-400 rounded-2xl p-6 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center mr-3">
+                  <Target className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-black text-blue-300">Neutral</h3>
+              </div>
+              <div className="text-5xl font-black text-blue-200 mb-2">16+</div>
+              <p className="text-blue-100 font-semibold mb-4">Strategies for Sideways Markets</p>
+              <ul className="space-y-2 text-sm text-gray-200">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                  <span>Iron Condors</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                  <span>Iron Butterflies</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                  <span>Calendar Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                  <span>Short Straddles/Strangles</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                  <span>Credit Spreads</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* High Volatility Strategies */}
+            <div className="bg-white/10 backdrop-blur-lg border-2 border-yellow-400 rounded-2xl p-6 hover:bg-white/20 transition-all hover:scale-105 hover:shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center mr-3">
+                  <Zap className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-black text-yellow-300">Volatility</h3>
+              </div>
+              <div className="text-5xl font-black text-yellow-200 mb-2">10+</div>
+              <p className="text-yellow-100 font-semibold mb-4">Strategies for High IV Markets</p>
+              <ul className="space-y-2 text-sm text-gray-200">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-yellow-400 mr-2 flex-shrink-0" />
+                  <span>Long Straddles</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-yellow-400 mr-2 flex-shrink-0" />
+                  <span>Long Strangles</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-yellow-400 mr-2 flex-shrink-0" />
+                  <span>Jade Lizards</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-yellow-400 mr-2 flex-shrink-0" />
+                  <span>Butterfly Spreads</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-yellow-400 mr-2 flex-shrink-0" />
+                  <span>Ratio Spreads</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Template Benefits */}
+          <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-2 border-yellow-400 rounded-2xl p-8 backdrop-blur-lg">
+            <h3 className="text-3xl font-black text-center mb-8 text-yellow-300">🚀 Why Use Strategy Templates?</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold mb-2 text-white">Save Hours of Setup Time</h4>
+                <p className="text-gray-300">Pre-configured with optimal strike selections, expirations, and position sizing. Just select and deploy.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold mb-2 text-white">Learn from Professionals</h4>
+                <p className="text-gray-300">Each template includes detailed explanations, risk profiles, and market condition guidelines.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Calculator className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="text-xl font-bold mb-2 text-white">Instant Risk Analysis</h4>
+                <p className="text-gray-300">See max profit, max loss, breakeven points, and probability of profit before placing the trade.</p>
+              </div>
+            </div>
+            <div className="mt-8 text-center">
+              <Link to="/app/strategy-templates">
+                <button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 px-10 py-5 rounded-xl text-xl font-black shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+                  🎯 Browse All 50+ Strategy Templates
+                </button>
+              </Link>
+              <p className="mt-4 text-sm text-gray-300">
+                ✓ Included in 6-month free trial • No additional cost
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -433,11 +859,17 @@ export default function Landing() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Professional-Grade Trading Platform
+            <div className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full font-bold text-sm mb-4 shadow-lg">
+              ⚡ ALL FEATURES • 6 MONTHS FREE
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+              Professional-Grade Trading Platform<br/>
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                With Institutional-Level Tools
+              </span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              More than paper trading - a complete options analytics and education ecosystem
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto font-medium">
+              More than paper trading - a complete options analytics and education ecosystem with real-time data, AI insights, and advanced strategies
             </p>
           </div>
 
@@ -452,7 +884,7 @@ export default function Landing() {
                 Live options chains with Greeks, IV, volume, and OI via Polygon.io integration
               </p>
               <div className="mt-3 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold border border-green-300">
-                ✓ 100% Free
+                ✓ 6 Months Free
               </div>
             </div>
 
@@ -461,12 +893,12 @@ export default function Landing() {
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md">
                 <Target className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Multi-Leg Strategy Builder</h3>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">50+ Strategy Templates</h3>
               <p className="text-gray-700 font-medium">
-                Build and visualize spreads, straddles, condors with interactive payoff diagrams
+                Pre-built strategies for Bull, Bear, Neutral & High Volatility markets with one-click deployment
               </p>
-              <div className="mt-3 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold border border-green-300">
-                ✓ Unlimited Access
+              <div className="mt-3 inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold border border-yellow-300">
+                ✨ NEW FEATURE
               </div>
             </div>
 
@@ -480,7 +912,7 @@ export default function Landing() {
                 FinBERT-powered news sentiment, social media tracking, analyst ratings
               </p>
               <div className="mt-3 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold border border-green-300">
-                ✓ Free Forever
+                ✓ 6-Month Trial
               </div>
             </div>
 
@@ -550,7 +982,7 @@ export default function Landing() {
                 Earnings, FOMC, economic events with volatility adjustments and IV crush modeling
               </p>
               <div className="mt-3 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold border border-green-300">
-                ✓ Premium Features Free
+                ✓ All Features Included
               </div>
             </div>
 
@@ -564,43 +996,7 @@ export default function Landing() {
                 50+ modules covering basics to advanced: Greeks, spreads, volatility, risk management
               </p>
               <div className="mt-3 inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold border border-green-300">
-                ✓ All Content Free
-              </div>
-            </div>
-          </div>
-
-          {/* Price Arbitrage - horizontal full row */}
-          <div className="mt-8">
-            <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-yellow-50 via-amber-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-6 md:p-8 shadow-xl hover:shadow-2xl transition-shadow">
-              <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-8 flex items-center justify-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                  <BarChart3 className="h-14 w-14 text-white" />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-3xl font-bold text-yellow-900 mb-3">Options Arbitrage Detection</h3>
-                <p className="text-gray-800 mb-3 text-lg font-medium">
-                  Discover how professional traders spot and act on price differences between related options contracts or markets—locking in low-risk profits.
-                </p>
-                <div className="inline-block bg-yellow-200 text-yellow-900 px-4 py-2 rounded-full text-sm font-bold mb-3 border border-yellow-400">
-                  🎯 Simultaneous Buy & Sell Strategy
-                </div>
-                <div className="bg-gradient-to-br from-yellow-100 to-amber-100 border-2 border-yellow-300 rounded-xl p-4 text-left text-sm text-yellow-900 shadow-inner">
-                  <strong className="text-base text-yellow-900">How to Practice:</strong>
-                  <ol className="list-decimal ml-5 mt-2 space-y-1">
-                    <li className="font-medium">Find two related options or markets with a price gap.</li>
-                    <li className="font-medium">At the same time, <b>buy</b> the underpriced and <b>sell</b> the overpriced contract.</li>
-                    <li className="font-medium">Track your simulated P&amp;L to see if the price gap closes and you profit.</li>
-                    <li>
-                      <Link to="/app" className="text-yellow-800 font-bold underline hover:text-yellow-900 hover:no-underline">
-                        Try arbitrage in the simulator →
-                      </Link>
-                    </li>
-                  </ol>
-                  <div className="mt-3 pt-3 border-t border-yellow-300 text-xs text-gray-700 bg-yellow-50 rounded p-2">
-                    <strong>💡 Pro Tip:</strong> This is not the same as "option writing" (selling calls/puts for premium). Arbitrage is about exploiting price inefficiencies, not collecting premium.
-                  </div>
-                </div>
+                ✓ Full Access Included
               </div>
             </div>
           </div>
@@ -656,10 +1052,10 @@ export default function Landing() {
                   <Target className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Advanced Strategy Tools</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">50+ Pre-Built Strategy Templates</h3>
                   <p className="text-gray-600">
-                    Build complex multi-leg strategies (spreads, iron condors, butterflies) with visual payoff diagrams,
-                    break-even analysis, and portfolio Greeks aggregation.
+                    One-click deployment of proven strategies optimized for Bull, Bear, Neutral, and High Volatility markets.
+                    Each template includes pre-calculated Greeks, risk metrics, and breakeven analysis. Stop guessing, start with proven setups.
                   </p>
                 </div>
               </div>
@@ -671,13 +1067,13 @@ export default function Landing() {
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-orange-900 mb-2">🚀 Live Trading with Alpaca (Coming in ~3 Months)</h3>
+                  <h3 className="text-xl font-bold text-orange-900 mb-2">🚀 Live Trading - November 2025</h3>
                   <p className="text-orange-800 font-medium">
-                    Execute real trades directly through Alpaca brokerage integration. Practice now with our simulator,
-                    then seamlessly transition to live trading when ready. Currently undergoing thorough testing to ensure reliability.
+                    Execute real trades through your choice of Alpaca Markets or Interactive Brokers. Practice now with our simulator,
+                    then seamlessly transition to live trading when ready. Dual broker integration gives you flexibility and global access.
                   </p>
                   <div className="mt-3 bg-orange-100 border border-orange-300 rounded-lg p-3">
-                    <p className="text-sm text-orange-900 font-semibold">✓ Zero-commission stock & options trading</p>
+                    <p className="text-sm text-orange-900 font-semibold">✓ Choose Alpaca (US commission-free) or IBKR (150+ markets)</p>
                     <p className="text-sm text-orange-900 font-semibold">✓ Seamless transition from paper to live</p>
                     <p className="text-sm text-orange-900 font-semibold">✓ Same familiar interface you know</p>
                   </div>
@@ -689,42 +1085,51 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black opacity-10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-black mb-4">Trusted by Thousands of Traders</h2>
+            <p className="text-xl text-blue-100">Join a growing community mastering options trading</p>
+          </div>
           <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold mb-2">10,000+</div>
-              <div className="text-blue-200">Active Users</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-5xl font-black mb-2">10,000+</div>
+              <div className="text-blue-100 font-semibold text-lg">Active Traders</div>
+              <div className="text-blue-200 text-sm mt-2">Growing Daily</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">50+</div>
-              <div className="text-blue-200">Educational Modules</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-5xl font-black mb-2">50+</div>
+              <div className="text-blue-100 font-semibold text-lg">Strategy Templates</div>
+              <div className="text-blue-200 text-sm mt-2">Bull • Bear • Neutral • Volatility</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">1M+</div>
-              <div className="text-blue-200">Simulated Trades</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-5xl font-black mb-2">1M+</div>
+              <div className="text-blue-100 font-semibold text-lg">Paper Trades Executed</div>
+              <div className="text-blue-200 text-sm mt-2">Risk-Free Practice</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">100%</div>
-              <div className="text-blue-200">Free Forever</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border-2 border-white/20 hover:bg-white/20 transition-all">
+              <div className="text-5xl font-black mb-2">100%</div>
+              <div className="text-blue-100 font-semibold text-lg">6 Months Free</div>
+              <div className="text-blue-200 text-sm mt-2">No Hidden Costs</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Free Access CTA Section */}
+      {/* Free Trial CTA Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Launch Your Trading Journey Today
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Access all features instantly and start building your options trading expertise - completely free!
+            Get 6 months of full access to master options trading. All features included!
           </p>
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
             <div className="flex items-center justify-center mb-4">
               <CheckCircle className="h-8 w-8 text-green-600 mr-3" />
-              <h3 className="text-2xl font-bold text-green-800">100% Free Forever</h3>
+              <h3 className="text-2xl font-bold text-green-800">6 Months Free Trial</h3>
             </div>
             <div className="grid md:grid-cols-2 gap-x-6 gap-y-2 text-left text-green-700">
               <li className="flex items-center">
@@ -733,7 +1138,7 @@ export default function Landing() {
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span>Multi-leg strategy builder with payoff diagrams</span>
+                <span>50+ strategy templates (Bull, Bear, Neutral, Volatility)</span>
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
@@ -765,10 +1170,6 @@ export default function Landing() {
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span>Options arbitrage detection</span>
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                 <span>Portfolio Greeks aggregation</span>
               </li>
               <li className="flex items-center">
@@ -781,7 +1182,7 @@ export default function Landing() {
             onClick={handleGetStarted}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center mx-auto"
           >
-            {user ? 'Go to App' : 'Launch App Now - 100% Free'}
+            {user ? 'Go to App' : 'Start Your Free Trial'}
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </div>
@@ -817,7 +1218,7 @@ export default function Landing() {
                 ))}
               </div>
               <p className="text-gray-700 leading-relaxed mb-4">
-                "I went from being terrified of options to confidently trading spreads in just 3 months. The multi-leg strategy builder with real-time Greeks made everything click. The fact that it's completely free is mind-blowing!"
+                "I went from being terrified of options to confidently trading spreads in just 3 months. The multi-leg strategy builder with real-time Greeks made everything click. The 6-month free trial gave me plenty of time to master the platform!"
               </p>
               <div className="text-sm text-blue-600 font-semibold">
                 ✓ Verified Trader
@@ -921,7 +1322,7 @@ export default function Landing() {
                 ))}
               </div>
               <p className="text-gray-700 leading-relaxed mb-4">
-                "The arbitrage detection and market regime analysis tools are professional-grade. I can't believe this is free when I've paid $200/month for platforms with fewer features. The trading journal helped me identify and fix my bad habits."
+                "The market regime analysis and advanced analytics tools are professional-grade. The platform offers incredible value compared to $200/month alternatives. The trading journal helped me identify and fix my bad habits."
               </p>
               <div className="text-sm text-blue-600 font-semibold">
                 ✓ Verified Trader
@@ -976,8 +1377,8 @@ export default function Landing() {
                 <div className="text-gray-600">Paper Trades Executed</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-orange-600 mb-2">$0</div>
-                <div className="text-gray-600">Forever Free</div>
+                <div className="text-3xl font-bold text-orange-600 mb-2">6 Months</div>
+                <div className="text-gray-600">Free Trial Period</div>
               </div>
             </div>
           </div>
@@ -989,9 +1390,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Learn Options Trading</h3>
+              <img src="/logo-dark.svg" alt="Options Academy" className="h-10 mb-4" />
               <p className="text-gray-400">
-                Master options trading with our comprehensive, free educational platform.
+                Master options trading with our comprehensive professional platform. Start with 6 months free.
               </p>
             </div>
             <div>
@@ -1020,7 +1421,11 @@ export default function Landing() {
               <h4 className="text-lg font-semibold mb-4">Contact</h4>
               <div className="flex items-center text-gray-400 mb-2">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>support@learnoptionstrading.academy</span>
+                <span>support@optionsacademy.com</span>
+              </div>
+              <div className="mt-4 text-gray-500 text-sm">
+                <p className="mb-2">Questions? We're here to help!</p>
+                <p className="text-xs">Response time: 24-48 hours</p>
               </div>
             </div>
           </div>
@@ -1035,12 +1440,7 @@ export default function Landing() {
             </div>
             <div className="mt-4 md:mt-0">
               <p className="text-sm text-gray-400">
-                © 2025 Learn Options Trading Academy. All rights reserved.
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <p className="text-sm text-gray-400">
-                © 2025 Learn Options Trading. All rights reserved.
+                © 2025 Options Academy. All rights reserved.
               </p>
             </div>
           </div>

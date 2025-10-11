@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" fill="none">
+  <defs>
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066FF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0099FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00CCFF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00FF88;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00CC66;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6600;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF9933;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Shield/Badge Shape with Geometric Design -->
+  <g id="logo-icon">
+    <!-- Outer shield -->
+    <path d="M 45 15 L 75 15 Q 85 15 85 25 L 85 75 Q 85 90 70 95 L 60 100 L 50 95 Q 35 90 35 75 L 35 25 Q 35 15 45 15 Z"
+          fill="url(#mainGradient)" stroke="#0044CC" stroke-width="2"/>
+
+    <!-- Inner geometric pattern - upward arrow/chart -->
+    <path d="M 45 70 L 50 55 L 55 65 L 60 50 L 65 60 L 70 40 L 75 45"
+          stroke="url(#accentGradient)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- Greek Delta symbol (Δ) stylized -->
+    <path d="M 60 30 L 48 55 L 72 55 Z"
+          fill="#FFFFFF" opacity="0.9"/>
+
+    <!-- Accent dots for modern touch -->
+    <circle cx="52" cy="42" r="2" fill="url(#orangeGradient)"/>
+    <circle cx="68" cy="42" r="2" fill="url(#orangeGradient)"/>
+
+    <!-- Bottom accent bar -->
+    <rect x="40" y="85" width="40" height="4" rx="2" fill="url(#accentGradient)"/>
+  </g>
+
+  <!-- Text: OPTIONS -->
+  <text x="110" y="50" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="900" fill="url(#mainGradient)" letter-spacing="1">
+    OPTIONS
+  </text>
+
+  <!-- Text: ACADEMY -->
+  <text x="110" y="85" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" fill="#0066FF" letter-spacing="2">
+    ACADEMY
+  </text>
+
+  <!-- Accent line under ACADEMY -->
+  <rect x="110" y="90" width="80" height="3" rx="1.5" fill="url(#accentGradient)"/>
+
+  <!-- Small tagline/accent -->
+  <text x="110" y="105" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="600" fill="#00CC66" letter-spacing="1">
+    MASTER • TRADE • PROFIT
+  </text>
+</svg>

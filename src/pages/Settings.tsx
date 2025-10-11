@@ -1,14 +1,21 @@
 import React, { useState } from 'react'
-import { Save, RefreshCw, Download, Upload, AlertTriangle, Database, Activity, CreditCard } from 'lucide-react'
+import { Save, RefreshCw, Download, Upload, AlertTriangle, Database, Activity, CreditCard, Link as LinkIcon } from 'lucide-react'
 import { useTradingContext } from '../context/TradingContext'
 import { StripeService } from '../services/stripeService'
 import { ConstantContactService } from '../services/constantContactService'
 import SubscriptionStatus from '../components/SubscriptionStatus'
+import AlpacaCredentialsAccordion from '../components/AlpacaCredentialsAccordion'
+import AlpacaSetupWizard from '../components/AlpacaSetupWizard'
+import RobinhoodSetupWizard from '../components/RobinhoodSetupWizard'
+import IBKRSetupWizard from '../components/IBKRSetupWizard'
 
 export default function Settings() {
   const { state } = useTradingContext()
   const [storageStats, setStorageStats] = useState<any>(null)
   const [loadingStats, setLoadingStats] = useState(false)
+  const [showAlpacaWizard, setShowAlpacaWizard] = useState(false)
+  const [showRobinhoodWizard, setShowRobinhoodWizard] = useState(false)
+  const [showIBKRWizard, setShowIBKRWizard] = useState(false)
   
   const [notifications, setNotifications] = useState({
     orderFills: true,
@@ -148,6 +155,66 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
+      {/* Broker Connections */}
+      <div className="card">
+        <div className="card-header">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <LinkIcon className="h-5 w-5 mr-2 text-blue-600" />
+              Broker Connections
+            </h3>
+          </div>
+        </div>
+        <div className="card-body">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Connect your brokerage accounts to execute real trades. Start with paper trading to practice, then switch to live trading when ready.
+            </p>
+
+            <AlpacaCredentialsAccordion
+              onSetupComplete={() => {
+                console.log('Alpaca setup completed from Settings page')
+              }}
+              onLaunchWizard={() => setShowAlpacaWizard(true)}
+            />
+
+            <div className="mt-4 space-y-3">
+              <button
+                onClick={() => setShowRobinhoodWizard(true)}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-green-500 hover:shadow-sm transition-all text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🏹</span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Robinhood Crypto</h4>
+                      <p className="text-sm text-gray-600">24/7 Cryptocurrency Trading</p>
+                    </div>
+                  </div>
+                  <LinkIcon className="h-5 w-5 text-gray-400" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => setShowIBKRWizard(true)}
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-sm transition-all text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🌐</span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Interactive Brokers</h4>
+                      <p className="text-sm text-gray-600">Professional Trading Platform</p>
+                    </div>
+                  </div>
+                  <LinkIcon className="h-5 w-5 text-gray-400" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Subscription Status */}
       <div className="card">
         <div className="card-header">
@@ -523,6 +590,45 @@ export default function Settings() {
           Save Settings
         </button>
       </div>
+
+      {/* Alpaca Setup Wizard Modal */}
+      {showAlpacaWizard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <AlpacaSetupWizard
+            onComplete={() => {
+              setShowAlpacaWizard(false)
+              alert('Alpaca account connected successfully!')
+            }}
+            onCancel={() => setShowAlpacaWizard(false)}
+          />
+        </div>
+      )}
+
+      {/* Robinhood Setup Wizard Modal */}
+      {showRobinhoodWizard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <RobinhoodSetupWizard
+            onComplete={() => {
+              setShowRobinhoodWizard(false)
+              alert('Robinhood Crypto account connected successfully!')
+            }}
+            onCancel={() => setShowRobinhoodWizard(false)}
+          />
+        </div>
+      )}
+
+      {/* IBKR Setup Wizard Modal */}
+      {showIBKRWizard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <IBKRSetupWizard
+            onComplete={() => {
+              setShowIBKRWizard(false)
+              alert('Interactive Brokers account connected successfully!')
+            }}
+            onCancel={() => setShowIBKRWizard(false)}
+          />
+        </div>
+      )}
     </div>
   )
 }
