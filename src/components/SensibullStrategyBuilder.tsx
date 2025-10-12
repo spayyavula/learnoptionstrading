@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { X, Plus, Minus, Info, TrendingUp, TrendingDown, Activity, BarChart3, Check, Trash2, Settings, Search } from 'lucide-react'
 import { useOptionsContext } from '../context/OptionsContext'
+import { useAccount } from '../context/AccountContext'
+import { useAccountTheme } from '../hooks/useAccountTheme'
+import { TradeConfirmationDialog, TradeDetails } from './TradeConfirmationDialog'
 import { LearningService } from '../services/learningService'
 import { StrategyValidationService, type StrategyLeg } from '../services/strategyValidationService'
 import { OptionsChainFilterService } from '../services/optionsChainFilterService'
@@ -35,6 +38,8 @@ export default function SensibullStrategyBuilder({
   buyingPower
 }: SensibullStrategyBuilderProps) {
   const { state, dispatch } = useOptionsContext()
+  const { selectedAccount, isPaperMode } = useAccount()
+  const theme = useAccountTheme()
 
   const [legs, setLegs] = useState<StrategyLegUI[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<StrategyTemplate | null>(null)
@@ -44,6 +49,8 @@ export default function SensibullStrategyBuilder({
   const [showTemplates, setShowTemplates] = useState(true)
   const [targetDate, setTargetDate] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [tradeDetails, setTradeDetails] = useState<TradeDetails | null>(null)
 
   const allTemplates = useMemo(() => LearningService.getStrategyTemplates(), [])
 
@@ -305,6 +312,24 @@ export default function SensibullStrategyBuilder({
       return
     }
 
+    // Prepare trade details for confirmation dialog
+    const strategyName = selectedTemplate?.name || 'Custom Strategy'
+    const firstLeg = legs[0]
+
+    setTradeDetails({
+      action: legs[0].action === 'buy' ? 'BUY' : 'SELL',
+      symbol: `${selectedUnderlying} ${strategyName} (${legs.length} legs)`,
+      quantity: multiplier,
+      price: Math.abs(metrics.netDebit),
+      orderType: 'MARKET',
+      totalCost: totalCost,
+      currency: selectedAccount.currency
+    })
+    setShowConfirmation(true)
+  }
+
+  const executeStrategy = () => {
+    // Execute all legs
     legs.forEach(leg => {
       const contract = getContractForLeg(leg)
       if (contract) {
@@ -317,12 +342,15 @@ export default function SensibullStrategyBuilder({
             orderType: 'market',
             quantity: leg.quantity * multiplier,
             price: contract.last,
-            status: 'filled'
+            status: 'filled',
+            accountId: selectedAccount.id // Track which account this belongs to
           }
         })
       }
     })
 
+    setShowConfirmation(false)
+    setTradeDetails(null)
     alert(`Strategy placed successfully! ${legs.length} legs × ${multiplier} contracts`)
     handleClearStrategy()
   }
@@ -740,6 +768,19 @@ export default function SensibullStrategyBuilder({
           </div>
         )}
       </div>
+
+      {/* Trade Confirmation Dialog */}
+      {tradeDetails && (
+        <TradeConfirmationDialog
+          isOpen={showConfirmation}
+          onClose={() => {
+            setShowConfirmation(false)
+            setTradeDetails(null)
+          }}
+          onConfirm={executeStrategy}
+          tradeDetails={tradeDetails}
+        />
+      )}
     </div>
   )
 }
