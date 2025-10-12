@@ -763,19 +763,37 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Coming Soon - Prediction Markets */}
+      {/* Prediction Markets - Demo Live, Live Mode in Testing */}
       <section className="py-16 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <div className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-bold text-sm mb-4 shadow-lg animate-pulse">
-              🚀 COMING SOON • DECEMBER 2025
+            <div className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-bold text-sm mb-4 shadow-lg">
+              ✅ DEMO LIVE • LIVE MODE IN TESTING
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Trade the Future with <span className="text-green-600">Prediction Markets</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
               FinFeed multi-source integration - bet on real-world events, elections, economic data, and market outcomes across multiple platforms
             </p>
+
+            {/* Status Banner for Prediction Markets */}
+            <div className="max-w-3xl mx-auto bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6 shadow-lg">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <Info className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-green-900 mb-2">📝 Demo Mode Available Now • Live Trading in Testing</h3>
+                  <p className="text-sm text-green-800 leading-relaxed">
+                    <strong>Practice prediction markets right now</strong> with our fully functional demo mode. Live API connections to Polymarket, Manifold, and other platforms are currently being tested. Once testing is complete, you'll be able to trade with real money across all integrated platforms.
+                  </p>
+                  <p className="text-xs text-green-700 mt-3 font-semibold">
+                    🎯 Expected live trading launch: December 2025
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 border-4 border-green-500 max-w-4xl mx-auto">
@@ -854,13 +872,16 @@ export default function Landing() {
 
           <div className="mt-12 text-center">
             <p className="text-gray-600 mb-4">
-              🔔 <strong>Be the first to know when prediction markets go live!</strong>
+              📝 <strong>Try Prediction Markets in Demo Mode Now!</strong>
             </p>
-            <Link to="/app/settings">
+            <Link to="/app/prediction-markets">
               <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all">
-                Get Notified • December 2025
+                Start Trading in Demo Mode
               </button>
             </Link>
+            <p className="text-sm text-gray-500 mt-3">
+              Live trading with real money coming December 2025
+            </p>
           </div>
         </div>
       </section>
