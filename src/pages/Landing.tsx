@@ -357,8 +357,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NYSE • NASDAQ • AMEX</p>
                   </div>
                 </div>
-                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-300">
-                  ✓ LIVE NOW
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
+                  NOV 2025
                 </div>
               </div>
 
@@ -396,10 +396,10 @@ export default function Landing() {
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
                   <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Live Trading - November 2025!</span>
+                  <span className="font-bold text-orange-900">Coming November 2025!</span>
                 </div>
                 <p className="text-sm text-orange-800">
-                  Seamless execution through Alpaca Markets integration. Zero commissions, instant fills, and institutional-grade infrastructure.
+                  Trade US stocks and options through Alpaca Markets. Zero commissions, instant fills, and institutional-grade infrastructure for seamless execution.
                 </p>
               </div>
             </div>
@@ -478,8 +478,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NSE • BSE</p>
                   </div>
                 </div>
-                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold border border-green-300">
-                  ✓ LIVE NOW
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
+                  NOV 2025
                 </div>
               </div>
 
@@ -523,10 +523,10 @@ export default function Landing() {
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
                   <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Trading Coming Soon!</span>
+                  <span className="font-bold text-orange-900">Coming November 2025!</span>
                 </div>
                 <p className="text-sm text-orange-800">
-                  Live Indian options trading integration planned. Currently offering options chain analysis & education.
+                  Trade Indian options through Zerodha's Kite Connect API. Access NIFTY, BANKNIFTY options with real-time data and seamless execution.
                 </p>
               </div>
             </div>
