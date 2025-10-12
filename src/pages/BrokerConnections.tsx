@@ -12,6 +12,7 @@ import RobinhoodAccountDashboard from '../components/RobinhoodAccountDashboard'
 import IBKRSetupWizard from '../components/IBKRSetupWizard'
 import ZerodhaSetupWizard from '../components/ZerodhaSetupWizard'
 import ZerodhaAccountDashboard from '../components/ZerodhaAccountDashboard'
+import { IndianBrokersSetupWizard } from '../components/IndianBrokersSetupWizard'
 import TradingModeToggle from '../components/TradingModeToggle'
 import { supabase } from '../lib/supabase'
 
@@ -20,12 +21,15 @@ export default function BrokerConnections() {
   const [showRobinhoodWizard, setShowRobinhoodWizard] = useState(false)
   const [showIBKRWizard, setShowIBKRWizard] = useState(false)
   const [showZerodhaWizard, setShowZerodhaWizard] = useState(false)
+  const [showIndianBrokersWizard, setShowIndianBrokersWizard] = useState(false)
   const [hasAlpacaCredentials, setHasAlpacaCredentials] = useState(false)
   const [hasRobinhoodCredentials, setHasRobinhoodCredentials] = useState(false)
   const [hasIBKRCredentials, setHasIBKRCredentials] = useState(false)
   const [hasZerodhaCredentials, setHasZerodhaCredentials] = useState(false)
+  const [hasICICICredentials, setHasICICICredentials] = useState(false)
+  const [hasHDFCCredentials, setHasHDFCCredentials] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [tradingMode, setTradingMode] = useState<'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live'>('paper')
+  const [tradingMode, setTradingMode] = useState<'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live' | 'icici-live' | 'hdfc-live'>('paper')
   const [expandedBroker, setExpandedBroker] = useState<string | null>(null)
 
   useEffect(() => {
@@ -39,7 +43,9 @@ export default function BrokerConnections() {
       checkAlpacaCredentials(),
       checkRobinhoodCredentials(),
       checkIBKRCredentials(),
-      checkZerodhaCredentials()
+      checkZerodhaCredentials(),
+      checkICICICredentials(),
+      checkHDFCCredentials()
     ])
     setLoading(false)
   }
@@ -116,19 +122,55 @@ export default function BrokerConnections() {
     }
   }
 
+  const checkICICICredentials = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('icici_direct_credentials')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1)
+
+      setHasICICICredentials(!!data && data.length > 0)
+    } catch (error) {
+      console.error('Error checking ICICI Direct credentials:', error)
+    }
+  }
+
+  const checkHDFCCredentials = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('hdfc_securities_credentials')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .limit(1)
+
+      setHasHDFCCredentials(!!data && data.length > 0)
+    } catch (error) {
+      console.error('Error checking HDFC Securities credentials:', error)
+    }
+  }
+
   const loadTradingMode = () => {
-    const savedMode = localStorage.getItem('tradingMode') as 'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live'
+    const savedMode = localStorage.getItem('tradingMode') as 'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live' | 'icici-live' | 'hdfc-live'
     if (savedMode) {
       setTradingMode(savedMode)
     }
   }
 
-  const handleModeChange = (mode: 'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live') => {
+  const handleModeChange = (mode: 'paper' | 'alpaca-paper' | 'alpaca-live' | 'robinhood-crypto' | 'ibkr-paper' | 'ibkr-live' | 'zerodha-live' | 'icici-live' | 'hdfc-live') => {
     setTradingMode(mode)
     localStorage.setItem('tradingMode', mode)
   }
 
-  const connectedBrokersCount = [hasAlpacaCredentials, hasRobinhoodCredentials, hasIBKRCredentials, hasZerodhaCredentials].filter(Boolean).length
+  const connectedBrokersCount = [hasAlpacaCredentials, hasRobinhoodCredentials, hasIBKRCredentials, hasZerodhaCredentials, hasICICICredentials, hasHDFCCredentials].filter(Boolean).length
 
   const brokers = [
     {
@@ -173,6 +215,50 @@ export default function BrokerConnections() {
         window.scrollTo({ top: document.getElementById('zerodha-section')?.offsetTop ?? 0, behavior: 'smooth' })
       },
       docsUrl: 'https://kite.trade/docs/connect/v3/',
+      popular: false
+    },
+    {
+      id: 'icici',
+      name: 'ICICI Direct',
+      tagline: 'Breeze API - Indian Markets',
+      description: 'Trade NSE, BSE, NFO with ICICI Direct\'s Breeze API. Access Indian stocks, options and futures with reliable execution.',
+      logo: '🏦',
+      color: 'orange',
+      isConnected: hasICICICredentials,
+      features: [
+        { icon: Globe, text: 'NSE, BSE, NFO, MCX' },
+        { icon: Activity, text: 'Real-time Data' },
+        { icon: TrendingUp, text: 'Options & Futures' },
+        { icon: Shield, text: 'Reliable Execution' }
+      ],
+      highlights: ['Best for: Indian Retail Traders', 'Markets: NSE, BSE, NFO, CDS, MCX', 'Brokerage: Competitive rates'],
+      setupAction: () => {
+        setExpandedBroker('icici')
+        window.scrollTo({ top: document.getElementById('icici-section')?.offsetTop ?? 0, behavior: 'smooth' })
+      },
+      docsUrl: 'https://api.icicidirect.com/breezeconnect',
+      popular: false
+    },
+    {
+      id: 'hdfc',
+      name: 'HDFC Securities',
+      tagline: 'Official API - Indian Markets',
+      description: 'Trade on NSE, BSE, NFO, MCX with HDFC Securities API. Advanced order types and comprehensive market access.',
+      logo: '🏛️',
+      color: 'blue',
+      isConnected: hasHDFCCredentials,
+      features: [
+        { icon: Globe, text: 'NSE, BSE, NFO, MCX' },
+        { icon: Activity, text: 'Advanced Orders' },
+        { icon: BarChart3, text: 'Professional Tools' },
+        { icon: Shield, text: 'Trusted Platform' }
+      ],
+      highlights: ['Best for: Active Indian Traders', 'Markets: NSE, BSE, NFO, MCX, CDS', 'Features: Cover orders, Bracket orders'],
+      setupAction: () => {
+        setExpandedBroker('hdfc')
+        window.scrollTo({ top: document.getElementById('hdfc-section')?.offsetTop ?? 0, behavior: 'smooth' })
+      },
+      docsUrl: 'https://api.hdfcsec.com',
       popular: false
     },
     {
@@ -265,7 +351,7 @@ export default function BrokerConnections() {
             {/* Stats Panel */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 min-w-[240px]">
               <div className="text-center">
-                <div className="text-5xl font-bold text-white mb-2">{connectedBrokersCount}/4</div>
+                <div className="text-5xl font-bold text-white mb-2">{connectedBrokersCount}/6</div>
                 <div className="text-white/80 text-sm">Brokers Connected</div>
               </div>
 
@@ -604,6 +690,100 @@ export default function BrokerConnections() {
         </div>
       </div>
 
+      <div id="icici-section" className={`card transition-all duration-300 ${expandedBroker === 'icici' ? 'ring-2 ring-orange-500' : ''}`}>
+        <div className="card-header">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+              <span className="text-3xl mr-3">🏦</span>
+              ICICI Direct
+              {hasICICICredentials && (
+                <span className="ml-3 px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Connected
+                </span>
+              )}
+            </h3>
+          </div>
+        </div>
+        <div className="card-body">
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3 p-4 bg-orange-50 rounded-lg">
+              <Info className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-800 font-medium mb-1">About ICICI Direct Breeze API</p>
+                <p className="text-sm text-gray-700">
+                  Trade on NSE, BSE, NFO, CDS, and MCX with ICICI Direct's Breeze API. Access Indian stocks,
+                  options and futures with competitive brokerage and reliable execution.
+                </p>
+                <a
+                  href="https://api.icicidirect.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm text-orange-600 hover:text-orange-700 font-medium mt-2"
+                >
+                  Visit ICICI Direct API Portal
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </a>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowIndianBrokersWizard(true)}
+              className="w-full btn btn-primary bg-orange-600 hover:bg-orange-700"
+            >
+              {hasICICICredentials ? 'Update Connection' : 'Setup ICICI Direct'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hdfc-section" className={`card transition-all duration-300 ${expandedBroker === 'hdfc' ? 'ring-2 ring-blue-500' : ''}`}>
+        <div className="card-header">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+              <span className="text-3xl mr-3">🏛️</span>
+              HDFC Securities
+              {hasHDFCCredentials && (
+                <span className="ml-3 px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded-full flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Connected
+                </span>
+              )}
+            </h3>
+          </div>
+        </div>
+        <div className="card-body">
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
+              <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm text-gray-800 font-medium mb-1">About HDFC Securities API</p>
+                <p className="text-sm text-gray-700">
+                  Access NSE, BSE, NFO, MCX, and CDS markets with HDFC Securities API. Advanced order types
+                  including Cover Orders and Bracket Orders for sophisticated trading strategies.
+                </p>
+                <a
+                  href="https://api.hdfcsec.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium mt-2"
+                >
+                  Visit HDFC Securities API Portal
+                  <ExternalLink className="h-3 w-3 ml-1" />
+                </a>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowIndianBrokersWizard(true)}
+              className="w-full btn btn-primary"
+            >
+              {hasHDFCCredentials ? 'Update Connection' : 'Setup HDFC Securities'}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div id="ibkr-section" className={`card transition-all duration-300 ${expandedBroker === 'ibkr' ? 'ring-2 ring-indigo-500' : ''}`}>
         <div className="card-header">
           <div className="flex items-center justify-between">
@@ -808,6 +988,17 @@ export default function BrokerConnections() {
             onCancel={() => setShowZerodhaWizard(false)}
           />
         </div>
+      )}
+
+      {showIndianBrokersWizard && (
+        <IndianBrokersSetupWizard
+          onClose={() => setShowIndianBrokersWizard(false)}
+          onComplete={() => {
+            setShowIndianBrokersWizard(false)
+            checkICICICredentials()
+            checkHDFCCredentials()
+          }}
+        />
       )}
     </div>
   )
