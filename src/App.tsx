@@ -53,6 +53,7 @@ const OptionsScreener = lazyWithRetry(() => import('./pages/OptionsScreener'))
 const LiquidOptionsSentimentHeatMap = lazyWithRetry(() => import('./pages/LiquidOptionsSentimentHeatMap'))
 const BrokerConnections = lazyWithRetry(() => import('./pages/BrokerConnections'))
 const PredictionMarkets = lazyWithRetry(() => import('./pages/PredictionMarkets'))
+const BulkDataUpload = lazyWithRetry(() => import('./pages/BulkDataUpload').then(m => ({ default: m.BulkDataUpload })))
 
 // Gamification Components
 const ProfileDashboard = lazyWithRetry(() => import('./components/gamification/ProfileDashboard').then(m => ({ default: m.ProfileDashboard })))
@@ -179,6 +180,7 @@ function AppContent() {
                 <Route path="sentiment-heatmap" element={<LiquidOptionsSentimentHeatMap />} />
                 <Route path="brokers" element={<BrokerConnections />} />
                 <Route path="prediction-markets" element={<PredictionMarkets />} />
+                <Route path="bulk-upload" element={<BulkDataUpload />} />
                 {/* Gamification Routes */}
                 <Route path="gamification/demo" element={<GamificationDemo />} />
                 <Route path="gamification/profile" element={<ProfileDashboard />} />

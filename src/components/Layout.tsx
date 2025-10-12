@@ -5,7 +5,7 @@ import {
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
   ShieldCheck, UserCircle, LogOut, User, Layers, TrendingDown,
-  Trophy, Award, Target, Flame
+  Trophy, Award, Target, Flame, Database, Upload
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
@@ -83,6 +83,7 @@ const menuCategories = [
     items: [
       { name: 'Admin', href: '/app/admin', icon: ShieldCheck },
       { name: 'Data Manager', href: '/app/data-manager', icon: Settings },
+      { name: 'Bulk Data Upload', href: '/app/bulk-upload', icon: Upload },
       { name: 'Agent API', href: '/agent', icon: Bot }
     ]
   }
