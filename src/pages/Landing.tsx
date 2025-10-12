@@ -329,15 +329,18 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Multi-Broker Support - Alpaca, IBKR & Zerodha */}
+      {/* Multi-Broker Support - 6 Brokers */}
       <section className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
+            <div className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-bold text-sm mb-4 shadow-lg">
+              🎯 6 BROKER INTEGRATIONS • US, CRYPTO & INDIAN MARKETS
+            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Trade with <span className="text-blue-600">Alpaca</span>, <span className="text-purple-600">Interactive Brokers</span> & <span className="text-orange-600">Zerodha</span>
+              Trade Globally with Multiple Brokers
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Multi-broker integration with live trading coming November 2025. Practice now, trade later with your preferred broker.
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              Seamlessly switch between US stocks, cryptocurrency, and Indian markets. Choose your preferred broker for each market - Alpaca, IBKR, Robinhood, Zerodha, ICICI Direct, or HDFC Securities.
             </p>
           </div>
 
@@ -529,13 +532,199 @@ export default function Landing() {
             </div>
           </div>
 
+          {/* Row 2: New Broker Integrations - Coming Nov 2025 */}
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {/* Robinhood Crypto */}
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-green-500 hover:shadow-3xl transition-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                    <TrendingUp className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">US Crypto 🪙</h3>
+                    <p className="text-sm text-gray-600">Bitcoin • Ethereum • Altcoins</p>
+                  </div>
+                </div>
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
+                  NOV 2025
+                </div>
+              </div>
+
+              {/* Robinhood Logo Placeholder */}
+              <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl p-6 mb-6 border-2 border-green-300">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl font-black mb-2" style={{
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      background: 'linear-gradient(135deg, #00C805 0%, #00E676 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}>
+                      Robinhood
+                    </div>
+                    <p className="text-sm text-green-700 font-semibold">Crypto Trading • Commission-Free</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Bitcoin (BTC), Ethereum (ETH)</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Dogecoin, Shiba Inu, Litecoin</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Real-time crypto price tracking</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Commission-free crypto trading</span>
+                </li>
+              </ul>
+
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
+                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                </div>
+                <p className="text-sm text-orange-800">
+                  Trade cryptocurrency through Robinhood's commission-free platform. Diversify beyond stocks and options with Bitcoin, Ethereum, and popular altcoins.
+                </p>
+              </div>
+            </div>
+
+            {/* ICICI Direct - Indian Markets */}
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-indigo-500 hover:shadow-3xl transition-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+                    <TrendingUp className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">ICICI Direct 🇮🇳</h3>
+                    <p className="text-sm text-gray-600">NSE • BSE • NFO</p>
+                  </div>
+                </div>
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
+                  NOV 2025
+                </div>
+              </div>
+
+              {/* ICICI Logo Placeholder */}
+              <div className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-xl p-6 mb-6 border-2 border-indigo-300">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl font-black text-indigo-900 mb-2" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                      ICICI Direct
+                    </div>
+                    <p className="text-sm text-indigo-700 font-semibold">Breeze API • Indian Markets</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-indigo-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">NIFTY, BANKNIFTY options (NFO)</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-indigo-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">NSE/BSE stocks & derivatives</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-indigo-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">MCX commodities (Gold, Silver)</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-indigo-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Real-time Indian market data</span>
+                </li>
+              </ul>
+
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
+                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                </div>
+                <p className="text-sm text-orange-800">
+                  Full Indian market access via ICICI Direct's Breeze API. Trade NIFTY options, stocks, futures, and commodities with real-time data.
+                </p>
+              </div>
+            </div>
+
+            {/* HDFC Securities - Indian Markets */}
+            <div className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-red-500 hover:shadow-3xl transition-shadow">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-4">
+                    <Shield className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">HDFC Securities 🇮🇳</h3>
+                    <p className="text-sm text-gray-600">NSE • BSE • MCX</p>
+                  </div>
+                </div>
+                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
+                  NOV 2025
+                </div>
+              </div>
+
+              {/* HDFC Logo Placeholder */}
+              <div className="bg-gradient-to-r from-red-100 to-orange-100 rounded-xl p-6 mb-6 border-2 border-red-300">
+                <div className="flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-red-900 mb-2" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                      HDFC Securities
+                    </div>
+                    <p className="text-sm text-red-700 font-semibold">3-in-1 Account • Advanced Features</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Advanced order types (BO, CO)</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">After Market Orders (AMO)</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">Indian options with Greeks</span>
+                </li>
+                <li className="flex items-center text-gray-700">
+                  <CheckCircle className="h-5 w-5 text-red-500 mr-3 flex-shrink-0" />
+                  <span className="font-medium">3-in-1 integrated banking</span>
+                </li>
+              </ul>
+
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+                <div className="flex items-center mb-2">
+                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
+                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                </div>
+                <p className="text-sm text-orange-800">
+                  Trade Indian markets with HDFC Securities' advanced platform. Bracket orders, cover orders, and AMO support for sophisticated trading strategies.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Call to Action */}
           <div className="text-center bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Start Practicing Today - Trade Live in November 2025
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Master options trading with paper trading now. When live trading launches in November 2025, seamlessly connect your Alpaca, Interactive Brokers, or Zerodha account.
+              Master options trading with paper trading now. When live trading launches in November 2025, seamlessly connect your preferred broker: Alpaca, Interactive Brokers, Robinhood Crypto, Zerodha, ICICI Direct, or HDFC Securities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/optionschain">
