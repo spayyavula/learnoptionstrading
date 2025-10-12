@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { TrendingUp, TrendingDown, DollarSign, Percent, Calculator } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { useOptionsContext } from '../context/OptionsContext'
+import { useAccount } from '../context/AccountContext'
+import { useAccountTheme } from '../hooks/useAccountTheme'
 import { format, parseISO } from 'date-fns'
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
@@ -14,8 +16,19 @@ const CHART_COLORS = {
 
 export default function OptionsPortfolio() {
   const { state } = useOptionsContext()
+  const { selectedAccount, isPaperMode } = useAccount()
+  const theme = useAccountTheme()
+
+  // Filter positions by selected account
+  const accountPositions = state.positions.filter(
+    pos => pos.accountId === selectedAccount.id
+  )
 
   const formatCurrency = (amount: number) => {
+    const currency = selectedAccount.currency || 'USD'
+    if (currency === 'INR') {
+      return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -26,8 +39,8 @@ export default function OptionsPortfolio() {
     return `${percent >= 0 ? '+' : ''}${percent.toFixed(2)}%`
   }
 
-  // Calculate portfolio allocation data for pie chart
-  const allocationData = state.positions.map((position, index) => ({
+  // Calculate portfolio allocation data for pie chart (using filtered positions)
+  const allocationData = accountPositions.map((position, index) => ({
     name: position.contractTicker,
     value: Math.abs(position.totalValue),
     color: position.unrealizedPnL >= 0 ? CHART_COLORS.positive : CHART_COLORS.negative
@@ -42,20 +55,42 @@ export default function OptionsPortfolio() {
     })
   }
 
-  // Calculate performance data for bar chart
-  const performanceData = state.positions.map(position => ({
+  // Calculate performance data for bar chart (using filtered positions)
+  const performanceData = accountPositions.map(position => ({
     contract: position.contractTicker.split('240315')[0], // Simplified name
     unrealizedPnL: position.unrealizedPnL,
     unrealizedPnLPercent: position.unrealizedPnLPercent,
     fill: position.unrealizedPnL >= 0 ? CHART_COLORS.positive : CHART_COLORS.negative
   }))
 
-  const totalUnrealizedPnL = state.positions.reduce((sum, pos) => sum + pos.unrealizedPnL, 0)
-  const totalInvested = state.positions.reduce((sum, pos) => sum + (pos.quantity * pos.avgPrice * 100), 0)
+  const totalUnrealizedPnL = accountPositions.reduce((sum, pos) => sum + pos.unrealizedPnL, 0)
+  const totalInvested = accountPositions.reduce((sum, pos) => sum + (pos.quantity * pos.avgPrice * 100), 0)
   const totalUnrealizedPnLPercent = totalInvested > 0 ? (totalUnrealizedPnL / totalInvested) * 100 : 0
 
   return (
     <div className="space-y-6">
+      {/* Account Information Banner */}
+      <div className={`rounded-xl p-4 border-2 ${theme.border} ${theme.bgPrimary}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">{theme.modeIcon}</span>
+            <div>
+              <h2 className={`text-xl font-bold ${theme.textPrimary}`}>
+                Options Portfolio - {selectedAccount.displayName}
+              </h2>
+              <p className={`text-sm ${theme.textSecondary}`}>
+                {accountPositions.length} position{accountPositions.length !== 1 ? 's' : ''} • Balance: {formatCurrency(selectedAccount.balance)}
+              </p>
+            </div>
+          </div>
+          {isPaperMode && (
+            <span className={`${theme.badgeBg} ${theme.badgeText} px-3 py-1 rounded-full text-xs font-bold`}>
+              PRACTICE MODE
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Portfolio Summary */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
@@ -197,11 +232,16 @@ export default function OptionsPortfolio() {
           <h3 className="text-lg font-medium text-gray-900">Current Options Positions</h3>
         </div>
         <div className="card-body">
-          {state.positions.length === 0 ? (
+          {accountPositions.length === 0 ? (
             <div className="text-center py-8">
               <Calculator className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No options positions</h3>
-              <p className="mt-1 text-sm text-gray-500">Start trading options to build your portfolio. <Link to="/trading" className="text-blue-600 hover:underline">Go to Trading</Link></p>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No options positions in {selectedAccount.name}</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                {isPaperMode
+                  ? 'Start practicing with paper trading to build your portfolio.'
+                  : 'Connect your broker and start trading options.'}
+                {' '}<Link to="/app/trading" className="text-blue-600 hover:underline">Go to Trading</Link>
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -221,7 +261,7 @@ export default function OptionsPortfolio() {
                   </tr>
                 </thead>
                 <tbody>
-                  {state.positions.map((position) => (
+                  {accountPositions.map((position) => (
                     <tr key={position.id}>
                       <td className="border-l-4 border-blue-500">
                         <div>
