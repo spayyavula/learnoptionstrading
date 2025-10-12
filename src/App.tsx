@@ -13,6 +13,7 @@ import { OptionsProvider } from './context/OptionsContext'
 import { TradingProvider } from './context/TradingContext'
 import { OptionsDataProvider } from './context/OptionsDataContext'
 import { GamificationProvider } from './components/gamification'
+import { AccountProvider } from './context/AccountContext'
 import SubscriptionPage from './pages/SubscriptionPage'
 import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
@@ -98,20 +99,22 @@ function App() {
   return (
     <ChunkErrorBoundary>
       <AuthProvider>
-        <TradingProvider>
-          <ErrorBoundary>
-            <OptionsProvider>
-              <OptionsDataProvider>
-                <GamificationProvider>
-                  <Router>
-                    <SeoHelmet />
-                    <AppContent />
-                  </Router>
-                </GamificationProvider>
-              </OptionsDataProvider>
-            </OptionsProvider>
-          </ErrorBoundary>
-        </TradingProvider>
+        <AccountProvider>
+          <TradingProvider>
+            <ErrorBoundary>
+              <OptionsProvider>
+                <OptionsDataProvider>
+                  <GamificationProvider>
+                    <Router>
+                      <SeoHelmet />
+                      <AppContent />
+                    </Router>
+                  </GamificationProvider>
+                </OptionsDataProvider>
+              </OptionsProvider>
+            </ErrorBoundary>
+          </TradingProvider>
+        </AccountProvider>
       </AuthProvider>
     </ChunkErrorBoundary>
   )

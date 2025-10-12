@@ -10,6 +10,8 @@ import {
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
 import { useAuth } from './AuthProvider'
+import { AccountSelector } from './AccountSelector'
+import { ModeIndicatorBanner } from './ModeIndicatorBanner'
 
 // Define menu categories with their items
 const menuCategories = [
@@ -351,10 +353,9 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-500">
-                  <span>Learning Mode</span>
-                </div>
-                
+                {/* Account Selector */}
+                <AccountSelector />
+
                 {/* User Menu */}
                 <div className="relative user-menu-container">
                   <button
@@ -421,6 +422,9 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
         </div>
+
+        {/* Mode Indicator Banner */}
+        <ModeIndicatorBanner />
 
         {/* Page content */}
         <main className="py-6">
