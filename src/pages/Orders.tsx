@@ -1,19 +1,32 @@
 import React, { useState } from 'react'
 import { Clock, CheckCircle, XCircle, AlertCircle, Filter } from 'lucide-react'
 import { useTradingContext } from '../context/TradingContext'
+import { useAccount } from '../context/AccountContext'
+import { useAccountTheme } from '../hooks/useAccountTheme'
 import { format } from 'date-fns'
 
 export default function Orders() {
   const { state, dispatch } = useTradingContext()
+  const { selectedAccount, isPaperMode } = useAccount()
+  const theme = useAccountTheme()
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
 
   const formatCurrency = (amount: number) => {
+    const currency = selectedAccount.currency || 'USD'
+    if (currency === 'INR') {
+      return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(amount)
   }
+
+  // Filter orders by selected account
+  const accountOrders = state.orders.filter(
+    order => order.accountId === selectedAccount.id
+  )
 
   const handleCancelOrder = (orderId: string) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
@@ -21,7 +34,7 @@ export default function Orders() {
     }
   }
 
-  const filteredOrders = state.orders
+  const filteredOrders = accountOrders
     .filter(order => statusFilter === 'all' || order.status === statusFilter)
     .filter(order => typeFilter === 'all' || order.type === typeFilter)
     .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
@@ -58,15 +71,37 @@ export default function Orders() {
   }
 
   const orderStats = {
-    total: state.orders.length,
-    pending: state.orders.filter(o => o.status === 'pending').length,
-    filled: state.orders.filter(o => o.status === 'filled').length,
-    cancelled: state.orders.filter(o => o.status === 'cancelled').length,
-    rejected: state.orders.filter(o => o.status === 'rejected').length
+    total: accountOrders.length,
+    pending: accountOrders.filter(o => o.status === 'pending').length,
+    filled: accountOrders.filter(o => o.status === 'filled').length,
+    cancelled: accountOrders.filter(o => o.status === 'cancelled').length,
+    rejected: accountOrders.filter(o => o.status === 'rejected').length
   }
 
   return (
     <div className="space-y-6">
+      {/* Account Information Banner */}
+      <div className={`rounded-xl p-4 border-2 ${theme.border} ${theme.bgPrimary}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">{theme.modeIcon}</span>
+            <div>
+              <h2 className={`text-xl font-bold ${theme.textPrimary}`}>
+                Order History - {selectedAccount.displayName}
+              </h2>
+              <p className={`text-sm ${theme.textSecondary}`}>
+                {accountOrders.length} order{accountOrders.length !== 1 ? 's' : ''} • {orderStats.pending} pending
+              </p>
+            </div>
+          </div>
+          {isPaperMode && (
+            <span className={`${theme.badgeBg} ${theme.badgeText} px-3 py-1 rounded-full text-xs font-bold`}>
+              PRACTICE MODE
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Order Statistics */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <div className="card">
@@ -173,10 +208,12 @@ export default function Orders() {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-8">
               <Filter className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No orders found in {selectedAccount.name}</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {state.orders.length === 0 
-                  ? "You haven't placed any orders yet."
+                {accountOrders.length === 0
+                  ? (isPaperMode
+                    ? "Start practicing by placing your first paper trade order."
+                    : "You haven't placed any live orders yet.")
                   : "No orders match your current filters."
                 }
               </p>
