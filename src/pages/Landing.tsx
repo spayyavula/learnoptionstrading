@@ -339,9 +339,27 @@ export default function Landing() {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Trade Globally with Multiple Brokers
             </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-6">
               Seamlessly switch between US stocks, cryptocurrency, and Indian markets. Choose your preferred broker for each market - Alpaca, IBKR, Robinhood, Zerodha, ICICI Direct, or HDFC Securities.
             </p>
+
+            {/* Integration Status Banner */}
+            <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-6 shadow-lg">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <Info className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-blue-900 mb-2">✅ Integration Complete - Testing in Progress</h3>
+                  <p className="text-sm text-blue-800 leading-relaxed">
+                    All 6 broker integrations are <strong>fully coded and ready</strong> in our platform. We're currently conducting live connection testing with each broker's API. Once testing is complete and all connections are verified, these brokers will be available for live trading.
+                  </p>
+                  <p className="text-xs text-blue-700 mt-3 font-semibold">
+                    🎯 Expected completion: November 2025
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -357,8 +375,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NYSE • NASDAQ • AMEX</p>
                   </div>
                 </div>
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
-                  NOV 2025
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  IN TESTING
                 </div>
               </div>
 
@@ -393,13 +411,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-orange-800">
-                  Trade US stocks and options through Alpaca Markets. Zero commissions, instant fills, and institutional-grade infrastructure for seamless execution.
+                <p className="text-sm text-blue-800">
+                  Trade US stocks and options through Alpaca Markets. Zero commissions, instant fills, and institutional-grade infrastructure. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
@@ -417,7 +435,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
-                  NOV 2025
+                  IN TESTING
                 </div>
               </div>
 
@@ -455,13 +473,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-purple-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-purple-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-purple-800">
-                  Trade globally with IBKR's award-winning platform. Access international options markets with professional tools and deep liquidity.
+                <p className="text-sm text-blue-800">
+                  Trade globally with IBKR's award-winning platform. Access international options markets with professional tools and deep liquidity. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
@@ -478,8 +496,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NSE • BSE</p>
                   </div>
                 </div>
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
-                  NOV 2025
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  IN TESTING
                 </div>
               </div>
 
@@ -520,13 +538,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-orange-800">
-                  Trade Indian options through Zerodha's Kite Connect API. Access NIFTY, BANKNIFTY options with real-time data and seamless execution.
+                <p className="text-sm text-blue-800">
+                  Trade Indian options through Zerodha's Kite Connect API. Access NIFTY, BANKNIFTY options with real-time data and seamless execution. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
@@ -546,8 +564,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">Bitcoin • Ethereum • Altcoins</p>
                   </div>
                 </div>
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
-                  NOV 2025
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  IN TESTING
                 </div>
               </div>
 
@@ -588,13 +606,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-orange-800">
-                  Trade cryptocurrency through Robinhood's commission-free platform. Diversify beyond stocks and options with Bitcoin, Ethereum, and popular altcoins.
+                <p className="text-sm text-blue-800">
+                  Trade cryptocurrency through Robinhood's commission-free platform. Diversify beyond stocks and options with Bitcoin, Ethereum, and popular altcoins. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
@@ -611,8 +629,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NSE • BSE • NFO</p>
                   </div>
                 </div>
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
-                  NOV 2025
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  IN TESTING
                 </div>
               </div>
 
@@ -647,13 +665,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-orange-800">
-                  Full Indian market access via ICICI Direct's Breeze API. Trade NIFTY options, stocks, futures, and commodities with real-time data.
+                <p className="text-sm text-blue-800">
+                  Full Indian market access via ICICI Direct's Breeze API. Trade NIFTY options, stocks, futures, and commodities with real-time data. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
@@ -670,8 +688,8 @@ export default function Landing() {
                     <p className="text-sm text-gray-600">NSE • BSE • MCX</p>
                   </div>
                 </div>
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold border border-yellow-300">
-                  NOV 2025
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-300">
+                  IN TESTING
                 </div>
               </div>
 
@@ -706,13 +724,13 @@ export default function Landing() {
                 </li>
               </ul>
 
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-400 rounded-lg p-4">
                 <div className="flex items-center mb-2">
-                  <Sparkles className="h-5 w-5 text-orange-600 mr-2 animate-pulse" />
-                  <span className="font-bold text-orange-900">Coming November 2025!</span>
+                  <Activity className="h-5 w-5 text-blue-600 mr-2" />
+                  <span className="font-bold text-blue-900">✅ Integration Complete - Testing API Connection</span>
                 </div>
-                <p className="text-sm text-orange-800">
-                  Trade Indian markets with HDFC Securities' advanced platform. Bracket orders, cover orders, and AMO support for sophisticated trading strategies.
+                <p className="text-sm text-blue-800">
+                  Trade Indian markets with HDFC Securities' advanced platform. Bracket orders, cover orders, and AMO support for sophisticated trading strategies. Integration coded and ready - verifying live API connection.
                 </p>
               </div>
             </div>
