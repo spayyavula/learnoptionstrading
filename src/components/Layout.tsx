@@ -9,7 +9,7 @@ import {
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
 import BottomNavigation from './BottomNavigation'
-import FABMenu from './FABMenu'
+import InnovativeFAB from './InnovativeFAB'
 import { useAuth } from './AuthProvider'
 
 // Define menu categories with their items
@@ -434,8 +434,8 @@ export default function Layout({ children }: LayoutProps) {
         className=""
       />
 
-      {/* Floating Action Button Menu */}
-      <FABMenu
+      {/* Innovative Floating Action Button Menu */}
+      <InnovativeFAB
         isOpen={fabMenuOpen}
         onToggle={() => setFabMenuOpen(!fabMenuOpen)}
         className=""

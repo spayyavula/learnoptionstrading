@@ -456,3 +456,126 @@ body.menu-open {
     opacity: 0.8;
   }
 }
+
+/* Innovative FAB Animations */
+@keyframes fabItemAppear {
+  from {
+    opacity: 0;
+    transform: scale(0) translate(0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes hint {
+  0%, 100% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-hint {
+  animation: hint 4s ease-in-out 2s;
+}
+
+/* Radial menu smooth transitions */
+.radial-menu-item {
+  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* FAB glow effect */
+@keyframes fabGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+                0 0 40px rgba(59, 130, 246, 0.2),
+                0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5),
+                0 0 60px rgba(59, 130, 246, 0.3),
+                0 10px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.fab-glow {
+  animation: fabGlow 2s ease-in-out infinite;
+}
+
+/* Smooth color transitions for gradient buttons */
+.gradient-button {
+  background-size: 200% 200%;
+  transition: background-position 0.3s ease;
+}
+
+.gradient-button:hover {
+  background-position: right center;
+}
+
+/* Particle float animation */
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-particle {
+  animation: particleFloat 3s ease-in-out infinite;
+}
+
+/* Menu mode indicator pulse */
+@keyframes modePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.mode-indicator {
+  animation: modePulse 2s ease-in-out infinite;
+}
