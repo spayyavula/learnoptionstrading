@@ -1,13 +1,15 @@
 import React, { useMemo, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  BarChart3, Briefcase, TrendingUp, FileText, PieChart, 
+import {
+  BarChart3, Briefcase, TrendingUp, FileText, PieChart,
   Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
   ShieldCheck, UserCircle, LogOut, User
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
 import SubscriptionBanner from './SubscriptionBanner'
+import BottomNavigation from './BottomNavigation'
+import FABMenu from './FABMenu'
 import { useAuth } from './AuthProvider'
 
 // Define menu categories with their items
@@ -75,6 +77,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [userMenuOpen, setUserMenuOpen] = React.useState(false)
+  const [fabMenuOpen, setFabMenuOpen] = React.useState(false)
   const [expandedCategories, setExpandedCategories] = React.useState<string[]>(['Main'])
   const isDemoMode = localStorage.getItem('demo_mode') === 'true'
   
@@ -136,7 +139,7 @@ export default function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar backdrop and panel */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-[90] lg:hidden">
           <div
             className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity"
             onClick={() => setSidebarOpen(false)}
@@ -305,7 +308,7 @@ export default function Layout({ children }: LayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-64 pb-20 lg:pb-0">
         {/* Top bar */}
         <div className="sticky top-0 z-40 flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button
@@ -353,7 +356,7 @@ export default function Layout({ children }: LayoutProps) {
 
                   {/* Dropdown Menu */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[70]">
                       <div className="px-4 py-3 border-b border-gray-100">
                         <div className="text-sm font-medium text-gray-900">
                           {isDemoMode ? 'Demo User' : user?.user_metadata?.full_name || 'User'}
@@ -408,7 +411,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="py-6">
+        <main className="py-6 min-h-[calc(100vh-4rem)]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
             {/* Persistent mini disclaimer for trading pages */}
             <SubscriptionBanner className="mb-4" />
@@ -424,6 +427,19 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation
+        onMenuClick={() => setFabMenuOpen(!fabMenuOpen)}
+        className=""
+      />
+
+      {/* Floating Action Button Menu */}
+      <FABMenu
+        isOpen={fabMenuOpen}
+        onToggle={() => setFabMenuOpen(!fabMenuOpen)}
+        className=""
+      />
     </div>
   )
 }

@@ -37,7 +37,7 @@ const Disclaimer: React.FC<DisclaimerProps> = ({
   
   if (variant === 'modal') {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 z-[100] overflow-y-auto">
         <div className="flex items-center justify-center min-h-screen p-4">
           <div className="fixed inset-0 bg-black bg-opacity-75 transition-opacity" onClick={showCloseButton ? handleDismiss : undefined}></div>
           
@@ -122,7 +122,7 @@ const Disclaimer: React.FC<DisclaimerProps> = ({
   
   // Default banner variant
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-50 border-b border-yellow-200 px-4 py-2">
+    <div className="fixed top-0 left-0 right-0 z-[80] bg-yellow-50 border-b border-yellow-200 px-4 py-2">
       <div className="max-w-7xl mx-auto">
         <p className="text-sm text-yellow-800 text-center">
           <strong>Educational Purpose Only:</strong> This platform is for learning options trading with virtual money only. Not real financial advice.
