@@ -318,15 +318,15 @@ export default function Layout({ children }: LayoutProps) {
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
           
-          <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <div className="flex flex-1 items-center">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="flex flex-1 gap-x-2 sm:gap-x-4 self-stretch lg:gap-x-6">
+            <div className="flex flex-1 items-center min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 {activeItem?.name || 'Dashboard'}
               </h2>
             </div>
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-500">
+            <div className="flex items-center gap-x-2 sm:gap-x-4 lg:gap-x-6">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="text-xs sm:text-sm text-gray-500 hidden sm:block">
                   <span>Learning Mode</span>
                 </div>
                 
@@ -413,9 +413,9 @@ export default function Layout({ children }: LayoutProps) {
             {/* Persistent mini disclaimer for trading pages */}
             <SubscriptionBanner className="mb-4" />
             
-            <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-700 flex items-center">
-              <BookOpen className="h-4 w-4 text-blue-600 mr-2 flex-shrink-0" />
-              <p>
+            <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-blue-700 flex items-start gap-2">
+              <BookOpen className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="flex-1">
                 <strong>Learning Focus:</strong> This academy is designed to help you develop trading expertise, not to maximize profits. Focus on learning and skill development.
               </p>
             </div>

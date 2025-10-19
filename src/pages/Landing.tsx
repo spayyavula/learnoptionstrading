@@ -179,39 +179,44 @@ export default function Landing() {
       {/* Header */}
       <header className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
+          <div className="flex items-center justify-between h-16 gap-2">
+            <div className="flex items-center min-w-0 flex-shrink">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold">Learn Options Trading</h1>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
+                  <span className="hidden sm:inline">Learn Options Trading</span>
+                  <span className="sm:hidden">Learn Options</span>
+                </h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
               {user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-blue-200">
+                <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+                  <span className="text-blue-200 text-sm hidden lg:inline">
                     Welcome, {localStorage.getItem('demo_mode') === 'true' ? 'Demo User' : user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!
                     {localStorage.getItem('demo_mode') === 'true' && <span className="text-orange-300 ml-1">(Demo)</span>}
                   </span>
                   <Link
                     to="/app"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 rounded-lg text-sm sm:text-base font-semibold transition-colors whitespace-nowrap"
                   >
-                    Go to App
+                    <span className="hidden sm:inline">Go to App</span>
+                    <span className="sm:hidden">App</span>
                   </Link>
                 </div>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    className="text-white hover:text-blue-200 font-medium"
+                    className="text-white hover:text-blue-200 font-medium text-sm sm:text-base whitespace-nowrap hidden sm:inline"
                   >
                     Sign In
                   </Link>
                   <Link
                     to="/app"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 rounded-lg text-sm sm:text-base font-semibold transition-colors whitespace-nowrap"
                   >
-                    Launch App Now
+                    <span className="hidden md:inline">Launch App Now</span>
+                    <span className="md:hidden">Launch App</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -223,9 +228,10 @@ export default function Landing() {
                       }))
                       window.location.reload()
                     }}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 sm:px-4 rounded-lg text-sm sm:text-base font-semibold transition-colors whitespace-nowrap hidden sm:inline-block"
                   >
-                    Try Demo
+                    <span className="hidden md:inline">Try Demo</span>
+                    <span className="md:hidden">Demo</span>
                   </button>
                 </>
               )}

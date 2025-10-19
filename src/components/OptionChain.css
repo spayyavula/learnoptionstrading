@@ -106,3 +106,38 @@
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
+
+/* Mobile-responsive scroll wrapper */
+.option-chain-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 1024px) {
+  .option-chain-scroll-wrapper {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Mobile: reduce table font size for better fit */
+@media (max-width: 768px) {
+  .option-chain-table {
+    font-size: 0.75rem;
+  }
+
+  .option-chain-table th,
+  .option-chain-table td {
+    padding: 4px 6px;
+    white-space: nowrap;
+  }
+}
+
+/* Ensure minimum width for table on mobile */
+@media (max-width: 1023px) {
+  .option-chain-table {
+    min-width: 1400px;
+  }
+}

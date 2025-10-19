@@ -40,7 +40,12 @@ const OptionChain: React.FC<OptionChainProps> = ({ optionsData }) => {
   ].sort((a, b) => a - b);
 
   return (
-    <div>
+    <div className="option-chain-container">
+      {/* Mobile scroll hint */}
+      <div className="block lg:hidden bg-blue-50 border border-blue-200 rounded p-2 mb-2 text-xs text-blue-700">
+        <span className="font-semibold">💡 Tip:</span> Scroll horizontally to see all option data
+      </div>
+
       {/* Expiry strip */}
       <div className="expiry-strip">
         {expiries.map(expiry => (
@@ -57,6 +62,7 @@ const OptionChain: React.FC<OptionChainProps> = ({ optionsData }) => {
       {/* Option chain for selected expiry */}
       <div className="option-expiry-group">
         <h3>Expiry: {selectedExpiry}</h3>
+        <div className="option-chain-scroll-wrapper">
         <table className="option-chain-table">
           <thead>
             <tr>
@@ -122,6 +128,7 @@ const OptionChain: React.FC<OptionChainProps> = ({ optionsData }) => {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
