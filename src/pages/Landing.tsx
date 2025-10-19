@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   TrendingUp,
@@ -13,7 +13,9 @@ import {
   Target,
   Mail,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  Menu,
+  X
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
@@ -104,6 +106,7 @@ export function LivePrice() {
 
 export default function Landing() {
   const { user } = useAuth()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const indicesTickerRef = useRef<HTMLDivElement>(null);
   const stocksTickerRef = useRef<HTMLDivElement>(null);
 
@@ -171,6 +174,138 @@ export default function Landing() {
         type="website"
       />
       <div className="min-h-screen bg-white">
+      {/* Mobile Menu Backdrop and Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-gradient-to-b from-gray-900 via-blue-900 to-indigo-900 shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="flex h-16 items-center justify-between px-4 border-b border-white/20">
+              <h1 className="text-lg font-bold text-white">Learn Options Trading</h1>
+              <button
+                type="button"
+                title="Close menu"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-white hover:text-blue-200 p-2 rounded-md transition-colors touch-manipulation"
+                aria-label="Close navigation menu"
+              >
+                <X className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+              <a
+                href="#features"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMobileMenuOpen(false)
+                  document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block px-4 py-3 text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-3" />
+                  Features
+                </div>
+              </a>
+              <a
+                href="#stats"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMobileMenuOpen(false)
+                  document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block px-4 py-3 text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-3" />
+                  Statistics
+                </div>
+              </a>
+              <a
+                href="#testimonials"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMobileMenuOpen(false)
+                  document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block px-4 py-3 text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <Star className="h-5 w-5 mr-3" />
+                  Testimonials
+                </div>
+              </a>
+              <a
+                href="#contact"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMobileMenuOpen(false)
+                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block px-4 py-3 text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <Mail className="h-5 w-5 mr-3" />
+                  Contact
+                </div>
+              </a>
+
+              <div className="border-t border-white/20 my-4"></div>
+
+              {user ? (
+                <div className="space-y-2">
+                  <div className="px-4 py-2 text-blue-200 text-sm">
+                    Welcome, {localStorage.getItem('demo_mode') === 'true' ? 'Demo User' : user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}!
+                    {localStorage.getItem('demo_mode') === 'true' && <span className="text-orange-300 ml-1">(Demo)</span>}
+                  </div>
+                  <Link
+                    to="/app"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors text-center"
+                  >
+                    Go to App
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-white hover:bg-white/10 px-4 py-3 rounded-lg font-medium transition-colors text-center"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/app"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors text-center"
+                  >
+                    Launch App Now
+                  </Link>
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('demo_mode', 'true')
+                      localStorage.setItem('demo_user', JSON.stringify({
+                        id: 'demo-user',
+                        email: 'demo@example.com',
+                        user_metadata: { full_name: 'Demo User' }
+                      }))
+                      window.location.reload()
+                    }}
+                    className="block w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors text-center"
+                  >
+                    Try Demo
+                  </button>
+                </div>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
+
       {/* Free Forever Banner */}
       <div className="bg-green-600 text-white py-3 px-4 text-center text-sm font-bold">
         🎉 ALL FEATURES ARE FREE FOREVER! No Subscription Required. Start Learning Now! 🎉
@@ -180,7 +315,18 @@ export default function Landing() {
       <header className="bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-2">
-            <div className="flex items-center min-w-0 flex-shrink">
+            <div className="flex items-center min-w-0 flex-shrink gap-2">
+              {/* Hamburger Menu Button - Mobile Only */}
+              <button
+                type="button"
+                className="lg:hidden p-2 -ml-2 text-white hover:text-blue-200 hover:bg-white/10 rounded-md transition-colors touch-manipulation"
+                onClick={() => setMobileMenuOpen(true)}
+                title="Open menu"
+                aria-label="Open navigation menu"
+              >
+                <Menu className="h-6 w-6" aria-hidden="true" />
+              </button>
+
               <div className="flex-shrink-0">
                 <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
                   <span className="hidden sm:inline">Learn Options Trading</span>
@@ -276,7 +422,7 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section id="features" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -362,7 +508,7 @@ export default function Landing() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-blue-600 text-white">
+      <section id="stats" className="py-20 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
@@ -429,7 +575,7 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gray-50">
+      <section id="testimonials" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -484,7 +630,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer id="contact" className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
