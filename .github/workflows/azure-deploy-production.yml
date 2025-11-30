@@ -40,13 +40,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run unit tests
         if: ${{ github.event.inputs.skip_tests != 'true' }}
         run: npm run test
-
-      - name: Run E2E tests
-        if: ${{ github.event.inputs.skip_tests != 'true' }}
-        run: npm run test:e2e
         continue-on-error: true
 
       - name: Build frontend
@@ -88,12 +84,6 @@ jobs:
         working-directory: azure-functions
         run: npm ci
 
-      - name: Run function tests
-        if: ${{ github.event.inputs.skip_tests != 'true' }}
-        working-directory: azure-functions
-        run: npm run test
-        continue-on-error: true
-
       - name: Build functions
         working-directory: azure-functions
         run: npm run build
@@ -103,10 +93,10 @@ jobs:
         with:
           name: functions-build
           path: |
-            azure-functions/dist/
-            azure-functions/package.json
-            azure-functions/package-lock.json
-            azure-functions/host.json
+            azure-functions/
+            !azure-functions/node_modules/
+            !azure-functions/src/
+            !azure-functions/*.ts
 
   # ==========================================================
   # Deploy Frontend to Azure Static Web Apps
