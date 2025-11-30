@@ -14,12 +14,11 @@ export interface EnvConfig {
 
 const DEFAULT_REQUIRED_VARS = [
   'VITE_AZURE_CLIENT_ID',
-  'VITE_AZURE_B2C_TENANT'
+  'VITE_AZURE_TENANT_ID'
 ]
 
 const DEFAULT_OPTIONAL_VARS = [
-  'VITE_AZURE_B2C_POLICY_SIGNIN',
-  'VITE_AZURE_B2C_POLICY_RESET',
+  'VITE_AZURE_TENANT_SUBDOMAIN',
   'VITE_POLYGON_API_KEY',
   'VITE_ENABLE_REAL_TIME_DATA',
   'VITE_ENABLE_MOCK_DATA',
@@ -33,9 +32,9 @@ const DEFAULT_VALIDATORS: Record<string, (value: string) => boolean> = {
     // Azure client IDs are GUIDs
     return value.length >= 32 && value !== 'your-client-id'
   },
-  VITE_AZURE_B2C_TENANT: (value) => {
-    // Tenant name should be alphanumeric
-    return value.length > 3 && value !== 'your-tenant'
+  VITE_AZURE_TENANT_ID: (value) => {
+    // Tenant IDs are GUIDs
+    return value.length >= 32 && value !== 'your-tenant-id'
   },
   VITE_POLYGON_API_KEY: (value) => {
     return value.length > 10

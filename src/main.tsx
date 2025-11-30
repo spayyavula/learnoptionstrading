@@ -31,7 +31,8 @@ console.log('🔍 Simple Diagnostic:', simpleDiagnostic())
 
 console.log('🔐 Authentication Configuration Check:')
 console.log('VITE_AZURE_CLIENT_ID:', import.meta.env.VITE_AZURE_CLIENT_ID ? 'Set' : 'Missing')
-console.log('VITE_AZURE_B2C_TENANT:', import.meta.env.VITE_AZURE_B2C_TENANT ? 'Set' : 'Missing')
+console.log('VITE_AZURE_TENANT_ID:', import.meta.env.VITE_AZURE_TENANT_ID ? 'Set' : 'Missing')
+console.log('VITE_AZURE_TENANT_SUBDOMAIN:', import.meta.env.VITE_AZURE_TENANT_SUBDOMAIN ? 'Set (CIAM)' : 'Not set (Standard Entra ID)')
 
 if (!envValidation.isValid && import.meta.env.PROD) {
   console.warn('⚠️ Running in production mode with missing environment variables')

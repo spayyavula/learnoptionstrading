@@ -1,8 +1,8 @@
 /**
- * Azure AD B2C Authentication Module
+ * Microsoft Entra External ID (CIAM) Authentication Module
  *
  * This module provides authentication using Microsoft Authentication Library (MSAL)
- * for Azure Active Directory B2C.
+ * for Microsoft Entra External ID (Consumer Identity and Access Management).
  */
 
 import {
@@ -17,31 +17,32 @@ import {
 
 // Configuration from environment variables
 const clientId = import.meta.env.VITE_AZURE_CLIENT_ID || '';
-const b2cTenant = import.meta.env.VITE_AZURE_B2C_TENANT || '';
-const signInPolicy = import.meta.env.VITE_AZURE_B2C_POLICY_SIGNIN || 'B2C_1_signupsignin';
-const resetPolicy = import.meta.env.VITE_AZURE_B2C_POLICY_RESET || 'B2C_1_passwordreset';
+const tenantId = import.meta.env.VITE_AZURE_TENANT_ID || '';
+const tenantSubdomain = import.meta.env.VITE_AZURE_TENANT_SUBDOMAIN || '';
 
 // Validate configuration
 export const isValidConfig = Boolean(
   clientId &&
     clientId !== 'your-client-id' &&
-    b2cTenant &&
-    b2cTenant !== 'your-tenant'
+    tenantId &&
+    tenantId !== 'your-tenant-id'
 );
 
-// Azure AD B2C Authority URLs
-// Format: https://{tenant}.b2clogin.com/{tenant}.onmicrosoft.com/{policy}
-const b2cAuthority = `https://${b2cTenant}.b2clogin.com/${b2cTenant}.onmicrosoft.com/${signInPolicy}`;
-const b2cPasswordResetAuthority = `https://${b2cTenant}.b2clogin.com/${b2cTenant}.onmicrosoft.com/${resetPolicy}`;
+// Entra External ID Authority URL
+// Format: https://{tenant-subdomain}.ciamlogin.com/{tenant-id}
+// If no subdomain is provided, fall back to standard Entra ID
+const authority = tenantSubdomain
+  ? `https://${tenantSubdomain}.ciamlogin.com/${tenantId}`
+  : `https://login.microsoftonline.com/${tenantId}`;
 
-// Known authorities for B2C
-const knownAuthorities = b2cTenant ? [`${b2cTenant}.b2clogin.com`] : [];
+// Known authorities for CIAM
+const knownAuthorities = tenantSubdomain ? [`${tenantSubdomain}.ciamlogin.com`] : [];
 
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
     clientId,
-    authority: b2cAuthority,
+    authority,
     knownAuthorities,
     redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
     postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : '',
@@ -56,7 +57,7 @@ const msalConfig: Configuration = {
       loggerCallback: (level, message, containsPii) => {
         if (containsPii) return;
         if (import.meta.env.DEV) {
-          console.log(`[MSAL B2C] ${message}`);
+          console.log(`[MSAL CIAM] ${message}`);
         }
       },
     },
@@ -107,7 +108,7 @@ export async function initializeMsal(): Promise<void> {
 
 // Login scopes
 const loginRequest: PopupRequest | RedirectRequest = {
-  scopes: ['openid', 'profile', 'email'],
+  scopes: ['openid', 'profile', 'email', 'offline_access'],
 };
 
 /**
@@ -151,7 +152,7 @@ export function getActiveAccount(): AccountInfo | null {
 function accountToUser(account: AccountInfo): AzureUser {
   const claims = account.idTokenClaims as Record<string, any> || {};
 
-  const email = claims?.emails?.[0] || claims?.email || account.username || '';
+  const email = claims?.emails?.[0] || claims?.email || claims?.preferred_username || account.username || '';
   const displayName = claims?.name || account.name || email.split('@')[0] || 'User';
   const firstName = claims?.given_name;
   const lastName = claims?.family_name;
@@ -169,14 +170,13 @@ function accountToUser(account: AccountInfo): AzureUser {
 }
 
 /**
- * Sign in with email/password using redirect
- * Note: B2C handles the actual login form, we just redirect to it
+ * Sign in using popup
  */
 export async function signIn(): Promise<{ user: AzureUser | null; error: Error | null }> {
   if (!isValidConfig) {
     return {
       user: null,
-      error: new Error('Azure AD B2C is not configured. Please check environment variables.'),
+      error: new Error('Microsoft Entra External ID is not configured. Please check environment variables.'),
     };
   }
 
@@ -184,7 +184,7 @@ export async function signIn(): Promise<{ user: AzureUser | null; error: Error |
     await initializeMsal();
     const instance = getMsalInstance();
 
-    // Use popup for better UX (can change to redirect if needed)
+    // Use popup for better UX
     const response = await instance.loginPopup(loginRequest);
 
     if (response && response.account) {
@@ -197,13 +197,8 @@ export async function signIn(): Promise<{ user: AzureUser | null; error: Error |
   } catch (error: any) {
     console.error('🔐 Sign in failed:', error);
 
-    // Check if user clicked forgot password (B2C error code)
-    if (error.errorMessage?.includes('AADB2C90118')) {
-      return resetPassword();
-    }
-
     // User cancelled
-    if (error.errorMessage?.includes('user_cancelled') || error.name === 'BrowserAuthError') {
+    if (error.errorCode === 'user_cancelled' || error.name === 'BrowserAuthError') {
       return { user: null, error: new Error('Sign in was cancelled') };
     }
 
@@ -219,7 +214,7 @@ export async function signIn(): Promise<{ user: AzureUser | null; error: Error |
  */
 export async function signInRedirect(): Promise<void> {
   if (!isValidConfig) {
-    console.warn('🔐 Azure AD B2C is not configured');
+    console.warn('🔐 Microsoft Entra External ID is not configured');
     return;
   }
 
@@ -229,21 +224,22 @@ export async function signInRedirect(): Promise<void> {
 }
 
 /**
- * Sign up - B2C handles this on the same policy (signupsignin)
+ * Sign up - Entra External ID handles this on the same flow
  */
 export async function signUp(): Promise<{ user: AzureUser | null; error: Error | null }> {
-  // B2C sign-up/sign-in is handled by the same policy
+  // Entra External ID sign-up is handled by the same login flow
   return signIn();
 }
 
 /**
  * Handle password reset flow
+ * Note: Entra External ID handles this through the login flow with SSPR enabled
  */
 export async function resetPassword(): Promise<{ user: AzureUser | null; error: Error | null }> {
   if (!isValidConfig) {
     return {
       user: null,
-      error: new Error('Azure AD B2C is not configured'),
+      error: new Error('Microsoft Entra External ID is not configured'),
     };
   }
 
@@ -251,10 +247,11 @@ export async function resetPassword(): Promise<{ user: AzureUser | null; error: 
     await initializeMsal();
     const instance = getMsalInstance();
 
-    // Redirect to password reset policy
+    // For Entra External ID, password reset is handled through the same authority
+    // Users click "Forgot password" on the Microsoft login page
     await instance.loginRedirect({
       ...loginRequest,
-      authority: b2cPasswordResetAuthority,
+      prompt: 'login',
     });
 
     return { user: null, error: null };

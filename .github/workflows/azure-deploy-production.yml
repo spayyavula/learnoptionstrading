@@ -43,10 +43,11 @@ jobs:
       - name: Build frontend
         run: npm run build
         env:
-          VITE_AZURE_CLIENT_ID: ${{ secrets.AZURE_B2C_CLIENT_ID_PROD }}
-          VITE_AZURE_B2C_TENANT: ${{ secrets.AZURE_B2C_TENANT_PROD }}
-          VITE_AZURE_B2C_POLICY_SIGNIN: B2C_1_signupsignin
-          VITE_AZURE_B2C_POLICY_RESET: B2C_1_passwordreset
+          # Microsoft Entra External ID (CIAM)
+          VITE_AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
+          VITE_AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_PROD }}
+          VITE_AZURE_TENANT_SUBDOMAIN: ${{ secrets.AZURE_TENANT_SUBDOMAIN_PROD }}
+          # API Configuration
           VITE_API_BASE_URL: https://${{ env.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net/api
           VITE_POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           VITE_STRIPE_PUBLIC_KEY: ${{ secrets.STRIPE_PUBLIC_KEY_PROD }}
