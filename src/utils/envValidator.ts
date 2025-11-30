@@ -13,11 +13,13 @@ export interface EnvConfig {
 }
 
 const DEFAULT_REQUIRED_VARS = [
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY'
+  'VITE_AZURE_CLIENT_ID',
+  'VITE_AZURE_B2C_TENANT'
 ]
 
 const DEFAULT_OPTIONAL_VARS = [
+  'VITE_AZURE_B2C_POLICY_SIGNIN',
+  'VITE_AZURE_B2C_POLICY_RESET',
   'VITE_POLYGON_API_KEY',
   'VITE_ENABLE_REAL_TIME_DATA',
   'VITE_ENABLE_MOCK_DATA',
@@ -27,11 +29,13 @@ const DEFAULT_OPTIONAL_VARS = [
 ]
 
 const DEFAULT_VALIDATORS: Record<string, (value: string) => boolean> = {
-  VITE_SUPABASE_URL: (value) => {
-    return value.startsWith('https://') && value.includes('.supabase.co')
+  VITE_AZURE_CLIENT_ID: (value) => {
+    // Azure client IDs are GUIDs
+    return value.length >= 32 && value !== 'your-client-id'
   },
-  VITE_SUPABASE_ANON_KEY: (value) => {
-    return value.length > 50 && value.startsWith('eyJ')
+  VITE_AZURE_B2C_TENANT: (value) => {
+    // Tenant name should be alphanumeric
+    return value.length > 3 && value !== 'your-tenant'
   },
   VITE_POLYGON_API_KEY: (value) => {
     return value.length > 10
@@ -118,7 +122,7 @@ export function validateEnvironment(config?: EnvConfig): EnvValidationResult {
 }
 
 function maskSensitiveValue(varName: string, value: string): string {
-  const sensitivePatterns = ['KEY', 'SECRET', 'TOKEN', 'PASSWORD']
+  const sensitivePatterns = ['KEY', 'SECRET', 'TOKEN', 'PASSWORD', 'CLIENT_ID']
 
   const isSensitive = sensitivePatterns.some(pattern => varName.includes(pattern))
 
@@ -165,7 +169,7 @@ export function logEnvironmentDiagnostics(): void {
 export function getEnvFilePath(): string {
   return import.meta.env.DEV
     ? '.env (development)'
-    : '.env.production (or Netlify environment variables)'
+    : '.env.production (or Azure Static Web App environment variables)'
 }
 
 export function checkEnvFileExists(): boolean {

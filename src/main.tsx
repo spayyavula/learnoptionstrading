@@ -30,13 +30,13 @@ console.log('🔍 Diagnostic Result:', diagnosticResult)
 console.log('🔍 Simple Diagnostic:', simpleDiagnostic())
 
 console.log('🔐 Authentication Configuration Check:')
-console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Missing')
-console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing')
+console.log('VITE_AZURE_CLIENT_ID:', import.meta.env.VITE_AZURE_CLIENT_ID ? 'Set' : 'Missing')
+console.log('VITE_AZURE_B2C_TENANT:', import.meta.env.VITE_AZURE_B2C_TENANT ? 'Set' : 'Missing')
 
 if (!envValidation.isValid && import.meta.env.PROD) {
   console.warn('⚠️ Running in production mode with missing environment variables')
   console.warn('⚠️ Some features may not work correctly')
-  console.warn('⚠️ Please ensure environment variables are set in Netlify dashboard')
+  console.warn('⚠️ Please ensure environment variables are set in Azure Static Web App')
 }
 
 console.log('=' .repeat(50))

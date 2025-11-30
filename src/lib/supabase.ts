@@ -1,5 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 
+/**
+ * Supabase Client for Database Operations
+ *
+ * Note: Authentication is handled by Azure AD B2C (see azure-auth.ts)
+ * This client is used only for database operations (data storage, queries, etc.)
+ */
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
@@ -13,67 +20,49 @@ const isValidKey = supabaseAnonKey &&
 
 const isValidConfig = isValidUrl && isValidKey
 
-if (!isValidConfig) {
-  console.warn('⚠️ Supabase configuration missing or invalid.')
-  console.warn('VITE_SUPABASE_URL:', supabaseUrl ? 'Set but invalid' : 'Missing')
-  console.warn('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set but invalid' : 'Missing')
+// Only warn in development mode and only once
+if (!isValidConfig && import.meta.env.DEV) {
+  console.info('ℹ️ Supabase database not configured - using local storage fallback')
 }
 
 const finalUrl = isValidUrl ? supabaseUrl : 'https://demo.supabase.co'
 const finalKey = isValidKey ? supabaseAnonKey : 'demo-key'
 
+// Create Supabase client for database operations
 export const supabase = createClient(finalUrl, finalKey)
 
-// Auth service wrapper
+// Export config status for services that need to know
+export { isValidConfig }
+
+// Legacy auth export - deprecated, use azure-auth.ts instead
 export const auth = {
-  async signIn(email: string, password: string) {
-    if (!isValidConfig) {
-      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
-    }
-    return await supabase.auth.signInWithPassword({ email, password })
+  async signIn(_email: string, _password: string) {
+    console.warn('⚠️ supabase.auth.signIn is deprecated. Use azure-auth.ts instead.')
+    throw new Error('Authentication has moved to Azure AD B2C. Use the new auth system.')
   },
 
-  async signUp(email: string, password: string, metadata?: { full_name?: string }) {
-    if (!isValidConfig) {
-      throw new Error('Authentication service is not configured. This appears to be a demo environment where you can explore the platform features without signing in.')
-    }
-    return await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata || {}
-      }
-    })
+  async signUp(_email: string, _password: string, _metadata?: { full_name?: string }) {
+    console.warn('⚠️ supabase.auth.signUp is deprecated. Use azure-auth.ts instead.')
+    throw new Error('Authentication has moved to Azure AD B2C. Use the new auth system.')
   },
 
-  async resetPasswordForEmail(email: string, options: any) {
-    if (!isValidConfig) {
-      throw new Error('Password reset is not available. Authentication service is not configured.')
-    }
-    return await supabase.auth.resetPasswordForEmail(email, options)
+  async resetPasswordForEmail(_email: string, _options: any) {
+    console.warn('⚠️ supabase.auth.resetPasswordForEmail is deprecated. Use azure-auth.ts instead.')
+    throw new Error('Authentication has moved to Azure AD B2C. Use the new auth system.')
   },
 
   async signOut() {
-    if (!isValidConfig) {
-      throw new Error('Sign out is not available. Authentication service is not configured.')
-    }
-    return await supabase.auth.signOut()
+    console.warn('⚠️ supabase.auth.signOut is deprecated. Use azure-auth.ts instead.')
+    throw new Error('Authentication has moved to Azure AD B2C. Use the new auth system.')
   },
 
   async getUser() {
-    if (!isValidConfig) {
-      return { data: { user: null }, error: null }
-    }
-    return await supabase.auth.getUser()
+    console.warn('⚠️ supabase.auth.getUser is deprecated. Use azure-auth.ts instead.')
+    return { data: { user: null }, error: null }
   },
 
-  onAuthStateChange(callback: (event: string, session: any) => void) {
-    if (!isValidConfig) {
-      console.warn('Auth state change listener not available without valid Supabase configuration')
-      return { data: { subscription: { unsubscribe: () => {} } } }
-    }
-    return supabase.auth.onAuthStateChange(callback)
+  onAuthStateChange(_callback: (event: string, session: any) => void) {
+    console.warn('⚠️ supabase.auth.onAuthStateChange is deprecated. Use azure-auth.ts instead.')
+    return { data: { subscription: { unsubscribe: () => {} } } }
   }
 }
-
-export { isValidConfig }
