@@ -1,140 +1,144 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { auth } from '../lib/supabase.ts'
+import {
+  AzureUser,
+  signIn as azureSignIn,
+  signUp as azureSignUp,
+  signOut as azureSignOut,
+  resetPassword as azureResetPassword,
+  onAuthStateChange,
+  isValidConfig,
+  initializeMsal,
+} from '../lib/azure-auth'
+
+// User type that matches our app's expectations
+export type User = AzureUser | null
 
 export type AuthContextType = {
-  user: User | null
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
-  signUp: (email: string, password: string, metadata?: { full_name?: string }) => Promise<{ error: Error | null }>
-  resetPassword: (email: string) => Promise<{ error: Error | null }>
+  user: User
+  signIn: (email?: string, password?: string) => Promise<{ error: Error | null }>
+  signUp: (email?: string, password?: string, metadata?: { full_name?: string }) => Promise<{ error: Error | null }>
+  resetPassword: (email?: string) => Promise<{ error: Error | null }>
   loading: boolean
   signOut: () => Promise<{ error: Error | null }>
+  isConfigured: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<User>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        console.log('🔐 Getting initial session...')
-        const { data: { user } } = await auth.getUser()
-        console.log('🔐 Initial user:', user ? 'Found' : 'None')
-        setUser(user)
-        setLoading(false)
-      } catch (error) {
-        console.error('Error getting initial session:', error)
-        setLoading(false)
-      }
-    }
+    console.log('🔐 AuthProvider: Initializing Azure AD B2C auth...')
 
-    getInitialSession()
-
-    // Listen for auth changes
-    const authListener = auth.onAuthStateChange(async (event, session) => {
-      console.log('🔐 Auth state change:', event, session ? 'Session exists' : 'No session')
-      setUser(session?.user ?? null)
+    // Initialize MSAL and listen for auth changes
+    const unsubscribe = onAuthStateChange((azureUser) => {
+      console.log('🔐 AuthProvider: Auth state changed:', azureUser ? 'User logged in' : 'No user')
+      setUser(azureUser)
       setLoading(false)
     })
 
     return () => {
-      if (authListener?.data?.subscription) {
-        authListener.data.subscription.unsubscribe()
-      }
+      unsubscribe()
     }
   }, [])
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (_email?: string, _password?: string): Promise<{ error: Error | null }> => {
     setLoading(true)
     try {
-      console.log('🔐 AuthProvider signIn attempt for:', email)
+      console.log('🔐 AuthProvider: Attempting sign in via Azure B2C...')
 
       // Clear any demo mode remnants
       localStorage.removeItem('demo_mode')
       localStorage.removeItem('demo_user')
 
-      // Check if Supabase is properly configured
-      const { isValidConfig } = await import('../lib/supabase')
       if (!isValidConfig) {
-        throw new Error('Authentication service is not configured. Please check your Supabase settings.')
+        throw new Error('Azure AD B2C is not configured. Please check your environment settings.')
       }
 
-      const result = await auth.signIn(email, password)
-      console.log('🔐 SignIn result:', result.error ? 'Error' : 'Success')
-      if (result.error) {
-        console.error('🔐 SignIn error:', result.error)
-        return { error: result.error }
-      } else if (result.data?.user) {
-        console.log('🔐 SignIn successful, setting user')
-        setUser(result.data.user)
+      // Azure B2C handles the actual login form via popup/redirect
+      const { user: azureUser, error } = await azureSignIn()
+
+      if (error) {
+        console.error('🔐 AuthProvider: Sign in error:', error)
+        return { error }
       }
+
+      if (azureUser) {
+        console.log('🔐 AuthProvider: Sign in successful')
+        setUser(azureUser)
+      }
+
       return { error: null }
     } catch (error) {
-      console.error('🔐 SignIn exception:', error)
-      return { error: error instanceof Error ? error : new Error('Authentication service is temporarily unavailable. Please try again later.') }
+      console.error('🔐 AuthProvider: Sign in exception:', error)
+      return {
+        error: error instanceof Error
+          ? error
+          : new Error('Authentication service is temporarily unavailable. Please try again later.')
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const signUp = async (email: string, password: string, metadata?: { full_name?: string }) => {
+  const signUp = async (_email?: string, _password?: string, _metadata?: { full_name?: string }): Promise<{ error: Error | null }> => {
     setLoading(true)
     try {
-      console.log('🔐 AuthProvider signUp attempt for:', email, 'with metadata:', metadata)
+      console.log('🔐 AuthProvider: Attempting sign up via Azure B2C...')
 
-      // Check if Supabase is properly configured
-      const { isValidConfig } = await import('../lib/supabase')
       if (!isValidConfig) {
-        throw new Error('Authentication service is not configured. Please check your Supabase settings.')
+        throw new Error('Azure AD B2C is not configured. Please check your environment settings.')
       }
 
-      const result = await auth.signUp(email, password, metadata)
-      console.log('🔐 SignUp result:', result.error ? 'Error' : 'Success')
-      if (result.error) {
-        console.error('🔐 SignUp error:', result.error)
-        return { error: result.error }
-      } else if (result.data?.user) {
-        console.log('🔐 SignUp successful, setting user with metadata')
-        setUser(result.data.user)
+      // Azure B2C handles sign-up through the same policy (signupsignin)
+      const { user: azureUser, error } = await azureSignUp()
+
+      if (error) {
+        console.error('🔐 AuthProvider: Sign up error:', error)
+        return { error }
       }
+
+      if (azureUser) {
+        console.log('🔐 AuthProvider: Sign up successful')
+        setUser(azureUser)
+      }
+
       return { error: null }
     } catch (error) {
-      console.error('🔐 SignUp exception:', error)
-      return { error: error instanceof Error ? error : new Error('Authentication service is temporarily unavailable. Please try again later.') }
+      console.error('🔐 AuthProvider: Sign up exception:', error)
+      return {
+        error: error instanceof Error
+          ? error
+          : new Error('Authentication service is temporarily unavailable. Please try again later.')
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const resetPassword = async (email: string): Promise<{ error: Error | null }> => {
+  const resetPassword = async (_email?: string): Promise<{ error: Error | null }> => {
     setLoading(true)
     try {
-      console.log('🔐 AuthProvider: Attempting password reset for:', email)
-      
-      // Check if Supabase is properly configured
-      const { isValidConfig } = await import('../lib/supabase')
+      console.log('🔐 AuthProvider: Attempting password reset via Azure B2C...')
+
       if (!isValidConfig) {
-        throw new Error('Authentication service is not configured. Password reset is not available in demo mode.')
+        throw new Error('Azure AD B2C is not configured. Password reset is not available.')
       }
-      
-      const { error } = await auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      })
-      
+
+      const { error } = await azureResetPassword()
+
       if (error) {
         console.error('🔐 AuthProvider: Password reset error:', error)
         return { error }
       }
-      
-      console.log('🔐 AuthProvider: Password reset email sent')
+
+      console.log('🔐 AuthProvider: Password reset initiated')
       return { error: null }
-    } catch (err) {
-      console.error('🔐 AuthProvider: Password reset exception:', err)
-      return { error: err as Error }
+    } catch (error) {
+      console.error('🔐 AuthProvider: Password reset exception:', error)
+      return { error: error instanceof Error ? error : new Error('Password reset failed') }
     } finally {
       setLoading(false)
     }
@@ -143,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async (): Promise<{ error: Error | null }> => {
     setLoading(true)
     try {
-      const { error } = await auth.signOut()
+      const { error } = await azureSignOut()
       setUser(null)
       return { error: error ?? null }
     } catch (error) {
@@ -159,13 +163,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     resetPassword,
     loading,
-    signOut // <-- Add this line
+    signOut,
+    isConfigured: isValidConfig,
   }
 
   // Debugging useEffect inside AuthProvider
   useEffect(() => {
-    console.log('AuthProvider: user', user)
-    console.log('AuthProvider: loading', loading)
+    console.log('🔐 AuthProvider state:', { user: user ? 'Logged in' : 'Not logged in', loading, isConfigured: isValidConfig })
   }, [user, loading])
 
   return (
@@ -175,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Add this hook to export useAuth
+// Hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {

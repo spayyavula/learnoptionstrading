@@ -1,52 +1,54 @@
 /**
- * Microsoft Entra External ID Authentication Module
+ * Azure AD B2C Authentication Module
  *
  * This module provides authentication using Microsoft Authentication Library (MSAL)
- * for Microsoft Entra External ID (formerly Azure AD B2C).
+ * for Azure Active Directory B2C.
  */
 
 import {
   PublicClientApplication,
   Configuration,
   AccountInfo,
-  AuthenticationResult,
   InteractionRequiredAuthError,
-  SilentRequest,
   RedirectRequest,
   PopupRequest,
+  BrowserCacheLocation,
 } from '@azure/msal-browser';
 
 // Configuration from environment variables
 const clientId = import.meta.env.VITE_AZURE_CLIENT_ID || '';
-const tenantId = import.meta.env.VITE_AZURE_TENANT_ID || '';
-const tenantName = import.meta.env.VITE_AZURE_TENANT_NAME || '';
+const b2cTenant = import.meta.env.VITE_AZURE_B2C_TENANT || '';
+const signInPolicy = import.meta.env.VITE_AZURE_B2C_POLICY_SIGNIN || 'B2C_1_signupsignin';
+const resetPolicy = import.meta.env.VITE_AZURE_B2C_POLICY_RESET || 'B2C_1_passwordreset';
 
 // Validate configuration
 export const isValidConfig = Boolean(
   clientId &&
     clientId !== 'your-client-id' &&
-    tenantId &&
-    tenantId !== 'your-tenant-id'
+    b2cTenant &&
+    b2cTenant !== 'your-tenant'
 );
 
-// Authority URL for Entra External ID
-// Format: https://{tenant-name}.ciamlogin.com/{tenant-id}
-const authority = tenantName
-  ? `https://${tenantName}.ciamlogin.com/${tenantId}`
-  : `https://login.microsoftonline.com/${tenantId}`;
+// Azure AD B2C Authority URLs
+// Format: https://{tenant}.b2clogin.com/{tenant}.onmicrosoft.com/{policy}
+const b2cAuthority = `https://${b2cTenant}.b2clogin.com/${b2cTenant}.onmicrosoft.com/${signInPolicy}`;
+const b2cPasswordResetAuthority = `https://${b2cTenant}.b2clogin.com/${b2cTenant}.onmicrosoft.com/${resetPolicy}`;
+
+// Known authorities for B2C
+const knownAuthorities = b2cTenant ? [`${b2cTenant}.b2clogin.com`] : [];
 
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
     clientId,
-    authority,
-    knownAuthorities: tenantName ? [`${tenantName}.ciamlogin.com`] : [],
-    redirectUri: window.location.origin,
-    postLogoutRedirectUri: window.location.origin,
+    authority: b2cAuthority,
+    knownAuthorities,
+    redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
+    postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : '',
     navigateToLoginRequestUrl: true,
   },
   cache: {
-    cacheLocation: 'localStorage',
+    cacheLocation: BrowserCacheLocation.LocalStorage,
     storeAuthStateInCookie: false,
   },
   system: {
@@ -54,7 +56,7 @@ const msalConfig: Configuration = {
       loggerCallback: (level, message, containsPii) => {
         if (containsPii) return;
         if (import.meta.env.DEV) {
-          console.log(`[MSAL] ${message}`);
+          console.log(`[MSAL B2C] ${message}`);
         }
       },
     },
@@ -62,37 +64,50 @@ const msalConfig: Configuration = {
 };
 
 // Create MSAL instance
-export const msalInstance = new PublicClientApplication(msalConfig);
+let msalInstance: PublicClientApplication | null = null;
+
+function getMsalInstance(): PublicClientApplication {
+  if (!msalInstance) {
+    msalInstance = new PublicClientApplication(msalConfig);
+  }
+  return msalInstance;
+}
 
 // Initialize MSAL
 let msalInitialized = false;
+let initializationPromise: Promise<void> | null = null;
 
 export async function initializeMsal(): Promise<void> {
   if (msalInitialized) return;
 
-  try {
-    await msalInstance.initialize();
-    msalInitialized = true;
-
-    // Handle redirect response
-    const response = await msalInstance.handleRedirectPromise();
-    if (response) {
-      console.log('Login redirect completed');
-    }
-  } catch (error) {
-    console.error('MSAL initialization failed:', error);
+  if (initializationPromise) {
+    return initializationPromise;
   }
+
+  initializationPromise = (async () => {
+    try {
+      const instance = getMsalInstance();
+      await instance.initialize();
+      msalInitialized = true;
+
+      // Handle redirect response
+      const response = await instance.handleRedirectPromise();
+      if (response) {
+        console.log('🔐 Login redirect completed');
+        notifyAuthChange();
+      }
+    } catch (error) {
+      console.error('🔐 MSAL initialization failed:', error);
+      throw error;
+    }
+  })();
+
+  return initializationPromise;
 }
 
 // Login scopes
 const loginRequest: PopupRequest | RedirectRequest = {
   scopes: ['openid', 'profile', 'email'],
-};
-
-// API scopes (if using custom API)
-const apiRequest: SilentRequest = {
-  scopes: [`https://${tenantName}.onmicrosoft.com/api/access_as_user`],
-  account: undefined as any,
 };
 
 /**
@@ -104,13 +119,21 @@ export interface AzureUser {
   displayName: string;
   firstName?: string;
   lastName?: string;
+  user_metadata?: {
+    full_name?: string;
+  };
 }
 
 /**
  * Get all logged in accounts
  */
 export function getAllAccounts(): AccountInfo[] {
-  return msalInstance.getAllAccounts();
+  try {
+    const instance = getMsalInstance();
+    return instance.getAllAccounts();
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -119,8 +142,6 @@ export function getAllAccounts(): AccountInfo[] {
 export function getActiveAccount(): AccountInfo | null {
   const accounts = getAllAccounts();
   if (accounts.length === 0) return null;
-
-  // Return first account (or implement account selection logic)
   return accounts[0];
 }
 
@@ -128,92 +149,147 @@ export function getActiveAccount(): AccountInfo | null {
  * Convert MSAL account to our user format
  */
 function accountToUser(account: AccountInfo): AzureUser {
-  const claims = account.idTokenClaims as any;
+  const claims = account.idTokenClaims as Record<string, any> || {};
+
+  const email = claims?.emails?.[0] || claims?.email || account.username || '';
+  const displayName = claims?.name || account.name || email.split('@')[0] || 'User';
+  const firstName = claims?.given_name;
+  const lastName = claims?.family_name;
 
   return {
     id: account.localAccountId || account.homeAccountId,
-    email: claims?.emails?.[0] || claims?.email || account.username,
-    displayName: claims?.name || account.name || 'User',
-    firstName: claims?.given_name,
-    lastName: claims?.family_name,
+    email,
+    displayName,
+    firstName,
+    lastName,
+    user_metadata: {
+      full_name: displayName,
+    },
   };
 }
 
 /**
- * Sign in with popup
+ * Sign in with email/password using redirect
+ * Note: B2C handles the actual login form, we just redirect to it
  */
-export async function signInPopup(): Promise<{ user: AzureUser | null; error: Error | null }> {
+export async function signIn(): Promise<{ user: AzureUser | null; error: Error | null }> {
   if (!isValidConfig) {
     return {
       user: null,
-      error: new Error('Azure AD B2C is not configured. Running in demo mode.'),
+      error: new Error('Azure AD B2C is not configured. Please check environment variables.'),
     };
   }
 
   try {
     await initializeMsal();
-    const response = await msalInstance.loginPopup(loginRequest);
-    const user = accountToUser(response.account!);
-    return { user, error: null };
-  } catch (error: any) {
-    console.error('Sign in failed:', error);
+    const instance = getMsalInstance();
 
-    // Check if user forgot password
-    if (error.errorMessage?.includes('AADB2C90118')) {
-      // User clicked forgot password, redirect to reset flow
-      return signInWithPasswordReset();
+    // Use popup for better UX (can change to redirect if needed)
+    const response = await instance.loginPopup(loginRequest);
+
+    if (response && response.account) {
+      const user = accountToUser(response.account);
+      notifyAuthChange();
+      return { user, error: null };
     }
 
-    return { user: null, error };
+    return { user: null, error: new Error('No account returned from login') };
+  } catch (error: any) {
+    console.error('🔐 Sign in failed:', error);
+
+    // Check if user clicked forgot password (B2C error code)
+    if (error.errorMessage?.includes('AADB2C90118')) {
+      return resetPassword();
+    }
+
+    // User cancelled
+    if (error.errorMessage?.includes('user_cancelled') || error.name === 'BrowserAuthError') {
+      return { user: null, error: new Error('Sign in was cancelled') };
+    }
+
+    return {
+      user: null,
+      error: new Error(error.message || 'Sign in failed. Please try again.')
+    };
   }
 }
 
 /**
- * Sign in with redirect (for mobile/Safari)
+ * Sign in with redirect (alternative to popup)
  */
 export async function signInRedirect(): Promise<void> {
   if (!isValidConfig) {
-    console.warn('Azure AD B2C is not configured');
+    console.warn('🔐 Azure AD B2C is not configured');
     return;
   }
 
   await initializeMsal();
-  await msalInstance.loginRedirect(loginRequest);
+  const instance = getMsalInstance();
+  await instance.loginRedirect(loginRequest);
+}
+
+/**
+ * Sign up - B2C handles this on the same policy (signupsignin)
+ */
+export async function signUp(): Promise<{ user: AzureUser | null; error: Error | null }> {
+  // B2C sign-up/sign-in is handled by the same policy
+  return signIn();
 }
 
 /**
  * Handle password reset flow
- * For Entra External ID, this redirects to the self-service password reset
  */
-export async function signInWithPasswordReset(): Promise<{ user: AzureUser | null; error: Error | null }> {
+export async function resetPassword(): Promise<{ user: AzureUser | null; error: Error | null }> {
+  if (!isValidConfig) {
+    return {
+      user: null,
+      error: new Error('Azure AD B2C is not configured'),
+    };
+  }
+
   try {
     await initializeMsal();
-    // Entra External ID handles password reset through the same authority
-    // with a different prompt
-    await msalInstance.loginRedirect({
+    const instance = getMsalInstance();
+
+    // Redirect to password reset policy
+    await instance.loginRedirect({
       ...loginRequest,
-      prompt: 'login', // Force re-authentication
+      authority: b2cPasswordResetAuthority,
     });
+
     return { user: null, error: null };
   } catch (error: any) {
-    return { user: null, error };
+    return {
+      user: null,
+      error: new Error(error.message || 'Password reset failed')
+    };
   }
 }
 
 /**
  * Sign out
  */
-export async function signOut(): Promise<void> {
-  if (!isValidConfig) return;
+export async function signOut(): Promise<{ error: Error | null }> {
+  if (!isValidConfig) {
+    return { error: null };
+  }
 
-  await initializeMsal();
-  const account = getActiveAccount();
+  try {
+    await initializeMsal();
+    const instance = getMsalInstance();
+    const account = getActiveAccount();
 
-  if (account) {
-    await msalInstance.logoutPopup({
-      account,
-      postLogoutRedirectUri: window.location.origin,
-    });
+    if (account) {
+      await instance.logoutPopup({
+        account,
+        postLogoutRedirectUri: window.location.origin,
+      });
+    }
+
+    notifyAuthChange();
+    return { error: null };
+  } catch (error: any) {
+    return { error: new Error(error.message || 'Sign out failed') };
   }
 }
 
@@ -228,23 +304,25 @@ export async function getAccessToken(): Promise<string | null> {
 
   try {
     await initializeMsal();
-    const response = await msalInstance.acquireTokenSilent({
+    const instance = getMsalInstance();
+
+    const response = await instance.acquireTokenSilent({
       ...loginRequest,
       account,
     });
     return response.accessToken;
   } catch (error) {
     if (error instanceof InteractionRequiredAuthError) {
-      // Token expired or requires interaction
       try {
-        const response = await msalInstance.acquireTokenPopup(loginRequest);
+        const instance = getMsalInstance();
+        const response = await instance.acquireTokenPopup(loginRequest);
         return response.accessToken;
       } catch (popupError) {
-        console.error('Failed to acquire token:', popupError);
+        console.error('🔐 Failed to acquire token:', popupError);
         return null;
       }
     }
-    console.error('Failed to get access token:', error);
+    console.error('🔐 Failed to get access token:', error);
     return null;
   }
 }
@@ -274,24 +352,25 @@ export function isAuthenticated(): boolean {
  */
 type AuthCallback = (user: AzureUser | null) => void;
 
-const authCallbacks: AuthCallback[] = [];
+const authCallbacks: Set<AuthCallback> = new Set();
 
 /**
  * Subscribe to auth state changes
  */
 export function onAuthStateChange(callback: AuthCallback): () => void {
-  authCallbacks.push(callback);
+  authCallbacks.add(callback);
 
-  // Call immediately with current state
-  const user = getCurrentUser();
-  callback(user);
+  // Call immediately with current state (after MSAL is initialized)
+  initializeMsal().then(() => {
+    const user = getCurrentUser();
+    callback(user);
+  }).catch(() => {
+    callback(null);
+  });
 
   // Return unsubscribe function
   return () => {
-    const index = authCallbacks.indexOf(callback);
-    if (index > -1) {
-      authCallbacks.splice(index, 1);
-    }
+    authCallbacks.delete(callback);
   };
 }
 
@@ -302,3 +381,6 @@ export function notifyAuthChange(): void {
   const user = getCurrentUser();
   authCallbacks.forEach((callback) => callback(user));
 }
+
+// Export MSAL instance for advanced use cases
+export { getMsalInstance as msalInstance };
