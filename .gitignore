@@ -1,26 +1,61 @@
+# Dependencies
 node_modules/
-.env
+
+# Build output
 dist/
 build/
-.DS_Store
-*.log
-coverage/
-.vscode/# SECURITY - Never commit these files!
+
+# Environment files - NEVER COMMIT!
 .env
 .env.*
 *.env
-# SECURITY - Never commit these files!
-.env
-.env.*
-*.env
-# SECURITY - NEVER COMMIT ENVIRONMENT FILES!
-.env
-.env.*
-*.env
-.env.production
-.env.development
 .env.local
+.env.development
 .env.staging
+.env.production
+
+# Exception: Allow example files
+!.env.example
+!.env.azure.example
+
+# IDE
+
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
 
 # Local Netlify folder
-.netlify
+.netlify/
+
+# Azure Functions
+azure-functions/node_modules/
+azure-functions/dist/
+azure-functions/local.settings.json
+azure-functions/zip-check/
+azure-functions/zip-inspect*/
+azure-functions/zip-verify/
+azure-functions/*.zip
+azure-functions/*.js.map
+azure-functions/*.d.ts.map
+
+# Database migration with credentials
+database/run-migration.cjs
+
+# Database exports (may contain sensitive data)
+database-export/
+*.sql
+!database/azure-schema.sql
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
