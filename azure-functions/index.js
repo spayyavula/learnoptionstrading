@@ -19,5 +19,10 @@ require("./functions/subscription/getSubscription");
 // Stripe functions
 require("./functions/stripe/createCheckout");
 require("./functions/stripe/webhook");
+// Auth functions
+require("./functions/auth/register");
+require("./functions/auth/login");
+require("./functions/auth/me");
+require("./functions/auth/refresh");
 console.log('Azure Functions registered successfully');
 //# sourceMappingURL=index.js.map

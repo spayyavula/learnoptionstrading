@@ -12,4 +12,8 @@ import './functions/strategies/saveStrategy';
 import './functions/subscription/getSubscription';
 import './functions/stripe/createCheckout';
 import './functions/stripe/webhook';
+import './functions/auth/register';
+import './functions/auth/login';
+import './functions/auth/me';
+import './functions/auth/refresh';
 //# sourceMappingURL=index.d.ts.map

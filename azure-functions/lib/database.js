@@ -13,9 +13,11 @@ function getPool() {
         if (!connectionString) {
             throw new Error('AZURE_POSTGRESQL_CONNECTION_STRING environment variable is required');
         }
+        // Azure PostgreSQL requires SSL
+        const useSSL = connectionString.includes('azure') || connectionString.includes('sslmode=require');
         pool = new pg_1.Pool({
             connectionString,
-            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+            ssl: useSSL ? { rejectUnauthorized: false } : false,
             max: 20,
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 5000,
