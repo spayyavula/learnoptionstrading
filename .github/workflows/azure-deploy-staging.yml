@@ -86,10 +86,10 @@ jobs:
         with:
           name: functions-build
           path: |
-            azure-functions/dist/
-            azure-functions/package.json
-            azure-functions/package-lock.json
-            azure-functions/host.json
+            azure-functions/
+            !azure-functions/node_modules/
+            !azure-functions/src/
+            !azure-functions/*.ts
 
   # ==========================================================
   # Deploy Frontend to Azure Static Web Apps
@@ -135,7 +135,7 @@ jobs:
 
       - name: Install production dependencies
         working-directory: azure-functions
-        run: npm ci --production
+        run: npm ci --omit=dev
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
