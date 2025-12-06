@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../components/AuthProvider'
-import { AlertCircle, CheckCircle, Lock } from 'lucide-react'
+import { AlertCircle, CheckCircle, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
 
 export default function Login() {
-  const { user, signIn, signUp, resetPassword, loading, isConfigured } = useAuth()
+  const { user, signIn, signUp, loading } = useAuth()
   const location = useLocation()
   const isSignUp = location.pathname === '/signup'
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -16,203 +21,189 @@ export default function Login() {
     return <Navigate to={from} replace />
   }
 
-  const handleSignIn = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setError('')
     setSuccess('')
 
-    try {
-      console.log('🔐 Login page: Initiating sign in...')
-      const { error } = await signIn()
-
-      if (error) {
-        console.error('🔐 Login page: Sign in error:', error)
-        if (error.message.includes('cancelled')) {
-          // User cancelled - don't show error
-          return
-        }
-        setError(error.message)
-      }
-    } catch (err) {
-      console.error('🔐 Login page: Sign in exception:', err)
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('An unexpected error occurred. Please try again.')
-      }
+    // Validation
+    if (!email || !password) {
+      setError('Please fill in all required fields')
+      return
     }
-  }
 
-  const handleSignUp = async () => {
-    setError('')
-    setSuccess('')
-
-    try {
-      console.log('🔐 Login page: Initiating sign up...')
-      const { error } = await signUp()
-
-      if (error) {
-        console.error('🔐 Login page: Sign up error:', error)
-        if (error.message.includes('cancelled')) {
-          return
-        }
-        setError(error.message)
-      }
-    } catch (err) {
-      console.error('🔐 Login page: Sign up exception:', err)
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('An unexpected error occurred. Please try again.')
-      }
+    if (isSignUp && password.length < 8) {
+      setError('Password must be at least 8 characters')
+      return
     }
-  }
-
-  const handleResetPassword = async () => {
-    setError('')
-    setSuccess('')
 
     try {
-      console.log('🔐 Login page: Initiating password reset...')
-      const { error } = await resetPassword()
-
-      if (error) {
-        console.error('🔐 Login page: Password reset error:', error)
-        setError(error.message)
+      if (isSignUp) {
+        const { error } = await signUp(email, password, { full_name: displayName })
+        if (error) {
+          setError(error.message)
+        } else {
+          setSuccess('Account created successfully!')
+        }
       } else {
-        setSuccess('Password reset initiated. Please follow the instructions in the popup.')
+        const { error } = await signIn(email, password)
+        if (error) {
+          setError(error.message)
+        }
       }
     } catch (err) {
-      console.error('🔐 Login page: Password reset exception:', err)
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('An unexpected error occurred. Please try again.')
-      }
+      console.error('Auth error:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
     }
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="text-2xl font-semibold text-gray-900">
+          <Link to="/" className="text-2xl font-bold text-gray-900">
             Options Academy
           </Link>
-          <p className="mt-4 text-gray-600">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+          <p className="mt-3 text-gray-600">
+            {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-8">
-          {/* Configuration Warning */}
-          {!isConfigured && (
-            <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
-                <div className="text-sm text-amber-700">
-                  <p className="font-medium">Demo Mode</p>
-                  <p className="mt-1">Authentication is not fully configured. You can explore the app features without signing in.</p>
+        <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Display Name (Sign Up only) */}
+            {isSignUp && (
+              <div>
+                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="displayName"
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                  />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Sign In / Sign Up Buttons */}
-          <div className="space-y-4">
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isSignUp ? 'Min. 8 characters' : 'Your password'}
+                  required
+                  minLength={isSignUp ? 8 : undefined}
+                  className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              {isSignUp && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Must include uppercase, lowercase, and number
+                </p>
+              )}
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-start">
+                  <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-green-600">{success}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
             <button
-              onClick={isSignUp ? handleSignUp : handleSignIn}
-              disabled={loading || !isConfigured}
-              className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></div>
-                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2" />
+                  {isSignUp ? 'Creating account...' : 'Signing in...'}
                 </>
               ) : (
-                <>
-                  <Lock className="h-5 w-5 mr-2" />
-                  {isSignUp ? 'Create Account with Microsoft' : 'Sign In with Microsoft'}
-                </>
+                isSignUp ? 'Create Account' : 'Sign In'
               )}
             </button>
+          </form>
 
-            <p className="text-xs text-center text-gray-500">
-              Secure authentication powered by Microsoft Azure AD B2C
-            </p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 text-red-400 mr-2 flex-shrink-0" />
-                <div className="text-sm text-red-600">
-                  <p className="font-medium">Authentication Error</p>
-                  <p className="mt-1">{error}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {success && (
-            <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                <div className="text-sm text-green-600">
-                  <p className="font-medium">Success</p>
-                  <p className="mt-1">{success}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Divider */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            {/* Toggle Sign In/Sign Up */}
-            <div className="text-center">
+          {/* Toggle Sign In/Sign Up */}
+          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+            <p className="text-sm text-gray-600">
+              {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
               <Link
                 to={isSignUp ? '/login' : '/signup'}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="text-blue-600 hover:text-blue-700 font-medium"
               >
-                {isSignUp
-                  ? 'Already have an account? Sign in'
-                  : "Don't have an account? Sign up"
-                }
+                {isSignUp ? 'Sign in' : 'Sign up'}
               </Link>
-            </div>
-
-            {/* Forgot Password Link */}
-            {!isSignUp && (
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleResetPassword}
-                  disabled={loading || !isConfigured}
-                  className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                >
-                  Forgot your password?
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Back to Landing */}
-          <div className="mt-6 text-center">
-            <Link
-              to="/"
-              className="text-sm text-gray-500 hover:text-gray-700"
-            >
-              ← Back to home
-            </Link>
+            </p>
           </div>
         </div>
 
+        {/* Back to Landing */}
+        <div className="mt-6 text-center">
+          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
+            ← Back to home
+          </Link>
+        </div>
+
         {/* Terms */}
-        <p className="mt-6 text-xs text-center text-gray-400">
+        <p className="mt-4 text-xs text-center text-gray-400">
           By signing in, you agree to our{' '}
           <Link to="/terms" className="text-blue-600 hover:underline">Terms</Link>
           {' '}and{' '}

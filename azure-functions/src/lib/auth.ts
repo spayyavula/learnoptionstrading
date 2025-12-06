@@ -1,5 +1,11 @@
 import { HttpRequest } from '@azure/functions';
 import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
+
+// JWT Configuration
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_EXPIRES_IN = '7d';
+const JWT_REFRESH_EXPIRES_IN = '30d';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -9,17 +15,65 @@ export interface AuthenticatedUser {
 }
 
 export interface JWTPayload {
-  sub: string;           // User ID from Azure AD B2C
-  email?: string;
-  emails?: string[];     // Azure AD B2C uses emails array
-  name?: string;
-  given_name?: string;
-  family_name?: string;
-  extension_roles?: string[];
-  aud: string;
-  iss: string;
-  exp: number;
+  sub: string;
+  email: string;
+  displayName?: string;
+  roles?: string[];
+  type: 'access' | 'refresh';
   iat: number;
+  exp: number;
+}
+
+/**
+ * Hash a password using bcrypt
+ */
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 12;
+  return bcrypt.hash(password, saltRounds);
+}
+
+/**
+ * Verify a password against a hash
+ */
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
+
+/**
+ * Generate an access token
+ */
+export function generateAccessToken(user: AuthenticatedUser): string {
+  const payload: Partial<JWTPayload> = {
+    sub: user.userId,
+    email: user.email,
+    displayName: user.displayName,
+    roles: user.roles,
+    type: 'access',
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+}
+
+/**
+ * Generate a refresh token
+ */
+export function generateRefreshToken(userId: string): string {
+  const payload = {
+    sub: userId,
+    type: 'refresh',
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+}
+
+/**
+ * Generate both access and refresh tokens
+ */
+export function generateTokens(user: AuthenticatedUser): { accessToken: string; refreshToken: string } {
+  return {
+    accessToken: generateAccessToken(user),
+    refreshToken: generateRefreshToken(user.userId),
+  };
 }
 
 /**
@@ -40,50 +94,48 @@ export function extractToken(request: HttpRequest): string | null {
 }
 
 /**
- * Validate Azure AD B2C JWT token
- * In production, you should use JWKS for key validation
+ * Validate and decode a JWT token
  */
 export function validateToken(token: string): AuthenticatedUser | null {
   try {
-    const decoded = jwt.decode(token) as JWTPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
 
-    if (!decoded) {
-      console.warn('Failed to decode JWT token');
+    if (!decoded || decoded.type !== 'access') {
       return null;
     }
-
-    // Verify token hasn't expired
-    const now = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < now) {
-      console.warn('JWT token has expired');
-      return null;
-    }
-
-    // Verify audience if configured
-    const expectedAudience = process.env.JWT_AUDIENCE;
-    if (expectedAudience && decoded.aud !== expectedAudience) {
-      console.warn('JWT audience mismatch', { expected: expectedAudience, actual: decoded.aud });
-      return null;
-    }
-
-    // Verify issuer if configured
-    const expectedIssuer = process.env.JWT_ISSUER;
-    if (expectedIssuer && !decoded.iss.startsWith(expectedIssuer.replace('/v2.0/', ''))) {
-      console.warn('JWT issuer mismatch', { expected: expectedIssuer, actual: decoded.iss });
-      return null;
-    }
-
-    // Extract email (Azure AD B2C uses emails array)
-    const email = decoded.email || (decoded.emails && decoded.emails[0]) || '';
 
     return {
       userId: decoded.sub,
-      email,
-      displayName: decoded.name || `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim(),
-      roles: decoded.extension_roles || [],
+      email: decoded.email,
+      displayName: decoded.displayName,
+      roles: decoded.roles || [],
     };
   } catch (error) {
-    console.error('Error validating JWT token:', error);
+    if (error instanceof jwt.TokenExpiredError) {
+      console.warn('JWT token has expired');
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      console.warn('Invalid JWT token');
+    } else {
+      console.error('Error validating JWT token:', error);
+    }
+    return null;
+  }
+}
+
+/**
+ * Validate a refresh token and return the user ID
+ */
+export function validateRefreshToken(token: string): string | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+
+    if (!decoded || decoded.type !== 'refresh') {
+      return null;
+    }
+
+    return decoded.sub;
+  } catch (error) {
+    console.warn('Invalid refresh token:', error);
     return null;
   }
 }
@@ -144,4 +196,32 @@ export function requireRole(request: HttpRequest, role: string): AuthenticatedUs
  */
 export function requireAdmin(request: HttpRequest): AuthenticatedUser {
   return requireRole(request, 'admin');
+}
+
+/**
+ * Validate email format
+ */
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * Validate password strength
+ * At least 8 characters, one uppercase, one lowercase, one number
+ */
+export function isValidPassword(password: string): { valid: boolean; message?: string } {
+  if (password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters long' };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one uppercase letter' };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one lowercase letter' };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one number' };
+  }
+  return { valid: true };
 }

@@ -12,13 +12,10 @@ export interface EnvConfig {
   validators?: Record<string, (value: string) => boolean>
 }
 
-const DEFAULT_REQUIRED_VARS = [
-  'VITE_AZURE_CLIENT_ID',
-  'VITE_AZURE_TENANT_ID'
-]
+const DEFAULT_REQUIRED_VARS: string[] = []
 
 const DEFAULT_OPTIONAL_VARS = [
-  'VITE_AZURE_TENANT_SUBDOMAIN',
+  'VITE_API_BASE_URL',
   'VITE_POLYGON_API_KEY',
   'VITE_ENABLE_REAL_TIME_DATA',
   'VITE_ENABLE_MOCK_DATA',
@@ -28,14 +25,6 @@ const DEFAULT_OPTIONAL_VARS = [
 ]
 
 const DEFAULT_VALIDATORS: Record<string, (value: string) => boolean> = {
-  VITE_AZURE_CLIENT_ID: (value) => {
-    // Azure client IDs are GUIDs
-    return value.length >= 32 && value !== 'your-client-id'
-  },
-  VITE_AZURE_TENANT_ID: (value) => {
-    // Tenant IDs are GUIDs
-    return value.length >= 32 && value !== 'your-tenant-id'
-  },
   VITE_POLYGON_API_KEY: (value) => {
     return value.length > 10
   }

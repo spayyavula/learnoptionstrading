@@ -43,10 +43,6 @@ jobs:
       - name: Build frontend
         run: npm run build
         env:
-          # Microsoft Entra External ID (CIAM)
-          VITE_AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_PROD }}
-          VITE_AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_PROD }}
-          VITE_AZURE_TENANT_SUBDOMAIN: ${{ secrets.AZURE_TENANT_SUBDOMAIN_PROD }}
           # API Configuration
           VITE_API_BASE_URL: https://${{ env.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net/api
           VITE_POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
