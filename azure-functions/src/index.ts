@@ -23,4 +23,10 @@ import './functions/subscription/getSubscription';
 import './functions/stripe/createCheckout';
 import './functions/stripe/webhook';
 
+// Auth functions
+import './functions/auth/register';
+import './functions/auth/login';
+import './functions/auth/me';
+import './functions/auth/refresh';
+
 console.log('Azure Functions registered successfully');
