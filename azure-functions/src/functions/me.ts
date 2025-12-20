@@ -1,7 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { query, queryOne } from '../../lib/database';
-import { jsonResponse, handleError } from '../../lib/response';
-import { requireAuth } from '../../lib/auth';
+import { query, queryOne } from '../lib/database';
+import { jsonResponse, handleError } from '../lib/response';
+import { requireAuth } from '../lib/auth';
 
 interface ProfileRow {
   display_name: string | null;
@@ -84,6 +84,14 @@ export async function me(
 }
 
 app.http('me', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'users/me',
+  handler: me,
+});
+
+// Backward-compatible alias route
+app.http('me-legacy', {
   methods: ['GET'],
   authLevel: 'anonymous',
   route: 'auth/me',

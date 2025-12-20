@@ -1,13 +1,13 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { query, queryOne, transaction } from '../../lib/database';
-import { jsonResponse, handleError } from '../../lib/response';
+import { query, queryOne, transaction } from '../lib/database';
+import { jsonResponse, handleError } from '../lib/response';
 import {
   hashPassword,
   generateTokens,
   isValidEmail,
   isValidPassword,
   AuthenticatedUser
-} from '../../lib/auth';
+} from '../lib/auth';
 
 interface RegisterRequest {
   email: string;
@@ -130,6 +130,14 @@ export async function register(
 }
 
 app.http('register', {
+  methods: ['POST'],
+  authLevel: 'anonymous',
+  route: 'users/register',
+  handler: register,
+});
+
+// Backward-compatible alias route
+app.http('register-legacy', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'auth/register',

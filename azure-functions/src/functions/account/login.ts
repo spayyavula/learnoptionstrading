@@ -2,18 +2,21 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import { query, queryOne } from '../../lib/database';
 import { jsonResponse, handleError } from '../../lib/response';
 import {
-  validateRefreshToken,
+  verifyPassword,
   generateTokens,
+  isValidEmail,
   AuthenticatedUser
 } from '../../lib/auth';
 
-interface RefreshRequest {
-  refreshToken: string;
+interface LoginRequest {
+  email: string;
+  password: string;
 }
 
 interface UserRow {
   id: string;
   email: string;
+  password_hash: string | null;
 }
 
 interface ProfileRow {
@@ -25,33 +28,49 @@ interface RoleRow {
   role_key: string;
 }
 
-export async function refresh(
+export async function login(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const body = await request.json() as RefreshRequest;
-    const { refreshToken } = body;
+    const body = await request.json() as LoginRequest;
+    const { email, password } = body;
 
-    if (!refreshToken) {
-      return jsonResponse({ error: 'Refresh token is required' }, 400);
+    // Validate input
+    if (!email || !isValidEmail(email)) {
+      return jsonResponse({ error: 'Invalid email address' }, 400);
     }
 
-    // Validate refresh token
-    const userId = validateRefreshToken(refreshToken);
-    if (!userId) {
-      return jsonResponse({ error: 'Invalid or expired refresh token' }, 401);
+    if (!password) {
+      return jsonResponse({ error: 'Password is required' }, 400);
     }
 
-    // Get user
+    // Find user by email
     const user = await queryOne<UserRow>(
-      'SELECT id, email FROM users WHERE id = $1',
-      [userId]
+      'SELECT id, email, password_hash FROM users WHERE LOWER(email) = LOWER($1)',
+      [email]
     );
 
     if (!user) {
-      return jsonResponse({ error: 'User not found' }, 401);
+      return jsonResponse({ error: 'Invalid email or password' }, 401);
     }
+
+    // Check if user has password (might be OAuth-only user)
+    if (!user.password_hash) {
+      return jsonResponse({ error: 'Please use social login for this account' }, 401);
+    }
+
+    // Verify password
+    const isValidPassword = await verifyPassword(password, user.password_hash);
+    if (!isValidPassword) {
+      return jsonResponse({ error: 'Invalid email or password' }, 401);
+    }
+
+    // Update last login
+    await query(
+      'UPDATE users SET last_login_at = NOW() WHERE id = $1',
+      [user.id]
+    );
 
     // Get user profile
     const profile = await queryOne<ProfileRow>(
@@ -68,8 +87,8 @@ export async function refresh(
       [user.id]
     );
 
-    // Generate new tokens
-    const displayName = profile?.display_name || profile?.full_name || user.email.split('@')[0];
+    // Generate tokens
+    const displayName = profile?.display_name || profile?.full_name || email.split('@')[0];
     const authenticatedUser: AuthenticatedUser = {
       userId: user.id,
       email: user.email,
@@ -89,14 +108,14 @@ export async function refresh(
     });
 
   } catch (error) {
-    context.error('Error refreshing token:', error);
+    context.error('Error logging in:', error);
     return handleError(error);
   }
 }
 
-app.http('refresh', {
+app.http('login', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'auth/refresh',
-  handler: refresh,
+  route: 'users/login',
+  handler: login,
 });

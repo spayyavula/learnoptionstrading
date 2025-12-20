@@ -1,12 +1,12 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
-import { query, queryOne } from '../../lib/database';
-import { jsonResponse, handleError } from '../../lib/response';
+import { query, queryOne } from '../lib/database';
+import { jsonResponse, handleError } from '../lib/response';
 import {
   verifyPassword,
   generateTokens,
   isValidEmail,
   AuthenticatedUser
-} from '../../lib/auth';
+} from '../lib/auth';
 
 interface LoginRequest {
   email: string;
@@ -114,6 +114,14 @@ export async function login(
 }
 
 app.http('login', {
+  methods: ['POST'],
+  authLevel: 'anonymous',
+  route: 'users/login',
+  handler: login,
+});
+
+// Backward-compatible alias route
+app.http('login-legacy', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route: 'auth/login',

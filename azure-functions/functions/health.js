@@ -28,4 +28,16 @@ functions_1.app.http('health', {
     route: 'health',
     handler: health,
 });
+// Test endpoint to verify function registration works
+functions_1.app.http('testpingInHealth', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'test/ping',
+    handler: async () => {
+        return {
+            status: 200,
+            jsonBody: { message: 'pong from health.ts' }
+        };
+    },
+});
 //# sourceMappingURL=health.js.map

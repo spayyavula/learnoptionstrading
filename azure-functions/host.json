@@ -23,7 +23,7 @@
       "dynamicThrottlesEnabled": true,
       "hsts": {
         "isEnabled": true,
-        "maxAge": "31536000"
+        "maxAge": "365.00:00:00"
       }
     }
   },
