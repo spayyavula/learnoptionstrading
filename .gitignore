@@ -24,3 +24,6 @@ coverage/
 
 # Local Netlify folder
 .netlify
+
+# Local agent/session state
+.omc/
