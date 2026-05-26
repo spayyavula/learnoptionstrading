@@ -11,8 +11,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { OptionsProvider } from './context/OptionsContext'
 import { TradingProvider } from './context/TradingContext'
 import { OptionsDataProvider } from './context/OptionsDataContext'
-import SubscriptionPage from './pages/SubscriptionPage'
-import Success from './pages/Success'
 import AppLayout from './components/AppLayout'
 import Login from './pages/Login'
 import OptionsChain from './pages/OptionsChain'
@@ -121,8 +119,6 @@ function AppContent() {
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/optionschain" element={<OptionsChain />} />
-              <Route path="/subscription" element={<SubscriptionPage />} />
-              <Route path="/success" element={<Success />} />
               <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
               <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
               <Route path="/DisclaimerDetailed" element={<DisclaimerDetailed />} />
@@ -150,7 +146,6 @@ function AppContent() {
                 <Route path="settings" element={<Settings />} />
                 <Route path="data" element={<OptionsDataManager />} />
                 <Route path="construction" element={<Construction />} />
-                <Route path="subscription" element={<SubscriptionPage />} />
                 <Route path="profile" element={<UserProfile />} />
                 <Route path="events" element={<EventOptionsAnalysis />} />
                 <Route path="sentiment" element={<SentimentAnalysis />} />

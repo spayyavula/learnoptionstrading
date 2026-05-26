@@ -146,14 +146,6 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Subscription -->
-  <url>
-    <loc>https://learnoptionstrading.academy/subscription</loc>
-    <lastmod>2025-10-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
   <!-- Legal Pages -->
   <url>
     <loc>https://learnoptionstrading.academy/PrivacyPolicy</loc>

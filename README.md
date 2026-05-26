@@ -1,45 +1,31 @@
-# Paper Trading Platform with Options Trading
+# Options Academy — Learning Project
 
-A comprehensive paper trading platform built with React, TypeScript, and Vite, featuring both stock and options trading simulation with Polygon.io integration and Supabase for data persistence.
+A personal learning project for exploring options trading concepts hands-on. Built with React, TypeScript, and Vite, with Polygon.io for market data and Supabase for optional persistence.
 
-## 🚀 Features
+> **This is not a paid service, not a SaaS, and not financial advice.** It exists as a sandbox for the author to learn options pricing, Greeks, paper trading mechanics, and related domain concepts. You're welcome to read the code or run it locally — there is nothing to subscribe to.
 
-### Stock Trading
-- Real-time stock price simulation
-- Portfolio management and tracking
-- Order management (Market, Limit, Stop orders)
-- Watchlist functionality
-- Advanced analytics and charts
-- Risk management tools
+## What's in here
 
-### Options Trading
-- Top 5 most liquid options contracts simulation
-- Complete options chain with Greeks (Delta, Gamma, Theta, Vega)
-- Implied volatility tracking
-- Historical data (2 weeks) for each option
-- Buy/Sell to Open/Close functionality
-- Real-time P&L tracking
-- Options portfolio analysis
+### Paper trading
+- Options chain with Greeks (Delta, Gamma, Theta, Vega) and implied volatility
+- Buy/Sell to Open/Close simulation against simulated or live prices
+- Portfolio and P&L tracking, position analysis
+- Stock and watchlist tooling alongside the options surface
 
-### Data Integration
-- Polygon.io API integration for real market data
-- TradingView charts integration for advanced technical analysis
-- **Community integration with Slack, Discord, Telegram, WhatsApp, and Facebook**
-- Fallback to simulated data for development
-- Historical data storage and retrieval
-- Real-time price updates
+### Market data
+- Polygon.io for live data when an API key is provided
+- TradingView widgets for charting
+- Simulated fallback data when no key is present
 
-### Subscription System
-- Subscription management with Stripe integration
-- Coupon system for discounts and promotions
-- Subscription status tracking
-- Terms and conditions acceptance flow
+### Learning surface
+- Educational modules, strategy library, journal, regime/sentiment analysis pages
+- All UI is local — no payments anywhere in the app
 
-### Error Handling & Testing
-- Enhanced error logging and display
-- Error boundary for graceful error handling
-- Testing tools for subscription and E2E tests
-- Comprehensive test suite for all major features
+### Stack notes
+- React 18 + TypeScript + Vite + Tailwind
+- React Router for routing, Recharts for plots
+- Supabase auth/persistence (optional)
+- Playwright + Vitest for testing
 
 ## 🛠️ Setup
 
@@ -63,12 +49,9 @@ npm install
 # For real Polygon.io data, add your API key:
 VITE_POLYGON_API_KEY=your_actual_api_key_here
 
-# For Supabase integration:
+# For Supabase integration (optional):
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# For Stripe integration:
-VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```
 
 **📖 For detailed setup instructions on enabling live options data, see [LIVE_DATA_SETUP.md](./LIVE_DATA_SETUP.md)**
@@ -258,7 +241,6 @@ npm run test:e2e
 npm run test:e2e:ui
 
 # Run specific test files
-npx playwright test tests/subscription.spec.ts
 npx playwright test tests/options-trading.spec.ts
 ```
 
@@ -290,7 +272,6 @@ npx playwright test tests/options-portfolio.spec.ts
 - Order placement and management
 - Mobile responsiveness
 - Data persistence
-- Subscription and payment flows
 - Error handling and recovery
 
 ## 📊 Options Trading Features
@@ -333,13 +314,6 @@ npx playwright test tests/options-portfolio.spec.ts
 - **Sell to Open**: Enter new short positions (coming soon)
 - **Buy to Close**: Close existing short positions (coming soon)
 
-### Subscription Features
-- **Tiered Plans**: Monthly and yearly subscription options
-- **Coupon System**: Apply discount codes at checkout
-- **Special Deals**: Limited-time offers with automatic discounts
-- **Secure Checkout**: Powered by Stripe
-- **Subscription Management**: View and manage subscription status
-
 ## 🏗️ Architecture
 
 ### Project Structure
@@ -364,7 +338,6 @@ src/
 - **Playwright** - E2E testing
 - **Polygon.io** - Market data API
 - **Supabase** - Database and authentication
-- **Stripe** - Payment processing
 - **Tailwind CSS** - Utility-first CSS framework
 
 ## 🔧 Development
@@ -402,17 +375,6 @@ To use Supabase for data persistence:
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_ENABLE_DATA_PERSISTENCE=true
-```
-
-### Setting Up Stripe Integration
-To enable subscription features:
-1. Create a Stripe account at [Stripe](https://stripe.com)
-2. Create products and prices in the Stripe dashboard
-3. Update your `.env` file:
-```bash
-VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-VITE_STRIPE_MONTHLY_PRICE_ID=your_monthly_price_id
-VITE_STRIPE_YEARLY_PRICE_ID=your_yearly_price_id
 ```
 
 ## 📱 Mobile Support

@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import { Save, RefreshCw, Download, Upload, AlertTriangle, Database, Activity, CreditCard } from 'lucide-react'
+import { Save, RefreshCw, Download, Upload, AlertTriangle, Database, Activity } from 'lucide-react'
 import { useTradingContext } from '../context/TradingContext'
-import { StripeService } from '../services/stripeService'
 import { ConstantContactService } from '../services/constantContactService'
 import PageViewCounter from './PageViewCounter'
-import SubscriptionStatus from '../components/SubscriptionStatus'
 
 export default function Settings() {
   const { state } = useTradingContext()
@@ -149,46 +147,6 @@ export default function Settings() {
 
   return (
     <div className="space-y-6">
-      {/* Subscription Status */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="text-lg font-medium text-gray-900">Subscription Status</h3>
-        </div>
-        <div className="card-body">
-          <div className="space-y-4">
-            <SubscriptionStatus />
-            
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start">
-                <CreditCard className="h-5 w-5 text-blue-600 mt-0.5 mr-2" />
-                <div>
-                  <h4 className="font-medium text-blue-800">Subscription Management</h4>
-                  <p className="text-sm text-blue-700 mt-1">
-                    You can manage your subscription, update payment methods, or cancel at any time from the Stripe customer portal.
-                  </p>
-                  <div className="mt-3">
-                    <button 
-                      onClick={() => {
-                        const subscription = StripeService.getSubscriptionStatus();
-                        if (subscription.active && subscription.subscription?.customer_id) {
-                          StripeService.createCustomerPortalSession(subscription.subscription.customer_id)
-                            .then(url => window.open(url, '_blank'));
-                        } else {
-                          window.location.href = '/pricing';
-                        }
-                      }}
-                      className="btn btn-primary text-sm"
-                    >
-                      Manage Subscription
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Account Overview */}
       <div className="card">
         <div className="card-header">

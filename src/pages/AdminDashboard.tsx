@@ -35,8 +35,6 @@ interface User {
   last_sign_in_at: string | null;
   role: UserRole;
   status: 'active' | 'suspended' | 'pending';
-  subscription_status?: string;
-  subscription_plan?: string;
 }
 
 // Audit log entry interface
@@ -55,7 +53,6 @@ interface AuditLogEntry {
 interface SystemStats {
   total_users: number;
   active_users_today: number;
-  active_subscriptions: number;
   total_logins_today: number;
   average_session_time: number;
 }
@@ -85,7 +82,6 @@ const AdminDashboard: React.FC = () => {
   const [systemStats, setSystemStats] = useState<SystemStats>({
     total_users: 0,
     active_users_today: 0,
-    active_subscriptions: 0,
     total_logins_today: 0,
     average_session_time: 0
   });
@@ -137,9 +133,7 @@ const AdminDashboard: React.FC = () => {
             created_at: '2023-01-01T00:00:00.000Z',
             last_sign_in_at: '2023-06-15T10:30:00.000Z',
             role: 'admin',
-            status: 'active',
-            subscription_status: 'active',
-            subscription_plan: 'Enterprise'
+            status: 'active'
           },
           {
             id: '2',
@@ -147,9 +141,7 @@ const AdminDashboard: React.FC = () => {
             created_at: '2023-02-15T00:00:00.000Z',
             last_sign_in_at: '2023-06-14T14:20:00.000Z',
             role: 'manager',
-            status: 'active',
-            subscription_status: 'active',
-            subscription_plan: 'Pro'
+            status: 'active'
           },
           {
             id: '3',
@@ -157,9 +149,7 @@ const AdminDashboard: React.FC = () => {
             created_at: '2023-03-10T00:00:00.000Z',
             last_sign_in_at: '2023-06-10T09:15:00.000Z',
             role: 'user',
-            status: 'active',
-            subscription_status: 'active',
-            subscription_plan: 'Basic'
+            status: 'active'
           },
           {
             id: '4',
@@ -167,9 +157,7 @@ const AdminDashboard: React.FC = () => {
             created_at: '2023-04-05T00:00:00.000Z',
             last_sign_in_at: null,
             role: 'user',
-            status: 'pending',
-            subscription_status: null,
-            subscription_plan: null
+            status: 'pending'
           },
           {
             id: '5',
@@ -177,9 +165,7 @@ const AdminDashboard: React.FC = () => {
             created_at: '2023-05-20T00:00:00.000Z',
             last_sign_in_at: '2023-05-25T16:45:00.000Z',
             role: 'user',
-            status: 'suspended',
-            subscription_status: 'canceled',
-            subscription_plan: 'Basic'
+            status: 'suspended'
           }
         ];
         
@@ -200,34 +186,22 @@ const AdminDashboard: React.FC = () => {
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
-      
+
       if (rolesError) {
         throw rolesError;
       }
-      
-      // Fetch subscription data
-      const { data: subscriptions, error: subError } = await supabase
-        .from('subscriptions')
-        .select('*');
-      
-      if (subError) {
-        throw subError;
-      }
-      
+
       // Combine data
       const combinedUsers = authUsers.users.map(user => {
         const userRole = userRoles?.find(role => role.user_id === user.id);
-        const subscription = subscriptions?.find(sub => sub.user_id === user.id);
-        
+
         return {
           id: user.id,
           email: user.email || '',
           created_at: user.created_at,
           last_sign_in_at: user.last_sign_in_at,
           role: (userRole?.role as UserRole) || 'user',
-          status: (userRole?.status as 'active' | 'suspended' | 'pending') || 'active',
-          subscription_status: subscription?.status,
-          subscription_plan: subscription?.plan_name
+          status: (userRole?.status as 'active' | 'suspended' | 'pending') || 'active'
         };
       });
       
@@ -330,7 +304,6 @@ const AdminDashboard: React.FC = () => {
         setSystemStats({
           total_users: 5,
           active_users_today: 3,
-          active_subscriptions: 3,
           total_logins_today: 8,
           average_session_time: 25
         });
@@ -352,13 +325,7 @@ const AdminDashboard: React.FC = () => {
         .select('*', { count: 'exact', head: true })
         .eq('action', 'login')
         .gte('created_at', `${today}T00:00:00.000Z`);
-      
-      // Count active subscriptions
-      const { count: activeSubscriptions } = await supabase
-        .from('subscriptions')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
-      
+
       // Count total logins today
       const { count: totalLogins } = await supabase
         .from('audit_logs')
@@ -372,7 +339,6 @@ const AdminDashboard: React.FC = () => {
       setSystemStats({
         total_users: totalUsers || 0,
         active_users_today: activeUsers || 0,
-        active_subscriptions: activeSubscriptions || 0,
         total_logins_today: totalLogins || 0,
         average_session_time: averageSessionTime
       });
@@ -952,11 +918,6 @@ const AdminDashboard: React.FC = () => {
                             >
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                                {user.subscription_plan && (
-                                  <div className="text-xs text-gray-500">
-                                    {user.subscription_plan} Plan
-                                  </div>
-                                )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeClass(user.role)}`}>
@@ -1201,16 +1162,6 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium text-gray-500">Subscription</h4>
-                        <p className="text-base font-medium text-gray-900">
-                          {selectedUser.subscription_plan 
-                            ? `${selectedUser.subscription_plan} (${selectedUser.subscription_status})` 
-                            : 'No active subscription'
-                          }
-                        </p>
-                      </div>
-                      
-                      <div>
                         <h4 className="text-sm font-medium text-gray-500">Created</h4>
                         <p className="text-base font-medium text-gray-900">
                           {formatDate(selectedUser.created_at)}
@@ -1394,7 +1345,7 @@ const AdminDashboard: React.FC = () => {
       {activeTab === 'stats' && (
         <div className="space-y-6">
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md hover:shadow-lg transition-shadow">
               <div className="card-body">
                 <div className="flex items-center">
@@ -1418,20 +1369,6 @@ const AdminDashboard: React.FC = () => {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-500">Active Today</p>
                     <p className="text-3xl font-bold text-gray-900">{systemStats.active_users_today}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md hover:shadow-lg transition-shadow">
-              <div className="card-body">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <ShieldCheck className="h-10 w-10 text-purple-600" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Subscriptions</p>
-                    <p className="text-3xl font-bold text-gray-900">{systemStats.active_subscriptions}</p>
                   </div>
                 </div>
               </div>
@@ -1521,14 +1458,6 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex items-center">
                       <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
                       <span className="text-sm font-medium">Storage</span>
-                    </div>
-                    <span className="text-green-600 text-sm">Operational</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-sm font-medium">Payment Processing</span>
                     </div>
                     <span className="text-green-600 text-sm">Operational</span>
                   </div>

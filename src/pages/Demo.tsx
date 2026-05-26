@@ -45,8 +45,7 @@ export default function Demo() {
                   <div className="md:w-1/2 mb-6 md:mb-0 md:pr-12 md:text-right">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">1. Landing Page</h3>
                     <p className="text-gray-600">
-                      Start your journey with our feature-rich landing page showcasing platform capabilities, 
-                      pricing plans, and special deals.
+                      Start your journey with the landing page covering platform capabilities.
                     </p>
                     <Link to="/" className="inline-flex items-center text-blue-600 font-medium mt-2 hover:text-blue-700">
                       Visit Landing Page
@@ -59,9 +58,7 @@ export default function Demo() {
                       <div className="font-medium text-gray-900 mb-1">Key Features:</div>
                       <ul className="text-sm text-gray-600 space-y-1">
                         <li>• Platform overview and benefits</li>
-                        <li>• Subscription plans and pricing</li>
-                        <li>• Special deals and promotions</li>
-                        <li>• Newsletter signup</li>
+                        <li>• Direct entry to the app</li>
                       </ul>
                     </div>
                   </div>

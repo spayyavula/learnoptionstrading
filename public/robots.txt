@@ -6,7 +6,6 @@ Allow: /
 Allow: /app/learning
 Allow: /app/strategies
 Allow: /app/demo
-Allow: /subscription
 Allow: /PrivacyPolicy
 Allow: /TermsAndConditions
 Allow: /DisclaimerDetailed
@@ -15,7 +14,6 @@ Allow: /DisclaimerDetailed
 Disallow: /app/settings
 Disallow: /app/profile
 Disallow: /app/admin
-Disallow: /success
 Disallow: /app/construction
 
 # Disallow search result pages and API endpoints

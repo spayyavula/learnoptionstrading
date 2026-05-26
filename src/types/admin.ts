@@ -10,8 +10,6 @@ export interface AdminUser {
   last_sign_in_at: string | null;
   role: UserRole;
   status: UserStatus;
-  subscription_status?: string;
-  subscription_plan?: string;
 }
 
 export interface AuditLogEntry {
@@ -28,7 +26,6 @@ export interface AuditLogEntry {
 export interface SystemStats {
   total_users: number;
   active_users_today: number;
-  active_subscriptions: number;
   total_logins_today: number;
   average_session_time: number;
 }
@@ -66,18 +63,15 @@ export const DEFAULT_PERMISSIONS: RolePermissions = {
     { resource: 'users', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'roles', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'logs', actions: ['read', 'export'] },
-    { resource: 'settings', actions: ['read', 'update'] },
-    { resource: 'subscriptions', actions: ['read', 'update', 'cancel'] }
+    { resource: 'settings', actions: ['read', 'update'] }
   ],
   manager: [
     { resource: 'users', actions: ['read', 'update'] },
     { resource: 'logs', actions: ['read'] },
-    { resource: 'settings', actions: ['read'] },
-    { resource: 'subscriptions', actions: ['read'] }
+    { resource: 'settings', actions: ['read'] }
   ],
   user: [
-    { resource: 'profile', actions: ['read', 'update'] },
-    { resource: 'subscription', actions: ['read'] }
+    { resource: 'profile', actions: ['read', 'update'] }
   ]
 };
 

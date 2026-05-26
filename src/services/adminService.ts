@@ -30,34 +30,22 @@ export class AdminService {
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
-      
+
       if (rolesError) {
         throw rolesError;
       }
-      
-      // Fetch subscription data
-      const { data: subscriptions, error: subError } = await supabase
-        .from('subscriptions')
-        .select('*');
-      
-      if (subError) {
-        throw subError;
-      }
-      
+
       // Combine data
       const users = authUsers.users.map(user => {
         const userRole = userRoles?.find(role => role.user_id === user.id);
-        const subscription = subscriptions?.find(sub => sub.user_id === user.id);
-        
+
         return {
           id: user.id,
           email: user.email || '',
           created_at: user.created_at,
           last_sign_in_at: user.last_sign_in_at,
           role: (userRole?.role as UserRole) || 'user',
-          status: (userRole?.status as UserStatus) || 'active',
-          subscription_status: subscription?.status,
-          subscription_plan: subscription?.plan_name
+          status: (userRole?.status as UserStatus) || 'active'
         };
       });
       
@@ -336,7 +324,6 @@ export class AdminService {
         return {
           total_users: 5,
           active_users_today: 3,
-          active_subscriptions: 3,
           total_logins_today: 8,
           average_session_time: 25
         };
@@ -355,13 +342,7 @@ export class AdminService {
         .select('*', { count: 'exact', head: true })
         .eq('action', 'login')
         .gte('created_at', `${today}T00:00:00.000Z`);
-      
-      // Count active subscriptions
-      const { count: activeSubscriptions } = await supabase
-        .from('subscriptions')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'active');
-      
+
       // Count total logins today
       const { count: totalLogins } = await supabase
         .from('audit_logs')
@@ -375,7 +356,6 @@ export class AdminService {
       return {
         total_users: totalUsers || 0,
         active_users_today: activeUsers || 0,
-        active_subscriptions: activeSubscriptions || 0,
         total_logins_today: totalLogins || 0,
         average_session_time: averageSessionTime
       };
@@ -527,9 +507,7 @@ export class AdminService {
         created_at: '2023-01-01T00:00:00.000Z',
         last_sign_in_at: '2023-06-15T10:30:00.000Z',
         role: 'admin',
-        status: 'active',
-        subscription_status: 'active',
-        subscription_plan: 'Enterprise'
+        status: 'active'
       },
       {
         id: '2',
@@ -537,9 +515,7 @@ export class AdminService {
         created_at: '2023-02-15T00:00:00.000Z',
         last_sign_in_at: '2023-06-14T14:20:00.000Z',
         role: 'manager',
-        status: 'active',
-        subscription_status: 'active',
-        subscription_plan: 'Pro'
+        status: 'active'
       },
       {
         id: '3',
@@ -547,9 +523,7 @@ export class AdminService {
         created_at: '2023-03-10T00:00:00.000Z',
         last_sign_in_at: '2023-06-10T09:15:00.000Z',
         role: 'user',
-        status: 'active',
-        subscription_status: 'active',
-        subscription_plan: 'Basic'
+        status: 'active'
       },
       {
         id: '4',
@@ -557,9 +531,7 @@ export class AdminService {
         created_at: '2023-04-05T00:00:00.000Z',
         last_sign_in_at: null,
         role: 'user',
-        status: 'pending',
-        subscription_status: null,
-        subscription_plan: null
+        status: 'pending'
       },
       {
         id: '5',
@@ -567,9 +539,7 @@ export class AdminService {
         created_at: '2023-05-20T00:00:00.000Z',
         last_sign_in_at: '2023-05-25T16:45:00.000Z',
         role: 'user',
-        status: 'suspended',
-        subscription_status: 'canceled',
-        subscription_plan: 'Basic'
+        status: 'suspended'
       }
     ];
   }

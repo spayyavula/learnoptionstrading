@@ -1,6 +1,3 @@
-import { StripeService } from '../services/stripeService'
-import { JsonDebugger } from './jsonDebugger'
-
 // Simple, clean diagnostic tool with no errors
 export interface DiagnosticResult {
   status: 'success' | 'error' | 'warning'
@@ -61,10 +58,6 @@ export function runDiagnostic(): DiagnosticResult {
       })
     }
     
-    // Stripe configuration check
-    const stripeCheck = checkStripeConfig()
-    result.checks.push(stripeCheck)
-    
     // Determine overall status
     const hasErrors = result.checks.some(check => check.status === 'failed')
     const hasWarnings = result.checks.some(check => check.status === 'warning')
@@ -86,45 +79,6 @@ export function runDiagnostic(): DiagnosticResult {
     result.errors.push(error instanceof Error ? error.message : 'Unknown diagnostic error')
     
     return result
-  }
-}
-
-function checkStripeConfig(): DiagnosticCheck {
-  try {
-    const hasPublishableKey = !!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-    const hasPaymentLinks = !!(
-      import.meta.env.VITE_STRIPE_MONTHLY_PAYMENT_LINK &&
-      import.meta.env.VITE_STRIPE_YEARLY_PAYMENT_LINK
-    )
-    
-    if (hasPublishableKey && hasPaymentLinks) {
-      return {
-        name: 'Stripe Configuration',
-        status: 'passed',
-        message: 'Stripe keys and payment links configured'
-      }
-    }
-    
-    if (hasPaymentLinks) {
-      return {
-        name: 'Stripe Configuration',
-        status: 'warning',
-        message: 'Payment links configured, publishable key missing'
-      }
-    }
-    
-    return {
-      name: 'Stripe Configuration',
-      status: 'warning',
-      message: 'Stripe not configured - using development mode'
-    }
-    
-  } catch (error) {
-    return {
-      name: 'Stripe Configuration',
-      status: 'failed',
-      message: 'Stripe configuration check failed'
-    }
   }
 }
 

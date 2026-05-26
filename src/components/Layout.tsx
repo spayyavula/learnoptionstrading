@@ -2,12 +2,11 @@ import React, { useMemo, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   BarChart3, Briefcase, TrendingUp, FileText, PieChart,
-  Settings, Users, Menu, X, BookOpen, Lightbulb, CreditCard,
+  Settings, Users, Menu, X, BookOpen, Lightbulb,
   Calculator, Bot, AlertTriangle, ChevronDown, ChevronRight,
   ShieldCheck, UserCircle, LogOut, User
  } from 'lucide-react'
 import Disclaimer from './Disclaimer'
-import SubscriptionBanner from './SubscriptionBanner'
 import BottomNavigation from './BottomNavigation'
 import InnovativeFAB from './InnovativeFAB'
 import { useAuth } from './AuthProvider'
@@ -412,10 +411,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Page content */}
         <main className="py-6 min-h-[calc(100vh-4rem)]">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"> 
-            {/* Persistent mini disclaimer for trading pages */}
-            <SubscriptionBanner className="mb-4" />
-            
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-blue-700 flex items-start gap-2">
               <BookOpen className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
               <p className="flex-1">
