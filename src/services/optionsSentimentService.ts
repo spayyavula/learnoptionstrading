@@ -337,23 +337,34 @@ export class OptionsSentimentService {
     return emojis[trend] || '📊'
   }
 
+  /**
+   * Returns a descriptive sentence about the current sentiment signal.
+   *
+   * Intentionally NOT a recommendation. Saalr's public commitment:
+   *   - No "AI says buy" outputs.
+   *   - No prescriptive trading guidance.
+   *   - This text describes what the model observed, not what the user should do.
+   *
+   * Function name retained for backward compatibility; semantics changed to
+   * descriptive only. Callers should treat this output as context, not a signal.
+   */
   static getSentimentRecommendation(score: OptionsSentimentScore): string {
     if (score.overall_sentiment_score > 50 && score.sentiment_trend === 'rising') {
-      return 'Strong bullish sentiment with positive momentum. Consider call options.'
+      return 'Recent news sentiment is strongly positive and trending higher.'
     }
     if (score.overall_sentiment_score < -50 && score.sentiment_trend === 'falling') {
-      return 'Strong bearish sentiment with negative momentum. Consider put options.'
+      return 'Recent news sentiment is strongly negative and trending lower.'
     }
     if (Math.abs(score.sentiment_momentum) > 20) {
-      return 'High sentiment volatility detected. Monitor for trading opportunities.'
+      return 'Sentiment is moving sharply; recent news flow has changed in tone.'
     }
     if (score.overall_sentiment_score > 15 && score.sentiment_trend !== 'falling') {
-      return 'Moderately positive sentiment. Favorable for bullish strategies.'
+      return 'Recent news sentiment is moderately positive.'
     }
     if (score.overall_sentiment_score < -15 && score.sentiment_trend !== 'rising') {
-      return 'Moderately negative sentiment. Favorable for bearish strategies.'
+      return 'Recent news sentiment is moderately negative.'
     }
-    return 'Neutral sentiment. Consider waiting for clearer directional signals.'
+    return 'Recent news sentiment is mixed.'
   }
 
   static async syncAllSentiments(): Promise<void> {

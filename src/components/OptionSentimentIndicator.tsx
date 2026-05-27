@@ -174,9 +174,14 @@ export function OptionSentimentIndicator({
       <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
         <div className="flex items-start gap-2">
           <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            {OptionsSentimentService.getSentimentRecommendation(sentiment)}
-          </p>
+          <div className="text-xs">
+            <p className="text-gray-700 dark:text-gray-300">
+              {OptionsSentimentService.getSentimentRecommendation(sentiment)}
+            </p>
+            <p className="text-gray-500 dark:text-gray-500 italic mt-1">
+              Descriptive only. Not a trade recommendation.
+            </p>
+          </div>
         </div>
       </div>
 
