@@ -18,5 +18,5 @@ coverage/
 .omc/
 
 # Private fundraising / business documents — do not commit
-SAALR_DECK_DRAFT.md
+SAALR_*.md
 *_DECK_DRAFT.md
