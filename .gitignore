@@ -17,6 +17,6 @@ coverage/
 # Local agent/session state
 .omc/
 
-# Private fundraising / business documents — do not commit
-SAALR_*.md
+# Private fundraising / business documents and research drafts — do not commit
+SAALR_*
 *_DECK_DRAFT.md
